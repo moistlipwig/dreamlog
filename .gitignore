@@ -22,3 +22,19 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Ignore IntelliJ IDEA project files and folders
+**/.idea/
+*.iml
+out/
+
+# Ignore Gradle files and folders
+**/.gradle/
+**/build/
+
+# System files
+.DS_Store
+
+# Node/Angular files
+node_modules/
+dist/
