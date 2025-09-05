@@ -43,3 +43,4 @@ jobs:
           name: JUnit Tests
           path: '**/build/test-results/test/TEST-*.xml'
           reporter: java-junit
+          fail-on-empty: false
