@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: dreamlog
+  datasource:
+    url: jdbc:postgresql://localhost:5432/dreamlog
+    username: username
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
