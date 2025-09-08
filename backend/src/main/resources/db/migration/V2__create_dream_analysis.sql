@@ -1,6 +1,6 @@
 CREATE TABLE dream_analysis (
     id UUID PRIMARY KEY,
-    dream_id UUID NOT NULL REFERENCES dream_entry(id),
+    dream_id UUID NOT NULL REFERENCES dream_entry(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL,
     summary VARCHAR(255),
     emotions JSONB,

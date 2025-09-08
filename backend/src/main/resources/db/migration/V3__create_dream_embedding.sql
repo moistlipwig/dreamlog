@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE TABLE dream_embedding (
-    dream_id UUID PRIMARY KEY REFERENCES dream_entry(id),
+    dream_id UUID PRIMARY KEY REFERENCES dream_entry(id) ON DELETE CASCADE,
     vector VECTOR(1536) NOT NULL
 );
