@@ -258,7 +258,7 @@ Każda faza zawiera **cel**, **zakres** oraz **kryteria ukończenia (DoD)**, kt�
 ---
 
 ## 🐳 Docker Compose (skrót)
-- postgres 16
+- postgres 17
 - backend, frontend, ai-service
 - minio
 - prometheus + grafana
