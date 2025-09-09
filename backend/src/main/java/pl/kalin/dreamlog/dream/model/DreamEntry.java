@@ -1,6 +1,8 @@
 package pl.kalin.dreamlog.dream.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,13 +27,17 @@ public class DreamEntry {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @NotNull
     private User user;
 
+    @NotNull
     private LocalDate date;
 
+    @NotBlank
     private String title;
 
     @Column(columnDefinition = "text")
+    @NotBlank
     private String content;
 
     @Enumerated(EnumType.STRING)
