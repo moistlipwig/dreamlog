@@ -2,7 +2,7 @@
 
 ## 🎯 Cel projektu
 Aplikacja do rejestrowania i analizowania snów z naciskiem na naukę realnych technologii:
-**Java 24 (Spring Boot), Angular, OIDC, PostgreSQL (FTS + trigramy), PWA, SSE, gRPC, observability, AI-service.**  
+**Java 21 (Spring Boot), Angular, OIDC, PostgreSQL (FTS + trigramy), PWA, SSE, gRPC, observability, AI-service.**  
 Projekt ma charakter edukacyjno‑rozrywkowy, ale z potencjałem do komercjalizacji.
 
 ---
@@ -10,7 +10,7 @@ Projekt ma charakter edukacyjno‑rozrywkowy, ale z potencjałem do komercjaliza
 ## 🛠️ Stos technologiczny
 
 ### Backend
-- Java **24** + Spring Boot **3.3+**
+- Java **21** + Spring Boot **3.3+**
 - Spring Security (OIDC Client + Resource Server)
 - Spring Web (REST, SSE), gRPC (między usługami)
 - Postgres 15/16 + Flyway, JPA/Hibernate, HikariCP
@@ -195,7 +195,7 @@ Każda faza zawiera **cel**, **zakres** oraz **kryteria ukończenia (DoD)**, kt�
 - Jak integrować zewnętrzne API do generowania treści?  
 - Jak zaprojektować mechanizm limitowania zasobów użytkownika?
 
-### Faza 9 — Nowości Javy 24
+### Faza 9 — Nowości Javy 1
 **Cel:** Wdrożenie nowych funkcji Javy.
 - Virtual Threads, Structured Concurrency, Records, Sealed.  
   **DoD:** Virtual Threads działają w I/O; testy pokazują redukcję użycia wątków.

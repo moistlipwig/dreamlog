@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${DB_USER:-dream}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dream}
+      POSTGRES_DB: ${DB_NAME:-dreamlog}
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME:-dreamlog}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-dream}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-dream}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+    ports:
+      - "8080:8080"
+
+volumes:
+  dbdata:

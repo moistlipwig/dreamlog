@@ -3,8 +3,8 @@ spring:
     name: dreamlog
   datasource:
     url: jdbc:postgresql://localhost:5432/dreamlog
-    username: username
-    password: password
+    username: dream
+    password: dream
   jpa:
     hibernate:
       ddl-auto: validate

@@ -17,7 +17,7 @@
   - Example run: `java -jar backend/build/libs/backend-0.0.1-SNAPSHOT.jar` (version may differ)
 
 ## Coding Style & Naming Conventions
-- Language: Java 24 (Gradle toolchain enforced).
+- Language: Java 21 (Gradle toolchain enforced).
 - Indentation: 4 spaces; UTF-8; Unix line endings.
 - Packages: lowercase (`pl.kalin.dreamlog`); Classes: PascalCase; methods/fields: camelCase; constants: UPPER_SNAKE_CASE.
 - Prefer Lombok for boilerplate (`@Getter`, `@Setter`, `@RequiredArgsConstructor`).
