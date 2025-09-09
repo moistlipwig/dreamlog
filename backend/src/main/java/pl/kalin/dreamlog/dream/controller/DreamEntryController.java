@@ -3,6 +3,7 @@ package pl.kalin.dreamlog.dream.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 import pl.kalin.dreamlog.dream.model.DreamEntry;
 import pl.kalin.dreamlog.dream.repository.DreamEntryRepository;
 
@@ -29,12 +30,12 @@ public class DreamEntryController {
     }
 
     @PostMapping
-    public DreamEntry create(@RequestBody DreamEntry dream) {
+    public DreamEntry create(@Valid @RequestBody DreamEntry dream) {
         return repository.save(dream);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DreamEntry> update(@PathVariable UUID id, @RequestBody DreamEntry dream) {
+    public ResponseEntity<DreamEntry> update(@PathVariable UUID id, @Valid @RequestBody DreamEntry dream) {
         if (!repository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
