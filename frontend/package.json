@@ -1,0 +1,73 @@
+{
+  "name": "dreamlog-frontend",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --proxy-config proxy.conf.json",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "lint": "ng lint",
+    "lint:fix": "eslint 'src/**/*.{ts,html}' --fix",
+    "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
+    "prepare": "husky"
+  },
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,html,scss}": [
+      "prettier --write"
+    ]
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/cdk": "20.2.2",
+    "@angular/common": "^20.2.0",
+    "@angular/compiler": "^20.2.0",
+    "@angular/core": "^20.2.0",
+    "@angular/forms": "^20.2.0",
+    "@angular/material": "20.2.2",
+    "@angular/platform-browser": "^20.2.0",
+    "@angular/router": "^20.2.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.2.2",
+    "@angular/cli": "^20.2.2",
+    "@angular/compiler-cli": "^20.2.0",
+    "@types/jasmine": "~5.1.0",
+    "angular-eslint": "20.2.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-import-resolver-typescript": "4.4.4",
+    "eslint-plugin-import": "2.32.0",
+    "husky": "9.1.7",
+    "jasmine-core": "~5.9.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "lint-staged": "16.1.6",
+    "prettier": "3.6.2",
+    "tailwindcss": "4.1.13",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "8.40.0"
+  }
+}

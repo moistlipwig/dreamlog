@@ -18,7 +18,7 @@ Projekt ma charakter edukacyjno‑rozrywkowy, ale z potencjałem do komercjaliza
 - Testcontainers (Postgres, gRPC)
 
 ### Frontend
-- Angular 18+ (Standalone Components)
+- Angular 20+ (Standalone Components in catalogue ./frontend)
 - Angular Material + TailwindCSS
 - ngx‑charts / ng2‑charts
 - PWA (offline, outbox), SSE wrapper
@@ -43,7 +43,7 @@ Projekt ma charakter edukacyjno‑rozrywkowy, ale z potencjałem do komercjaliza
 
 Każda faza zawiera **cel**, **zakres** oraz **kryteria ukończenia (DoD)**, które jednoznacznie pozwalają przejść do kolejnej.
 
-### Faza 0 — Setup
+### Faza 0 — Setup (in progress)
 **Cel:** Postawić środowisko deweloperskie i CI.
 - Repozytorium, CI/CD (build+test), Docker Compose (Postgres), Spring Boot skeleton (Actuator, Swagger), Angular skeleton (Material+Tailwind).  
   **DoD:** `docker compose up` podnosi bazę; CI testy przechodzą; backend `/actuator/health` = UP; frontend działa lokalnie.
@@ -58,7 +58,7 @@ Każda faza zawiera **cel**, **zakres** oraz **kryteria ukończenia (DoD)**, kt�
 - W jaki sposób Actuator i Swagger pomagają w rozwoju i testowaniu backendu?  
 - Jak zapewnić, że CI poprawnie buduje i testuje projekt?
 
-### Faza 1 — Auth (OIDC + BFF)
+### Faza 1 — Auth (OIDC + BFF) - planned
 **Cel:** Logowanie przez Google OAuth w modelu BFF.
 - Konfiguracja Spring Security + Google, endpoint `/api/me`, Angular guardy, logout.  
   **DoD:** Zalogowany użytkownik ma cookie HttpOnly; `/api/me` zwraca `sub,email,name`; logout działa poprawnie.
