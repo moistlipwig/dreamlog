@@ -21,8 +21,10 @@ module.exports = tseslint.config(
     ],
     languageOptions: {
       parserOptions: {
-        project: true,
-        tsconfigRootDir: __dirname
+        project: ['./tsconfig.eslint.json'],
+        tsconfigRootDir: __dirname,
+        ecmaVersion: 'latest',
+        sourceType: 'module'
       }
     },
     settings: {

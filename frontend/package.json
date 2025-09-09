@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
+    "lint:fix": "eslint 'src/**/*.{ts,html}' --fix",
     "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
     "prepare": "husky"
   },
