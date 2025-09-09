@@ -1,13 +1,10 @@
 package pl.kalin.dreamlog.dream.model;
 
-import com.pgvector.PGvector;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -26,7 +23,4 @@ public class DreamEmbedding {
     @JoinColumn(name = "dream_id")
     private DreamEntry dream;
 
-    @JdbcTypeCode(SqlTypes.OTHER)
-    @Column(columnDefinition = "vector(1536)")
-    private PGvector vector;
 }

@@ -1,2 +1,3 @@
+rootProject.name = 'dreamlog'
 include("backend")
 project(":backend").projectDir = file("backend")
