@@ -52,3 +52,11 @@ jobs:
           path: '**/build/test-results/test/TEST-*.xml'
           reporter: java-junit
           fail-on-empty: false
+          fail-on-error: false
+      - name: Upload HTML test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-html-report
+          path: backend/build/reports/tests/test/
+          if-no-files-found: warn
