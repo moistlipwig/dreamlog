@@ -23,6 +23,7 @@ Projekt ma charakter edukacyjno‑rozrywkowy, ale z potencjałem do komercjaliza
 - ngx‑charts / ng2‑charts
 - PWA (offline, outbox), SSE wrapper
 - State management: Angular serwisy → opcjonalnie @ngrx/component-store
+- Unit tests: Jest + jest-preset-angular
 
 ### Infrastruktura
 - Docker Compose: postgres, backend, ai-service, minio, prometheus, grafana

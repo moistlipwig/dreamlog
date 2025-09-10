@@ -4,6 +4,7 @@ const tseslint = require("typescript-eslint");
 const angular = require("angular-eslint");
 const prettier = require("eslint-config-prettier");
 const importPlugin = require("eslint-plugin-import");
+const jestPlugin = require("eslint-plugin-jest");
 
 module.exports = tseslint.config(
   {
@@ -63,5 +64,9 @@ module.exports = tseslint.config(
     rules: {
       "@angular-eslint/template/no-negated-async": "off"
     },
+  },
+  {
+    files: ["**/*.spec.ts"],
+    extends: [jestPlugin.configs["flat/recommended"]],
   }
 );

@@ -33,7 +33,7 @@ jobs:
         run: npm run lint --if-present
 
       - name: Unit tests
-        run: npm test || true                         # nie blokuj PR na starcie, doprecyzujemy później
+        run: npm run test:ci
 
       - name: Build (prod)
         run: npm run build:prod
