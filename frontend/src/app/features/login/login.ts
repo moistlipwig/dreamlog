@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
   selector: 'app-login',
   imports: [MatButtonModule],
   templateUrl: './login.html',
-  styleUrl: './login.scss',
+  styleUrls: ['./login.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Login {}

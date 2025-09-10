@@ -7,6 +7,6 @@ import { AppShell } from './core/app-shell';
   imports: [AppShell],
   standalone: true,
   template: '<app-app-shell></app-app-shell>',
-  styleUrl: './app.scss'
+  styleUrls: ['./app.scss']
 })
 export class App {}

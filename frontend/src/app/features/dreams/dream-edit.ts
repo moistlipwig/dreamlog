@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule, MatNativeDateModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
+
 import { DreamsService } from '../../core/services/dreams.service';
 
 @Component({
@@ -19,7 +21,7 @@ import { DreamsService } from '../../core/services/dreams.service';
     MatButtonModule
   ],
   templateUrl: './dream-edit.html',
-  styleUrl: './dream-edit.scss',
+  styleUrls: ['./dream-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DreamEdit {
@@ -27,18 +29,22 @@ export class DreamEdit {
   private dreams = inject(DreamsService);
 
   form = this.fb.nonNullable.group({
-    title: ['', Validators.required],
-    content: ['', Validators.required],
-    date: [new Date(), Validators.required],
+    title: ['', Validators.required], // eslint-disable-line @typescript-eslint/unbound-method
+    content: ['', Validators.required], // eslint-disable-line @typescript-eslint/unbound-method
+    date: [new Date(), Validators.required], // eslint-disable-line @typescript-eslint/unbound-method
     tags: [''],
-    mood: [3, Validators.required]
-  });
+    mood: [3, Validators.required] // eslint-disable-line @typescript-eslint/unbound-method
+    });
 
   save() {
     if (this.form.valid) {
-      this.dreams.create(this.form.getRawValue()).subscribe(() => {
-        this.form.markAsPristine();
-      });
+      const value = this.form.getRawValue();
+      const tags = value.tags ? value.tags.split(',').map((t) => t.trim()).filter(Boolean) : [];
+      this.dreams
+        .create({ ...value, date: value.date.toISOString(), tags })
+        .subscribe(() => {
+          this.form.markAsPristine();
+        });
     }
   }
 
