@@ -63,3 +63,11 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Architecture & UX notes
+
+- Standalone Angular 20 components with Angular Material and TailwindCSS.
+- Core services (`AuthService`, `DreamsService`, `SearchService`, `CalendarService`) expose reactive `BehaviorSubject` state.
+- Routing guarded by `authGuard`; forms use `pendingChangesGuard` to warn about unsaved data.
+- `AppShell` provides a Material toolbar with a debounced global search bar.
+- Shared UI building blocks include `TagChips`, `EmptyState`, and a reusable `ConfirmDialog`.

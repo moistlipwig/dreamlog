@@ -12,11 +12,12 @@
     "lint": "ng lint",
     "lint:fix": "eslint 'src/**/*.{ts,html}' --fix",
     "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "e2e": "playwright test"
   },
   "engines": {
-    "node": ">=24 <25",
-    "npm": ">=11"
+    "node": ">=20 <21",
+    "npm": ">=10"
   },
   "lint-staged": {
     "src/**/*.{ts,html,scss}": [
@@ -70,6 +71,7 @@
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.2",
-    "typescript-eslint": "8.40.0"
+    "typescript-eslint": "8.40.0",
+    "@playwright/test": "^1.48.0"
   }
 }

@@ -1,0 +1,9 @@
+<div *ngIf="dream$ | async as dream">
+  <h2 class="text-2xl mb-2">{{ dream.title }}</h2>
+  <div class="text-sm text-gray-500 mb-4">{{ dream.date | date }}</div>
+  <app-tag-chips [tags]="dream.tags"></app-tag-chips>
+  <p class="mt-4 whitespace-pre-line">{{ dream.content }}</p>
+  <div class="mt-6 flex gap-2">
+    <button mat-button [routerLink]="['/dreams', dream.id, 'edit']">Edit</button>
+  </div>
+</div>
