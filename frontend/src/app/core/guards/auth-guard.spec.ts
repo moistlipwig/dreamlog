@@ -10,13 +10,13 @@ describe('authGuard', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: { check: () => of(true) } },
-        { provide: Router, useValue: { navigateByUrl: jasmine.createSpy('navigateByUrl') } }
+        { provide: Router, useValue: { navigateByUrl: () => Promise.resolve(true) } }
       ]
     });
 
-    const result = await firstValueFrom(
-      authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot) as Observable<boolean>
-    );
-    expect(result).toBeTrue();
+      const result = await firstValueFrom(
+        authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot) as Observable<boolean>
+      );
+      expect(result).toBe(true);
   });
 });

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { environment } from '../../../environments/environment';
 
@@ -7,6 +7,7 @@ import { environment } from '../../../environments/environment';
 export type HttpGetOptions = Parameters<HttpClient["get"]>[1];
 export type HttpPostOptions = Parameters<HttpClient["post"]>[2];
 
+@Injectable({ providedIn: 'root' })
 export class ApiHttp {
   private http = inject(HttpClient);
 
