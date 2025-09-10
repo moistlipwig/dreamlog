@@ -10,7 +10,7 @@ import { TagChips } from '../../shared/tag-chips';
   selector: 'app-dream-list',
   imports: [NgFor, AsyncPipe, MatCardModule, RouterLink, TagChips, DatePipe],
   templateUrl: './dream-list.html',
-  styleUrl: './dream-list.scss',
+  styleUrls: ['./dream-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DreamList {

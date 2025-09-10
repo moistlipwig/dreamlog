@@ -11,7 +11,7 @@ import { SearchBar } from './search-bar';
   selector: 'app-app-shell',
   imports: [RouterOutlet, MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule, SearchBar],
   templateUrl: './app-shell.html',
-  styleUrl: './app-shell.scss',
+  styleUrls: ['./app-shell.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppShell {}

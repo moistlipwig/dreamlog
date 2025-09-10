@@ -5,7 +5,7 @@ import { MatChipsModule } from '@angular/material/chips';
   selector: 'app-tag-chips',
   imports: [MatChipsModule],
   templateUrl: './tag-chips.html',
-  styleUrl: './tag-chips.scss',
+  styleUrls: ['./tag-chips.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TagChips {

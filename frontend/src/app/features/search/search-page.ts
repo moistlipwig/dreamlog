@@ -7,7 +7,7 @@ import { SearchService } from '../../core/services/search.service';
   selector: 'app-search-page',
   imports: [AsyncPipe],
   templateUrl: './search-page.html',
-  styleUrl: './search-page.scss',
+  styleUrls: ['./search-page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchPage {

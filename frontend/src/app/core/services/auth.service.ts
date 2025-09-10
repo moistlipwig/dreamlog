@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, map, tap } from 'rxjs';
+
 import { ApiHttp } from '../http/api-http';
 
 export interface User {
@@ -28,7 +29,7 @@ export class AuthService {
     return this.api.post<void>('/logout', {}).pipe(
       tap(() => {
         this.userSubject.next(null);
-        this.router.navigateByUrl('/login');
+        void this.router.navigateByUrl('/login');
       })
     );
   }

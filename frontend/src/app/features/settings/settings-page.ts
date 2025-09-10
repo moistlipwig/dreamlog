@@ -5,7 +5,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
   selector: 'app-settings-page',
   imports: [MatSlideToggleModule],
   templateUrl: './settings-page.html',
-  styleUrl: './settings-page.scss',
+  styleUrls: ['./settings-page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsPage {

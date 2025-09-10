@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
   selector: 'app-confirm-dialog',
   imports: [MatDialogModule, MatButtonModule],
   templateUrl: './confirm-dialog.html',
-  styleUrl: './confirm-dialog.scss',
+  styleUrls: ['./confirm-dialog.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfirmDialog {
