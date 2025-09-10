@@ -1,13 +1,12 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+
+import { AppShell } from './core/app-shell';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [AppShell],
   standalone: true,
-  templateUrl: './app.html',
+  template: '<app-app-shell></app-app-shell>',
   styleUrl: './app.scss'
 })
-export class App {
-  protected readonly title = signal('dreamlog-frontend');
-}
+export class App {}
