@@ -1,5 +1,5 @@
 export interface Dream {
-  id: number;
+  id: string; // UUID
   title: string;
   content: string;
   date: string; // ISO

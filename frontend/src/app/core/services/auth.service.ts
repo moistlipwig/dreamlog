@@ -5,7 +5,7 @@ import { BehaviorSubject, map, tap } from 'rxjs';
 import { ApiHttp } from '../http/api-http';
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
 }
