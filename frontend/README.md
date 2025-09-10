@@ -2,6 +2,8 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.2.
 
+Requires Node.js 20.19.0, 22.12.0, or 24.x to match Angular's supported engines.
+
 ## Development server
 
 To start a local development server, run:
@@ -50,16 +52,18 @@ For continuous integration run:
 npm run test:ci
 ```
 
-## Running end-to-end tests
+## End-to-end tests
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+End-to-end (e2e) tests are maintained in a dedicated project outside this frontend codebase.
 
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Architecture & UX notes
+
+- Standalone Angular 20 components with Angular Material and TailwindCSS.
+- Core services (`AuthService`, `DreamsService`, `SearchService`, `CalendarService`) expose reactive `BehaviorSubject` state.
+- Routing guarded by `authGuard`; forms use `pendingChangesGuard` to warn about unsaved data.
+- `AppShell` provides a Material toolbar with a debounced global search bar.
+- Shared UI building blocks include `TagChips`, `EmptyState`, and a reusable `ConfirmDialog`.

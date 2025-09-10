@@ -1,0 +1,10 @@
+<div *ngFor="let dream of dreams$ | async">
+  <mat-card class="mb-4" [routerLink]="['/dreams', dream.id]">
+    <mat-card-title>{{ dream.title }}</mat-card-title>
+    <mat-card-subtitle>{{ dream.date | date }}</mat-card-subtitle>
+    <mat-card-content>
+      <p>{{ dream.content | slice:0:100 }}...</p>
+      <app-tag-chips [tags]="dream.tags"></app-tag-chips>
+    </mat-card-content>
+  </mat-card>
+</div>
