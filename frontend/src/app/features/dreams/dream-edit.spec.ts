@@ -17,8 +17,8 @@ describe('DreamEdit', () => {
   });
 
   it('should create form with controls', () => {
-    const fixture = TestBed.createComponent(DreamEdit);
-    const component = fixture.componentInstance;
-    expect(component.form.contains('title')).toBeTrue();
+      const fixture = TestBed.createComponent(DreamEdit);
+      const component = fixture.componentInstance;
+      expect(component.form.contains('title')).toBe(true);
+    });
   });
-});
