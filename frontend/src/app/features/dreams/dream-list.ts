@@ -1,4 +1,4 @@
-import { AsyncPipe, DatePipe, NgFor } from '@angular/common';
+import { AsyncPipe, CommonModule, DatePipe, NgFor } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
@@ -8,7 +8,7 @@ import { TagChips } from '../../shared/tag-chips';
 
 @Component({
   selector: 'app-dream-list',
-  imports: [NgFor, AsyncPipe, MatCardModule, RouterLink, TagChips, DatePipe],
+  imports: [NgFor, AsyncPipe, MatCardModule, RouterLink, TagChips, DatePipe, CommonModule],
   templateUrl: './dream-list.html',
   styleUrls: ['./dream-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

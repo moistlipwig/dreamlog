@@ -1,4 +1,4 @@
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -9,7 +9,7 @@ import { TagChips } from '../../shared/tag-chips';
 
 @Component({
   selector: 'app-dream-detail',
-  imports: [AsyncPipe, MatButtonModule, RouterLink, TagChips],
+  imports: [AsyncPipe, MatButtonModule, RouterLink, TagChips, CommonModule],
   templateUrl: './dream-detail.html',
   styleUrls: ['./dream-detail.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

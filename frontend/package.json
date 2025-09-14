@@ -6,12 +6,14 @@
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "build:prod": "ng build --configuration production",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "watch": "ng build --watch --configuration development",
     "test": "jest",
     "test:ci": "jest --runInBand --ci",
     "lint": "ng lint",
     "lint:fix": "eslint 'src/**/*.{ts,html}' --fix",
     "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
+    "verify": "npm run typecheck && npm run build:prod && npm run test:ci",
     "prepare": "husky"
   },
   "engines": {

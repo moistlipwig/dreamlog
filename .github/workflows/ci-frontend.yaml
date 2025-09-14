@@ -22,24 +22,15 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version-file: 'frontend/.nvmrc'                 # trzymamy Node 24
+          node-version-file: 'frontend/.nvmrc'
           cache: 'npm'
           cache-dependency-path: 'frontend/package-lock.json'
 
       - name: Install
-        run: npm ci                                   # szybciej i deterministycznie niż 'npm i'
+        run: npm ci
 
       - name: Lint
         run: npm run lint --if-present
 
-      - name: Unit tests
-        run: npm run test:ci
-
-      - name: Build (prod)
-        run: npm run build:prod
-
-      - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: frontend/dist/
+      - name: Build and verify
+        run: npm run verify
