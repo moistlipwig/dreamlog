@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { DreamList } from './dream-list';
@@ -11,6 +12,7 @@ describe('DreamList', () => {
       imports: [DreamList],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         {
           provide: DreamsService,
           useValue: {

@@ -14,9 +14,11 @@ describe('authGuard', () => {
       ]
     });
 
-      const result = await firstValueFrom(
+    const result = await TestBed.runInInjectionContext(() =>
+      firstValueFrom(
         authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot) as Observable<boolean>
-      );
-      expect(result).toBe(true);
+      )
+    );
+    expect(result).toBe(true);
   });
 });
