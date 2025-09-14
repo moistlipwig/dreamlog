@@ -1,65 +1,12 @@
 # DreamlogFrontend
+## UX Guidelines
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.2.
-
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-Unit tests are executed with [Jest](https://jestjs.io/). To run them locally, use:
-
-```bash
-npm test
-```
-
-For continuous integration run:
-
-```bash
-npm run test:ci
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- Use Angular Material 20 (Material 3 theming) for all UI components.
+- Use TailwindCSS 3.4+ for layout and spacing utilities.
+- Color palette: primary indigo-600, secondary violet-500, background slate-50, surface white.
+- Typography: Inter font; body text 16px, headings 20–32px.
+- Spacing scale: 4, 8, 12, 16, 24, 32 px increments.
+- Components must be responsive: single-column on mobile, multi-column on larger screens.
+- Use `<a mat-flat-button>` for navigation links and `<button mat-flat-button>` for actions.
+- Apply subtle animations (150–200ms) in line with Material motion guidelines.
+- Ensure accessibility: WCAG AA contrast, proper aria-labels, and visible focus states.
