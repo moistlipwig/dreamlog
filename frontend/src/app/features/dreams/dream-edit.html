@@ -1,32 +1,34 @@
-<form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4">
-  <mat-form-field>
-    <mat-label>Title</mat-label>
-    <input matInput formControlName="title" />
-  </mat-form-field>
+<mat-card class="max-w-2xl mx-auto p-4 md:p-6">
+  <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4">
+    <mat-form-field>
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" />
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Date</mat-label>
-    <input matInput [matDatepicker]="picker" formControlName="date" />
-    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-datepicker #picker></mat-datepicker>
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>Date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="date" />
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Tags (comma separated)</mat-label>
-    <input matInput formControlName="tags" />
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>Tags (comma separated)</mat-label>
+      <input matInput formControlName="tags" />
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Mood</mat-label>
-    <mat-select formControlName="mood">
-      <mat-option *ngFor="let m of [1,2,3,4,5]" [value]="m">{{ m }}</mat-option>
-    </mat-select>
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>Mood</mat-label>
+      <mat-select formControlName="mood">
+        <mat-option *ngFor="let m of [1, 2, 3, 4, 5]" [value]="m">{{ m }}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Content</mat-label>
-    <textarea matInput rows="5" formControlName="content"></textarea>
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>Content</mat-label>
+      <textarea matInput rows="5" formControlName="content"></textarea>
+    </mat-form-field>
 
-  <button mat-flat-button color="primary" type="submit">Save</button>
-</form>
+    <button mat-flat-button color="primary" type="submit">Save</button>
+  </form>
+</mat-card>

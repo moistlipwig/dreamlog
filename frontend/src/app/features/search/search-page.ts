@@ -1,14 +1,15 @@
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
 
 import { SearchService } from '../../core/services/search.service';
 
 @Component({
   selector: 'app-search-page',
-  imports: [AsyncPipe],
+  imports: [AsyncPipe, MatCardModule],
   templateUrl: './search-page.html',
   styleUrls: ['./search-page.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchPage {
   private search = inject(SearchService);
