@@ -5,15 +5,26 @@ import { RouterLink } from '@angular/router';
 
 import { DreamsService } from '../../core/services/dreams.service';
 import { TagChips } from '../../shared/tag-chips';
+import { EmptyState } from '../../shared/empty-state';
 
 @Component({
   selector: 'app-dream-list',
-  imports: [NgFor, AsyncPipe, MatCardModule, RouterLink, TagChips, DatePipe, CommonModule],
+  imports: [
+    NgFor,
+    AsyncPipe,
+    MatCardModule,
+    RouterLink,
+    TagChips,
+    DatePipe,
+    CommonModule,
+    EmptyState,
+  ],
   templateUrl: './dream-list.html',
   styleUrls: ['./dream-list.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DreamList {
   private dreams = inject(DreamsService);
   dreams$ = this.dreams.list();
+  skeletons = Array.from({ length: 4 });
 }

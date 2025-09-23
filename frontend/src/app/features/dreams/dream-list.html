@@ -1,10 +1,34 @@
-<div *ngFor="let dream of dreams$ | async">
-  <mat-card class="mb-4" [routerLink]="['/dreams', dream.id]">
-    <mat-card-title>{{ dream.title }}</mat-card-title>
-    <mat-card-subtitle>{{ dream.date | date }}</mat-card-subtitle>
-    <mat-card-content>
-      <p>{{ dream.content | slice:0:100 }}...</p>
-      <app-tag-chips [tags]="dream.tags"></app-tag-chips>
-    </mat-card-content>
-  </mat-card>
-</div>
+<ng-container *ngIf="dreams$ | async as dreams; else loading">
+  <ng-container *ngIf="dreams.length; else empty">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <mat-card
+        *ngFor="let dream of dreams"
+        class="cursor-pointer hover:shadow transition-shadow"
+        [routerLink]="['/dreams', dream.id]"
+      >
+        <mat-card-header class="pb-0">
+          <mat-card-title class="text-lg font-semibold truncate">{{ dream.title }}</mat-card-title>
+          <mat-card-subtitle>{{ dream.date | date }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="pt-2">
+          <p class="text-sm text-gray-600 mb-2">{{ dream.content | slice: 0 : 120 }}...</p>
+          <app-tag-chips [tags]="dream.tags"></app-tag-chips>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-container>
+</ng-container>
+
+<ng-template #loading>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <mat-card *ngFor="let _ of skeletons" class="p-4 animate-pulse space-y-2">
+      <div class="h-5 bg-gray-200 rounded w-1/2"></div>
+      <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+      <div class="h-20 bg-gray-100 rounded"></div>
+    </mat-card>
+  </div>
+</ng-template>
+
+<ng-template #empty>
+  <app-empty-state message="No dreams yet"></app-empty-state>
+</ng-template>

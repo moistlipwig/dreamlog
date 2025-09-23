@@ -1,8 +1,4 @@
-<mat-icon>search</mat-icon>
-<input
-  matInput
-  [formControl]="control"
-  type="search"
-  placeholder="Search dreams"
-  class="w-full ml-2"
-/>
+<mat-form-field appearance="outline" class="w-full">
+  <mat-icon matPrefix>search</mat-icon>
+  <input matInput [formControl]="control" type="search" placeholder="Search dreams" />
+</mat-form-field>

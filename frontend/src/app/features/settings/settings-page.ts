@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-settings-page',
-  imports: [MatSlideToggleModule],
+  imports: [MatSlideToggleModule, MatCardModule],
   templateUrl: './settings-page.html',
   styleUrls: ['./settings-page.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsPage {
   toggleTheme(checked: boolean) {

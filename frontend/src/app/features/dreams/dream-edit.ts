@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,11 +19,12 @@ import { DreamsService } from '../../core/services/dreams.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatSelectModule,
-    MatButtonModule
+    MatButtonModule,
+    MatCardModule,
   ],
   templateUrl: './dream-edit.html',
   styleUrls: ['./dream-edit.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DreamEdit {
   private fb = inject(FormBuilder);
@@ -33,18 +35,21 @@ export class DreamEdit {
     content: ['', Validators.required], // eslint-disable-line @typescript-eslint/unbound-method
     date: [new Date(), Validators.required], // eslint-disable-line @typescript-eslint/unbound-method
     tags: [''],
-    mood: [3, Validators.required] // eslint-disable-line @typescript-eslint/unbound-method
-    });
+    mood: [3, Validators.required], // eslint-disable-line @typescript-eslint/unbound-method
+  });
 
   save() {
     if (this.form.valid) {
       const value = this.form.getRawValue();
-      const tags = value.tags ? value.tags.split(',').map((t) => t.trim()).filter(Boolean) : [];
-      this.dreams
-        .create({ ...value, date: value.date.toISOString(), tags })
-        .subscribe(() => {
-          this.form.markAsPristine();
-        });
+      const tags = value.tags
+        ? value.tags
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : [];
+      this.dreams.create({ ...value, date: value.date.toISOString(), tags }).subscribe(() => {
+        this.form.markAsPristine();
+      });
     }
   }
 
