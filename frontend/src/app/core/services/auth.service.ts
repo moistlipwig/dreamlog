@@ -1,8 +1,8 @@
-import { Injectable, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { BehaviorSubject, map, tap } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {BehaviorSubject, map, tap} from 'rxjs';
 
-import { ApiHttp } from '../http/api-http';
+import {ApiHttp} from '../http/api-http';
 
 export interface User {
   id: string;
@@ -10,18 +10,18 @@ export interface User {
   email: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class AuthService {
-  private api = inject(ApiHttp);
-  private router = inject(Router);
+  private readonly api = inject(ApiHttp);
+  private readonly router = inject(Router);
 
-  private userSubject = new BehaviorSubject<User | null>(null);
+  private readonly userSubject = new BehaviorSubject<User | null>(null);
   readonly user$ = this.userSubject.asObservable();
 
   check() {
     return this.api.get<User>('/me').pipe(
       tap((user) => this.userSubject.next(user)),
-      map((user) => !!user)
+      map((user) => !!user),
     );
   }
 
@@ -30,7 +30,7 @@ export class AuthService {
       tap(() => {
         this.userSubject.next(null);
         void this.router.navigateByUrl('/login');
-      })
+      }),
     );
   }
 }

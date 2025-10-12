@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [MatChipsModule, CommonModule],
   templateUrl: './tag-chips.html',
   styleUrls: ['./tag-chips.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TagChips {
   @Input() tags: string[] = [];

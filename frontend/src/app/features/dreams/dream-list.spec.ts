@@ -17,10 +17,10 @@ describe('DreamList', () => {
           provide: DreamsService,
           useValue: {
             list: () =>
-              of([{ id: '1', title: 'A', content: 'c', date: '2020-01-01', tags: [], mood: 3 }])
-          }
-        }
-      ]
+              of([{ id: '1', title: 'A', content: 'c', date: '2020-01-01', tags: [], mood: 3 }]),
+          },
+        },
+      ],
     }).compileComponents();
   });
 

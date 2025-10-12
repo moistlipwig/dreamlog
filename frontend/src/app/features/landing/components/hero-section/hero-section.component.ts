@@ -1,13 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-login',
-  imports: [MatButtonModule, MatCardModule, MatIconModule],
-  templateUrl: './login.html',
-  styleUrls: ['./login.scss'],
+  selector: 'app-hero-section',
+  imports: [MatButtonModule, MatIconModule],
+  templateUrl: './hero-section.component.html',
+  styleUrls: ['./hero-section.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Login {}
+export class HeroSectionComponent {}

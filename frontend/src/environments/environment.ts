@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
   apiBaseUrl: '/api',
-  withCredentials: true
+  withCredentials: true,
 };

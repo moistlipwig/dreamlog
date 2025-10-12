@@ -10,6 +10,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       const message = (err as { statusText?: string }).statusText ?? 'Error';
       snack.open(message, 'Close', { duration: 3000 });
       return throwError(() => err);
-    })
+    }),
   );
 };

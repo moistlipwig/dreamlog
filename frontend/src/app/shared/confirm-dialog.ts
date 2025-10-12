@@ -7,7 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
   imports: [MatDialogModule, MatButtonModule],
   templateUrl: './confirm-dialog.html',
   styleUrls: ['./confirm-dialog.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmDialog {
   dialogRef = inject(MatDialogRef<ConfirmDialog>);
