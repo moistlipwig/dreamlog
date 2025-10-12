@@ -4,8 +4,8 @@ import { MatCardModule } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
 
 import { DreamsService } from '../../core/services/dreams.service';
-import { TagChips } from '../../shared/tag-chips';
 import { EmptyState } from '../../shared/empty-state';
+import { TagChips } from '../../shared/tag-chips';
 
 @Component({
   selector: 'app-dream-list',

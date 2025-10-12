@@ -11,14 +11,14 @@ describe('DreamEdit', () => {
       imports: [DreamEdit],
       providers: [
         provideHttpClient(),
-        { provide: DreamsService, useValue: { create: () => of(null) } }
-      ]
+        { provide: DreamsService, useValue: { create: () => of(null) } },
+      ],
     }).compileComponents();
   });
 
   it('should create form with controls', () => {
-      const fixture = TestBed.createComponent(DreamEdit);
-      const component = fixture.componentInstance;
-      expect(component.form.contains('title')).toBe(true);
-    });
+    const fixture = TestBed.createComponent(DreamEdit);
+    const component = fixture.componentInstance;
+    expect(component.form.contains('title')).toBe(true);
   });
+});

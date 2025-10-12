@@ -10,14 +10,14 @@ describe('authGuard', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: { check: () => of(true) } },
-        { provide: Router, useValue: { navigateByUrl: () => Promise.resolve(true) } }
-      ]
+        { provide: Router, useValue: { navigateByUrl: () => Promise.resolve(true) } },
+      ],
     });
 
     const result = await TestBed.runInInjectionContext(() =>
       firstValueFrom(
-        authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot) as Observable<boolean>
-      )
+        authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot) as Observable<boolean>,
+      ),
     );
     expect(result).toBe(true);
   });

@@ -5,7 +5,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   imports: [],
   templateUrl: './empty-state.html',
   styleUrls: ['./empty-state.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmptyState {
   @Input() message = 'Nothing here yet';

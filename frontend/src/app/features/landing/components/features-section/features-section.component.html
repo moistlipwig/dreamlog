@@ -1,0 +1,20 @@
+<section class="features-section" aria-label="Features section">
+  <div class="features-section__container">
+    <h2 class="features-section__title">Everything You Need to Track Your Dreams</h2>
+    <p class="features-section__subtitle">
+      Powerful features designed to help you understand your subconscious mind
+    </p>
+
+    <menu class="features-section__grid" role="list">
+      @for (feature of features; track feature.title) {
+        <mat-card class="feature-card" role="listitem">
+          <div class="feature-card__icon" aria-hidden="true">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </div>
+          <h3 class="feature-card__title">{{ feature.title }}</h3>
+          <p class="feature-card__description">{{ feature.description }}</p>
+        </mat-card>
+      }
+    </menu>
+  </div>
+</section>

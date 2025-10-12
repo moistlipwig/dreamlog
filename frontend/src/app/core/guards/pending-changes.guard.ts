@@ -5,5 +5,7 @@ export interface PendingChangesComponent {
 }
 
 export const pendingChangesGuard: CanDeactivateFn<PendingChangesComponent> = (component) => {
-  return component.hasPendingChanges ? !component.hasPendingChanges() || confirm('Discard changes?') : true;
+  return component.hasPendingChanges
+    ? !component.hasPendingChanges() || confirm('Discard changes?')
+    : true;
 };

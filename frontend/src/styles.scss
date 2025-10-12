@@ -7,17 +7,17 @@
 
 html {
   @include mat.theme(
-    (
-      color: (
-        primary: mat.$blue-palette,
-        tertiary: mat.$violet-palette,
-        background: (
-          surface: #ffffff,
-          background: #f8fafc,
+      (
+        color: (
+          primary: mat.$blue-palette,
+          tertiary: mat.$violet-palette,
+          background: (
+            surface: #ffffff,
+            background: #f8fafc,
+          ),
         ),
-      ),
-      density: 0,
-    )
+        density: 0,
+      )
   );
 }
 
@@ -27,16 +27,23 @@ body {
   color: var(--mat-sys-on-background);
   font: var(--mat-sys-body-medium);
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 /* You can add global styles to this file, and also import other style files */
 @import 'tailwindcss';
 
+/* CSS Variables for Landing Page */
+:root {
+  --color-primary: #667eea;
+  --color-primary-dark: #764ba2;
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-bg-card: rgba(255, 255, 255, 0.95);
+  --font-family: 'Poppins', sans-serif;
+}
+
 html,
 body {
   height: 100%;
-}
-body {
-  margin: 0;
 }
