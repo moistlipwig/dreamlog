@@ -2,6 +2,7 @@ import {Routes} from '@angular/router';
 
 import {authGuard} from '@core/guards/auth-guard';
 import {pendingChangesGuard} from '@core/guards/pending-changes.guard';
+
 import {CalendarPage} from './features/calendar/calendar-page';
 import {DreamDetail} from './features/dreams/dream-detail';
 import {DreamEdit} from './features/dreams/dream-edit';

@@ -1,6 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MatChipsModule } from '@angular/material/chips';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tag-chips',

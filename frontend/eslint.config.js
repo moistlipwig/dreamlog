@@ -8,7 +8,7 @@ const jestPlugin = require("eslint-plugin-jest");
 
 module.exports = tseslint.config(
   {
-    ignores: ["**/dist/**", "**/node_modules/**", ".angular/**", "coverage/**"]
+    ignores: ["**/dist/**", "**/node_modules/**", ".angular/**", "coverage/**", "jest.config.ts"]
   },
   {
     files: ["**/*.ts"],
@@ -51,8 +51,12 @@ module.exports = tseslint.config(
           style: "kebab-case",
         },
       ],
-      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
-      "import/order": ["warn", { "newlines-between": "always", "groups": [["builtin", "external"], "internal", ["parent", "sibling", "index"]], "alphabetize": { "order": "asc", "caseInsensitive": true } }]
+      "@typescript-eslint/no-unused-vars": ["warn", {"argsIgnorePattern": "^_", "varsIgnorePattern": "^_"}],
+      "import/order": ["warn", {
+        "newlines-between": "always",
+        "groups": [["builtin", "external"], "internal", ["parent", "sibling", "index"]],
+        "alphabetize": {"order": "asc", "caseInsensitive": true}
+      }]
     },
   },
   {
