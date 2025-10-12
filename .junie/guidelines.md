@@ -10,7 +10,6 @@ and leave the place better than you found it.
 Always aim to educate through your fixes, not just to implement.
 
 Repository layout
-
 - backend: Spring Boot 3.5 (Java 21), JPA, Flyway, Spring Security, springdoc-openapi. Gradle 8.x.
 - frontend: Angular 20 (standalone), Jest for unit tests, ESLint + Prettier, Husky hooks.
 - docker-compose.yml: Postgres 17 + backend app.
