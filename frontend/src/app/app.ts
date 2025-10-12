@@ -1,34 +1,11 @@
-import {AsyncPipe} from '@angular/common';
-import {Component, inject} from '@angular/core';
-import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
-import {map, startWith} from 'rxjs';
-
-import {AppShell} from '@core/app-shell';
+import {Component} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [AppShell, RouterOutlet, AsyncPipe],
+  imports: [RouterOutlet],
   standalone: true,
-  template: `
-    @if (shouldShowAppShell$ | async) {
-      <app-app-shell/>
-    } @else {
-      <router-outlet/>
-    }
-  `,
+  template: `<router-outlet/>`,
   styleUrls: ['./app.scss'],
 })
-export class App {
-  private readonly router = inject(Router);
-
-  // Show AppShell only for routes starting with /app
-  shouldShowAppShell$ = this.router.events.pipe(
-    startWith(new NavigationEnd(0, this.router.url, this.router.url)),
-    map((event) => {
-      if (event instanceof NavigationEnd) {
-        return event.url.startsWith('/app');
-      }
-      return false;
-    }),
-  );
-}
+export class App {}
