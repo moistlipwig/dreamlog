@@ -2,10 +2,10 @@ name: CI Frontend
 
 on:
   pull_request:
-    paths: ['frontend/**', '.github/workflows/ci-frontend.yaml']
+    paths: [ 'frontend/**', '.github/workflows/ci-frontend.yaml' ]
   push:
     branches: [ main ]
-    paths: ['frontend/**', '.github/workflows/ci-frontend.yaml']
+    paths: [ 'frontend/**', '.github/workflows/ci-frontend.yaml' ]
 
 concurrency:
   group: ci-frontend-${{ github.ref }}
@@ -17,6 +17,10 @@ jobs:
     defaults:
       run:
         working-directory: frontend
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v5
 
