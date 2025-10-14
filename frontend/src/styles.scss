@@ -4,20 +4,21 @@
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+@use 'tailwindcss';
 
 html {
   @include mat.theme(
-      (
-        color: (
-          primary: mat.$blue-palette,
-          tertiary: mat.$violet-palette,
-          background: (
-            surface: #ffffff,
-            background: #f8fafc,
-          ),
+    (
+      color: (
+        primary: mat.$blue-palette,
+        tertiary: mat.$violet-palette,
+        background: (
+          surface: #ffffff,
+          background: #f8fafc,
         ),
-        density: 0,
-      )
+      ),
+      density: 0,
+    )
   );
 }
 
@@ -29,9 +30,6 @@ body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
 }
-
-/* You can add global styles to this file, and also import other style files */
-@import 'tailwindcss';
 
 /* CSS Variables for Landing Page */
 :root {
