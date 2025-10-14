@@ -17,3 +17,15 @@ spring:
     url: ${spring.datasource.url}
     user: ${spring.datasource.username}
     password: ${spring.datasource.password}
+  security:
+    user:
+      name: ${APP_BASIC_USER:admin}
+      password: ${APP_BASIC_PASSWORD:admin}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

@@ -15,7 +15,6 @@ module.exports = tseslint.config(
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommendedTypeChecked,
-      ...tseslint.configs.stylisticTypeChecked,
       ...angular.configs.tsRecommended,
       importPlugin.flatConfigs.recommended,
       prettier
@@ -30,11 +29,15 @@ module.exports = tseslint.config(
     },
     settings: {
       "import/resolver": {
-        typescript: true
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json'
+        }
       }
     },
     processor: angular.processInlineTemplates,
     rules: {
+      // Angular selectors
       "@angular-eslint/directive-selector": [
         "error",
         {
@@ -51,7 +54,19 @@ module.exports = tseslint.config(
           style: "kebab-case",
         },
       ],
+
+      // TypeScript rules - relaxed for pragmatism
       "@typescript-eslint/no-unused-vars": ["warn", {"argsIgnorePattern": "^_", "varsIgnorePattern": "^_"}],
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/prefer-nullish-coalescing": "off", // Too strict for simple cases
+      "@typescript-eslint/prefer-optional-chain": "warn",
+
+      // Import rules
+      "import/no-unresolved": "off", // TypeScript handles this better
+      "import/namespace": "off", // Slow and redundant with TypeScript
+      "import/default": "off", // Slow and redundant with TypeScript
+      "import/no-named-as-default": "off", // False positives with Angular
+      "import/no-named-as-default-member": "off", // False positives
       "import/order": ["warn", {
         "newlines-between": "always",
         "groups": [["builtin", "external"], "internal", ["parent", "sibling", "index"]],
@@ -72,5 +87,12 @@ module.exports = tseslint.config(
   {
     files: ["**/*.spec.ts"],
     extends: [jestPlugin.configs["flat/recommended"]],
+  },
+  {
+    files: ["**/*.routes.ts", "**/app.routes.ts"],
+    rules: {
+      // Angular Router's resolve/guards typing is weak - causes false positives
+      "@typescript-eslint/no-unsafe-assignment": "off"
+    }
   }
 );

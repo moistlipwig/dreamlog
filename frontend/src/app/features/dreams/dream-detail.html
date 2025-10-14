@@ -1,4 +1,4 @@
-<ng-container *ngIf="dream$ | async as dream; else loading">
+@if (dream$ | async; as dream) {
   <mat-card class="max-w-3xl mx-auto p-4 md:p-8 space-y-4">
     <div>
       <h2 class="text-3xl font-semibold mb-1">{{ dream.title }}</h2>
@@ -9,14 +9,12 @@
       <app-tag-chips class="mt-4" [tags]="dream.tags"></app-tag-chips>
     </mat-card-content>
     <mat-card-actions class="flex justify-end">
-      <button mat-flat-button color="primary" [routerLink]="['/dreams', dream.id, 'edit']">
+      <button mat-flat-button color="primary" [routerLink]="['/app/dreams', dream.id, 'edit']">
         Edit
       </button>
     </mat-card-actions>
   </mat-card>
-</ng-container>
-
-<ng-template #loading>
+} @else {
   <div class="max-w-3xl mx-auto p-4 md:p-8">
     <mat-card class="p-4 animate-pulse space-y-4">
       <div class="h-6 bg-gray-200 w-1/3"></div>
@@ -24,4 +22,4 @@
       <div class="h-32 bg-gray-100"></div>
     </mat-card>
   </div>
-</ng-template>
+}

@@ -18,7 +18,9 @@
         <mat-icon>settings</mat-icon>
       </button>
     </mat-toolbar>
-    <mat-progress-bar *ngIf="loading$ | async" mode="indeterminate"></mat-progress-bar>
+    @if (loading$ | async) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
     <main class="p-4 md:p-8 flex-1 max-w-7xl mx-auto w-full">
       <router-outlet></router-outlet>
     </main>

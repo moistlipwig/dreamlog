@@ -1,4 +1,4 @@
-import { AsyncPipe, NgIf, CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,8 +31,6 @@ import { SearchBar } from './search-bar';
     MatListModule,
     MatProgressBarModule,
     SearchBar,
-    CommonModule,
-    NgIf,
     AsyncPipe,
   ],
   templateUrl: './app-shell.html',
