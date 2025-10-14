@@ -1,8 +1,8 @@
-import { inject, Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, map, Observable, of, shareReplay, tap } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {BehaviorSubject, catchError, map, Observable, of, shareReplay, tap} from 'rxjs';
 
-import { ApiHttp } from '../http/api-http';
+import {ApiHttp} from '../http/api-http';
 
 export interface User {
   id: string;
@@ -10,7 +10,7 @@ export interface User {
   email: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class AuthService {
   private readonly api = inject(ApiHttp);
   private readonly router = inject(Router);
@@ -36,7 +36,7 @@ export class AuthService {
     this.authCheckCache$ = this.api.get<User>('/me').pipe(
       tap((user) => this.userSubject.next(user)),
       map(() => true),
-      catchError((error: unknown) => {
+      catchError(() => {
         this.userSubject.next(null);
         return of(false);
       }),

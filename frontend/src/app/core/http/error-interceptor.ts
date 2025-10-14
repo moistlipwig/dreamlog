@@ -1,7 +1,7 @@
-import {HttpErrorResponse, HttpInterceptorFn} from '@angular/common/http';
-import {inject} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {catchError, throwError} from 'rxjs';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { catchError, throwError } from 'rxjs';
 
 /**
  * Global error interceptor that shows user-friendly error messages.
@@ -34,11 +34,16 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       // Show snackbar for actual errors
       let message: string;
-      const errPayload = (error as HttpErrorResponse).error;
-      if (errPayload && typeof errPayload === 'object' && 'message' in errPayload && typeof (errPayload as { message?: unknown }).message === 'string') {
-        message = (errPayload as { message: string }).message;
+      const errPayload: unknown = error.error;
+      if (
+        errPayload &&
+        typeof errPayload === 'object' &&
+        'message' in errPayload &&
+        typeof errPayload.message === 'string'
+      ) {
+        message = errPayload.message;
       } else {
-        message = (error.statusText ?? 'An error occurred');
+        message = error.statusText || 'An error occurred';
       }
       snack.open(message, 'Close', { duration: 5000 });
       return throwError(() => error);

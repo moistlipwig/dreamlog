@@ -27,7 +27,12 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dreams', pathMatch: 'full' },
       { path: 'dreams', component: DreamList },
       { path: 'dreams/new', component: DreamEdit, canDeactivate: [pendingChangesGuard] },
-      { path: 'dreams/:id', component: DreamDetail, resolve: { dream: dreamResolver } },
+      {
+        path: 'dreams/:id',
+        component: DreamDetail,
+        resolve: { dream: dreamResolver },
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
+      },
       { path: 'dreams/:id/edit', component: DreamEdit, canDeactivate: [pendingChangesGuard] },
       { path: 'search', component: SearchPage },
       { path: 'calendar', component: CalendarPage },

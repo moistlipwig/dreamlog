@@ -17,9 +17,11 @@ export const dreamResolver: ResolveFn<Dream | null> = (route) => {
   }
 
   return dreams.get(id).pipe(
-    catchError((error: unknown) => {
-      if (error instanceof HttpErrorResponse && error.status === 404) {
+    catchError((err: unknown) => {
+      if (err instanceof HttpErrorResponse && err.status === 404) {
         void router.navigateByUrl('/app/not-found');
+      } else {
+        void router.navigateByUrl('/app/dreams');
       }
       return EMPTY;
     }),

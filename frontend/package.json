@@ -11,8 +11,9 @@
     "test": "jest",
     "test:ci": "jest --runInBand --ci",
     "lint": "ng lint",
-    "lint:fix": "eslint 'src/**/*.{ts,html}' --fix",
+    "lint:fix": "eslint \"src/**/*.{ts,html}\" --fix",
     "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
+    "fix:all": "npm run format && npm run lint:fix",
     "verify": "npm run typecheck && npm run build:prod && npm run test:ci"
   },
   "engines": {
@@ -20,7 +21,11 @@
     "npm": ">=10"
   },
   "lint-staged": {
-    "src/**/*.{ts,html,scss}": [
+    "src/**/*.{ts,html}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "src/**/*.scss": [
       "prettier --write"
     ]
   },

@@ -18,5 +18,10 @@ import { TagChips } from '../../shared/tag-chips';
 export class DreamDetail {
   private route = inject(ActivatedRoute);
 
-  dream$ = this.route.data.pipe(map((data: { dream: Dream | null }) => data.dream));
+  dream$ = this.route.data.pipe(
+    map((data) => {
+      const dream = data['dream'];
+      return dream && typeof dream === 'object' ? (dream as Dream) : null;
+    }),
+  );
 }
