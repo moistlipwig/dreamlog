@@ -87,5 +87,12 @@ module.exports = tseslint.config(
   {
     files: ["**/*.spec.ts"],
     extends: [jestPlugin.configs["flat/recommended"]],
+  },
+  {
+    files: ["**/*.routes.ts", "**/app.routes.ts"],
+    rules: {
+      // Angular Router's resolve/guards typing is weak - causes false positives
+      "@typescript-eslint/no-unsafe-assignment": "off"
+    }
   }
 );
