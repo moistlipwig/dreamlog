@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
+import { RouterLink } from '@angular/router';
 
 import { GoogleLoginButtonComponent } from './components/google-login-button/google-login-button.component';
 import { LoginFormComponent } from './components/login-form/login-form.component';

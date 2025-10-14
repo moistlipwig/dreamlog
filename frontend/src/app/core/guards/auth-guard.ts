@@ -1,5 +1,5 @@
-import { inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
 

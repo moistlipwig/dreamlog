@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 
+import { Dream } from '../../core/models/dream';
 import { TagChips } from '../../shared/tag-chips';
 
 @Component({
@@ -17,5 +18,5 @@ import { TagChips } from '../../shared/tag-chips';
 export class DreamDetail {
   private route = inject(ActivatedRoute);
 
-  dream$ = this.route.data.pipe(map((data) => data['dream']));
+  dream$ = this.route.data.pipe(map((data: { dream: Dream | null }) => data.dream));
 }

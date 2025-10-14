@@ -33,8 +33,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       // Show snackbar for actual errors
-      const message = error.error?.message || error.statusText || 'An error occurred';
-      snack.open(message, 'Close', {duration: 5000});
+      let message: string;
+      const errPayload = (error as HttpErrorResponse).error;
+      if (errPayload && typeof errPayload === 'object' && 'message' in errPayload && typeof (errPayload as { message?: unknown }).message === 'string') {
+        message = (errPayload as { message: string }).message;
+      } else {
+        message = (error.statusText ?? 'An error occurred');
+      }
+      snack.open(message, 'Close', { duration: 5000 });
       return throwError(() => error);
     }),
   );

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, map, Observable, shareReplay, tap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, shareReplay, tap } from 'rxjs';
 
 import { ApiHttp } from '../http/api-http';
 
@@ -36,9 +36,9 @@ export class AuthService {
     this.authCheckCache$ = this.api.get<User>('/me').pipe(
       tap((user) => this.userSubject.next(user)),
       map(() => true),
-      catchError((error) => {
+      catchError((error: unknown) => {
         this.userSubject.next(null);
-        return throwError(() => error);
+        return of(false);
       }),
       shareReplay(1), // Dziel jeden request między wiele subskrypcji
     );

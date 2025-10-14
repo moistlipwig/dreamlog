@@ -31,4 +31,4 @@ export interface CreateDreamEntryRequest {
   tags?: string[];
 }
 
-export interface UpdateDreamEntryRequest extends CreateDreamEntryRequest {}
+export type UpdateDreamEntryRequest = CreateDreamEntryRequest;
