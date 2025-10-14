@@ -1,22 +1,12 @@
-import {AsyncPipe, DatePipe} from '@angular/common';
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
-import {MatButtonModule} from '@angular/material/button';
-import {MatCardModule} from '@angular/material/card';
-import {ActivatedRoute, RouterLink} from '@angular/router';
-import {map} from 'rxjs';
+import { AsyncPipe, DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { map } from 'rxjs';
 
-import {Dream} from '@core/models/dream';
-import {TagChips} from '@shared/tag-chips';
-
-function isDream(value: unknown): value is Dream {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'id' in value &&
-    'title' in value &&
-    'content' in value
-  );
-}
+import { Dream } from '../../core/models/dream';
+import { TagChips } from '../../shared/tag-chips';
 
 @Component({
   selector: 'app-dream-detail',
@@ -28,10 +18,5 @@ function isDream(value: unknown): value is Dream {
 export class DreamDetail {
   private route = inject(ActivatedRoute);
 
-  dream$ = this.route.data.pipe(
-    map((data) => {
-      const dream: unknown = data['dream'];
-      return isDream(dream) ? dream : null;
-    }),
-  );
+  dream$ = this.route.data.pipe(map((data) => data['dream'] as Dream | null));
 }
