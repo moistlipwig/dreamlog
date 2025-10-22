@@ -1,8 +1,18 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, map, Observable, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
 
-import {ApiHttp} from '../http/api-http';
+import { ApiHttp } from '../http/api-http';
 
 export interface User {
   id: string;
@@ -24,7 +34,7 @@ export interface RegisterRequest {
   name?: string;
 }
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly api = inject(ApiHttp);
   private readonly router = inject(Router);
@@ -45,7 +55,7 @@ export class AuthService {
         this.userSubject.next(null);
         return of(false);
       }),
-      shareReplay({bufferSize: 1, refCount: true}), // Share request, auto-cleanup when no subscribers
+      shareReplay({ bufferSize: 1, refCount: true }), // Share request, auto-cleanup when no subscribers
     );
   }
 
@@ -62,14 +72,14 @@ export class AuthService {
    */
   login(email: string, password: string): Observable<boolean> {
     // Step 1: Ensure CSRF token cookie is set before login attempt
-    return this.api.get<{token: string; headerName: string}>('/auth/csrf').pipe(
+    return this.api.get<{ token: string; headerName: string }>('/auth/csrf').pipe(
       // Step 2: Proceed with login (XSRF-TOKEN cookie now set, Angular auto-sends header)
       switchMap(() => {
         const formData = new URLSearchParams();
         formData.append('username', email);
         formData.append('password', password);
 
-        return this.api.post<{success: boolean}>('/auth/login', formData.toString(), {
+        return this.api.post<{ success: boolean }>('/auth/login', formData.toString(), {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
@@ -80,7 +90,7 @@ export class AuthService {
         this.check().subscribe();
       }),
       map(() => true),
-      catchError((error) => {
+      catchError((error: unknown) => {
         this.userSubject.next(null);
         return throwError(() => error);
       }),
@@ -96,7 +106,7 @@ export class AuthService {
         this.userSubject.next(user);
         void this.router.navigateByUrl('/app');
       }),
-      catchError((error) => {
+      catchError((error: unknown) => {
         return throwError(() => error);
       }),
     );

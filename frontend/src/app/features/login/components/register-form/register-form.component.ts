@@ -1,5 +1,13 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -33,12 +41,19 @@ export class RegisterFormComponent {
 
   registerForm = new FormGroup({
     email: new FormControl('', {
-      validators: [Validators.required, Validators.email],
+      validators: [
+        (control) => Validators.required(control),
+        (control) => Validators.email(control),
+      ],
       nonNullable: true,
     }),
     name: new FormControl('', { nonNullable: true }),
     password: new FormControl('', {
-      validators: [Validators.required, Validators.minLength(8), passwordPolicy],
+      validators: [
+        (control) => Validators.required(control),
+        (control) => Validators.minLength(8)(control),
+        passwordPolicy,
+      ],
       nonNullable: true,
     }),
   });
@@ -70,9 +85,15 @@ export class RegisterFormComponent {
           this.isLoading.set(false);
           void this.router.navigateByUrl('/app');
         },
-        error: (error) => {
+        error: (error: unknown) => {
           this.isLoading.set(false);
-          const message = error.error?.error || 'Registration failed. Please try again.';
+          let message = 'Registration failed. Please try again.';
+          if (error instanceof HttpErrorResponse) {
+            const errorBody = error.error as { error?: string } | null;
+            if (errorBody && typeof errorBody.error === 'string') {
+              message = errorBody.error;
+            }
+          }
           this.errorMessage.set(message);
         },
       });
@@ -82,10 +103,14 @@ export class RegisterFormComponent {
   }
 
   private scrollToFirstError(): void {
-    const firstInvalidControl = Object.keys(this.registerForm.controls).find((key) => this.registerForm.get(key)?.invalid);
+    const firstInvalidControl = Object.keys(this.registerForm.controls).find(
+      (key) => this.registerForm.get(key)?.invalid,
+    );
 
     if (firstInvalidControl) {
-      const element = document.querySelector(`[formControlName="${firstInvalidControl}"]`) as HTMLElement;
+      const element = document.querySelector(
+        `[formControlName="${firstInvalidControl}"]`,
+      ) as HTMLElement;
       element?.focus();
       element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }

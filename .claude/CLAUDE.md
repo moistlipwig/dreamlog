@@ -148,7 +148,7 @@ dreamlog/
 │   │   ├── models/                  # TypeScript interfaces
 │   │   └── guards/                  # Route guards
 │   ├── .junie/
-│   │   └── guidelines.md            # Angular-specific guidelines
+│   │   └── guidelines.md            # Angular-specific guidelines for all agents
 │   ├── package.json
 │   ├── jest.config.ts
 │   └── proxy.conf.json              # Dev proxy to backend

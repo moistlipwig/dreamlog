@@ -25,6 +25,48 @@
 
 **All components MUST be standalone.** No NgModules allowed.
 
+### Lint Rules (Required)
+
+**No `any` in runtime code:**
+- Use `unknown` instead and narrow types before accessing properties
+- All HTTP responses and external data must be explicitly typed
+- ESLint rule: `@typescript-eslint/no-explicit-any: "error"`
+
+**Never pass unbound class methods:**
+- Wrap validators in arrow functions: `(control) => Validators.required(control)`
+- Or add `this: void` annotation for methods without context
+- ESLint rule: `@typescript-eslint/unbound-method`
+
+**Handle errors as `unknown`:**
+```typescript
+error: (error: unknown) => {
+  if (error instanceof HttpErrorResponse) {
+    const errorBody = error.error as { error?: string } | null;
+    if (errorBody && typeof errorBody.error === 'string') {
+      // Use errorBody.error safely
+    }
+  }
+}
+```
+- Always check `instanceof HttpErrorResponse` before accessing `.error`
+- Cast `error.error` to expected shape with type guard
+- ESLint rule: `@typescript-eslint/no-unsafe-*`
+
+**Import ordering:**
+- Group imports: built-in/external → internal → parent/sibling
+- Alphabetize within groups
+- Newlines between groups
+- ESLint auto-fixes this: `npm run lint:fix`
+
+**DTOs and interfaces:**
+- Keep in `src/app/core/types` or co-located with feature
+- All I/O operations must have explicit, validated types
+
+**Rule exceptions:**
+- Only in tests or generated code
+- Never disable ESLint rules globally
+- Use `// eslint-disable-next-line` with justification comment
+
 ### Change Detection Strategy (Required)
 
 **Always use OnPush:**
@@ -45,6 +87,42 @@ Use `inject()` function instead of constructor injection:
 ### Inputs and Outputs
 
 Use `input()` and `output()` functions:
+
+```typescript
+// ✅ CORRECT
+export class MyComponent {
+  title = input.required<string>();
+  count = input(0);
+  itemClick = output<string>();
+}
+```
+
+### Reactive Forms Validators
+
+**Always wrap built-in validators in arrow functions** to avoid unbound method errors:
+
+```typescript
+// ✅ CORRECT - Wrapped in arrow functions
+registerForm = new FormGroup({
+  email: new FormControl('', {
+    validators: [
+      (control) => Validators.required(control),
+      (control) => Validators.email(control),
+    ],
+    nonNullable: true,
+  }),
+  password: new FormControl('', {
+    validators: [
+      (control) => Validators.required(control),
+      (control) => Validators.minLength(8)(control),
+    ],
+    nonNullable: true,
+  }),
+});
+
+// ❌ FORBIDDEN - Unbound methods cause ESLint errors
+validators: [Validators.required, Validators.email]
+```
 
 ---
 

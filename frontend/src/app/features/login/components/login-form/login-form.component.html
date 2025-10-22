@@ -48,19 +48,15 @@
           <mat-error><span class="error-icon">⚠️</span> Password is required</mat-error>
         }
         @if (loginForm.get('password')?.hasError('minlength')) {
-          <mat-error><span class="error-icon">⚠️</span> Password must be at least 8 characters</mat-error>
+          <mat-error
+            ><span class="error-icon">⚠️</span> Password must be at least 8 characters</mat-error
+          >
         }
       </div>
     }
   </mat-form-field>
 
-  <button
-    mat-flat-button
-    color="primary"
-    type="submit"
-    class="w-full"
-    [disabled]="isLoading()"
-  >
+  <button mat-flat-button color="primary" type="submit" class="w-full" [disabled]="isLoading()">
     @if (isLoading()) {
       Signing in...
     } @else {
