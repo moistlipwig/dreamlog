@@ -1,9 +1,16 @@
 <div class="login-page">
   <mat-card class="login-card">
-    <h1 class="login-card__title">Welcome Back</h1>
-    <p class="login-card__subtitle">Sign in to continue to Dreamlog</p>
+    @if (!showRegister()) {
+      <h1 class="login-card__title">Welcome Back</h1>
+      <p class="login-card__subtitle">Sign in to continue to Dreamlog</p>
 
-    <app-login-form />
+      <app-login-form />
+    } @else {
+      <h1 class="login-card__title">Create Account</h1>
+      <p class="login-card__subtitle">Start tracking your dreams today</p>
+
+      <app-register-form />
+    }
 
     <mat-divider class="my-4" />
 
@@ -12,8 +19,17 @@
     <app-google-login-button />
 
     <div class="login-card__footer">
-      Don't have an account?
-      <a routerLink="/" class="login-card__link">Go to homepage</a>
+      @if (!showRegister()) {
+        Don't have an account?
+        <button mat-button color="primary" (click)="toggleMode()" class="login-card__link">
+          Sign up
+        </button>
+      } @else {
+        Already have an account?
+        <button mat-button color="primary" (click)="toggleMode()" class="login-card__link">
+          Sign in
+        </button>
+      }
     </div>
   </mat-card>
 </div>

@@ -22,6 +22,18 @@ indent_size = 4
 [*.groovy]
 indent_size = 4
 
+# SQL – 4 spacje, uppercase keywords (handled by IntelliJ)
+[*.sql]
+indent_size = 4
+
+# Properties files
+[*.properties]
+indent_size = 4
+
+# Gradle files
+[*.gradle]
+indent_size = 4
+
 # Markdown – bez łamania linii i bez przycinania spacji
 [*.md]
 max_line_length = off
