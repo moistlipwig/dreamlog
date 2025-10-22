@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,11 +25,17 @@ export class LoginFormComponent {
 
   loginForm = new FormGroup({
     username: new FormControl('', {
-      validators: [Validators.required, Validators.email],
+      validators: [
+        (control) => Validators.required(control),
+        (control) => Validators.email(control),
+      ],
       nonNullable: true,
     }),
     password: new FormControl('', {
-      validators: [Validators.required, Validators.minLength(8)],
+      validators: [
+        (control) => Validators.required(control),
+        (control) => Validators.minLength(8)(control),
+      ],
       nonNullable: true,
     }),
   });
@@ -60,9 +67,15 @@ export class LoginFormComponent {
           this.isLoading.set(false);
           void this.router.navigateByUrl('/app');
         },
-        error: (error) => {
+        error: (error: unknown) => {
           this.isLoading.set(false);
-          const message = error.error?.error || 'Login failed. Please check your credentials.';
+          let message = 'Login failed. Please check your credentials.';
+          if (error instanceof HttpErrorResponse) {
+            const errorBody = error.error as { error?: string } | null;
+            if (errorBody && typeof errorBody.error === 'string') {
+              message = errorBody.error;
+            }
+          }
           this.errorMessage.set(message);
         },
       });
@@ -73,10 +86,14 @@ export class LoginFormComponent {
   }
 
   private scrollToFirstError(): void {
-    const firstInvalidControl = Object.keys(this.loginForm.controls).find((key) => this.loginForm.get(key)?.invalid);
+    const firstInvalidControl = Object.keys(this.loginForm.controls).find(
+      (key) => this.loginForm.get(key)?.invalid,
+    );
 
     if (firstInvalidControl) {
-      const element = document.querySelector(`[formControlName="${firstInvalidControl}"]`) as HTMLElement;
+      const element = document.querySelector(
+        `[formControlName="${firstInvalidControl}"]`,
+      ) as HTMLElement;
       element?.focus();
       element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
