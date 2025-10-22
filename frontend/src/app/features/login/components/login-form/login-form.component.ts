@@ -18,6 +18,10 @@ export class LoginFormComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  // Track which fields have been touched (blurred)
+  touchedFields = signal<Set<string>>(new Set());
+  formSubmitted = signal(false);
+
   loginForm = new FormGroup({
     username: new FormControl('', {
       validators: [Validators.required, Validators.email],
@@ -32,7 +36,19 @@ export class LoginFormComponent {
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
 
+  onFieldBlur(fieldName: string): void {
+    const touched = new Set(this.touchedFields());
+    touched.add(fieldName);
+    this.touchedFields.set(touched);
+  }
+
+  shouldShowError(fieldName: string): boolean {
+    return this.formSubmitted() || this.touchedFields().has(fieldName);
+  }
+
   onSubmit(): void {
+    this.formSubmitted.set(true);
+
     if (this.loginForm.valid) {
       this.isLoading.set(true);
       this.errorMessage.set(null);
@@ -50,6 +66,19 @@ export class LoginFormComponent {
           this.errorMessage.set(message);
         },
       });
+    } else {
+      // Scroll to first invalid field
+      this.scrollToFirstError();
+    }
+  }
+
+  private scrollToFirstError(): void {
+    const firstInvalidControl = Object.keys(this.loginForm.controls).find((key) => this.loginForm.get(key)?.invalid);
+
+    if (firstInvalidControl) {
+      const element = document.querySelector(`[formControlName="${firstInvalidControl}"]`) as HTMLElement;
+      element?.focus();
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 }

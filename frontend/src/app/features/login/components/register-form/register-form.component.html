@@ -1,6 +1,6 @@
 <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form" autocomplete="off">
   @if (errorMessage()) {
-    <div class="error-message bg-red-50 text-red-800 p-3 rounded-md mb-4">
+    <div class="error-message bg-red-50 text-red-800 p-3 rounded-md mb-4" role="alert">
       {{ errorMessage() }}
     </div>
   }
@@ -15,12 +15,16 @@
       autocapitalize="off"
       spellcheck="false"
       inputmode="email"
+      (blur)="onFieldBlur('email')"
+      [attr.aria-invalid]="registerForm.get('email')?.invalid && shouldShowError('email')"
     />
-    @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
-      <mat-error>Email is required</mat-error>
-    }
-    @if (registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched) {
-      <mat-error>Please enter a valid email</mat-error>
+    @if (registerForm.get('email')?.invalid && shouldShowError('email')) {
+      @if (registerForm.get('email')?.hasError('required')) {
+        <mat-error>⚠️ Email is required</mat-error>
+      }
+      @if (registerForm.get('email')?.hasError('email')) {
+        <mat-error>⚠️ Please enter a valid email</mat-error>
+      }
     }
   </mat-form-field>
 
@@ -28,7 +32,7 @@
     <input matInput formControlName="name" type="text" placeholder="Your name" autocomplete="name"/>
   </mat-form-field>
 
-  <mat-form -field appearance="outline" class="w-full">
+  <mat-form-field appearance="outline" class="w-full">
     <input
       matInput
       formControlName="password"
@@ -37,26 +41,24 @@
       autocomplete="new-password"
       autocapitalize="off"
       spellcheck="false"
+      (blur)="onFieldBlur('password')"
+      [attr.aria-invalid]="registerForm.get('password')?.invalid && shouldShowError('password')"
     />
-    @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
-      <mat-error>Password is required</mat-error>
+    @if (registerForm.get('password')?.invalid && shouldShowError('password')) {
+      @if (registerForm.get('password')?.hasError('required')) {
+        <mat-error>⚠️ Password is required</mat-error>
+      }
+      @if (registerForm.get('password')?.hasError('minlength')) {
+        <mat-error>⚠️ Password must be at least 8 characters</mat-error>
+      }
+      @if (registerForm.get('password')?.hasError('passwordPolicy')) {
+        <mat-error>⚠️ Password must contain letters and numbers</mat-error>
+      }
     }
-    @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
-      <mat-error>Password must be at least 8 characters</mat-error>
-    }
-    @if (registerForm.get('password')?.hasError('passwordStrength') && registerForm.get('password')?.touched) {
-      <mat-error>Password must contain at least one letter and one digit</mat-error>
-    }
-    <mat-hint>Min 8 characters, must include letters and numbers</mat-hint>
+    <mat-hint>Min 8 characters, letters + numbers</mat-hint>
   </mat-form-field>
 
-  <button
-    mat-flat-button
-    color="primary"
-    type="submit"
-    class="w-full"
-    [disabled]="registerForm.invalid || isLoading()"
-  >
+  <button mat-flat-button color="primary" type="submit" class="w-full" [disabled]="isLoading()">
     @if (isLoading()) {
       Creating account...
     } @else {

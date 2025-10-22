@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.oauth2.core.user.OAuth2User
-import org.springframework.transaction.annotation.Transactional
 import pl.kalin.dreamlog.IntegrationSpec
 import pl.kalin.dreamlog.user.FederatedIdentityRepository
+import pl.kalin.dreamlog.user.User
 import pl.kalin.dreamlog.user.UserRepository
 import pl.kalin.dreamlog.user.service.OAuth2SuccessHandler
 
@@ -16,7 +16,6 @@ import pl.kalin.dreamlog.user.service.OAuth2SuccessHandler
  * Unit test for OAuth2SuccessHandler.
  * Verifies that users are created/updated in database after successful OAuth2 authentication.
  */
-@Transactional
 class OAuth2SuccessHandlerSpec extends IntegrationSpec {
 
     @Autowired
@@ -105,7 +104,7 @@ class OAuth2SuccessHandlerSpec extends IntegrationSpec {
         given: "Existing user registered with email/password"
         def email = "linktest@example.com"
         def existingUser = userRepository.save(
-            pl.kalin.dreamlog.user.User.builder()
+            User.builder()
                 .email(email)
                 .name("Link Test")
                 .emailVerified(false)

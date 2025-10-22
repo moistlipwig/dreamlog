@@ -70,6 +70,17 @@ public class SecurityConfig {
         return new OAuth2SuccessHandler(userService, redirectUrl);
     }
 
+    /**
+     * CSRF token repository with SameSite=Strict for enhanced security.
+     * XSRF-TOKEN cookie is readable by JavaScript (httpOnly=false) but restricted to same-site requests.
+     */
+    @Bean
+    public CookieCsrfTokenRepository csrfTokenRepository() {
+        CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        repository.setCookieCustomizer(cookie -> cookie.sameSite("Strict"));
+        return repository;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // CSRF token handler for SPA - allows Angular to read XSRF-TOKEN cookie
@@ -84,7 +95,7 @@ public class SecurityConfig {
             )
             // CSRF protection: double-submit cookie pattern (cookie + header)
             .csrf(csrf -> csrf
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRepository(csrfTokenRepository())
                 .csrfTokenRequestHandler(requestHandler)
                 .ignoringRequestMatchers("/login/oauth2/code/*")
                 .ignoringRequestMatchers("/oauth2/*")
