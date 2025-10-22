@@ -45,6 +45,17 @@ spring:
             scope:
               - email
               - public_profile
+server:
+  servlet:
+    session:
+      cookie:
+        # Security: SameSite=Lax prevents CSRF while allowing normal navigation
+        same-site: lax
+        # HttpOnly is set by Spring Security automatically
+        http-only: true
+        # Secure in production (HTTPS), false in dev
+        secure: false
+
 management:
   endpoints:
     web:

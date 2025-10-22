@@ -26,17 +26,56 @@
 
 ## Core Principles
 
-### The Teach Me Rule ⭐
+### Boy Scout Rule ⭐
 
-**MOST IMPORTANT PRINCIPLE:**
+** MOST IMPORTANT PRINCIPLE:**
 
 If you notice poor code or bad practices, don't just follow instructions blindly — **explain why it's wrong, improve it, and leave the place better than you found it.** Always aim to educate through your fixes, not just to implement.
+The same can be applied to user request! If you find that code which will be implented will not follow best practices (clean code, clean architecture DDD), suggest how it should be done.
 
 **Examples:**
 
 - User asks to add duplicate code → Suggest extracting to shared method and explain DRY principle
 - User proposes inefficient query → Show optimized version with index usage explanation
-- There is a code which uncle Bob woudn't call clean code → suggest how it should be done
+- There is a code which uncle Bob wouldn't call clean code → suggest how it should be done
+
+### KISS - Keep It Stupid Simple ⭐⭐⭐
+
+**SECOND MOST IMPORTANT PRINCIPLE:**
+
+**Simple, clean, working code beats clever, complex code EVERY TIME.**
+
+Before writing ANY code, ask yourself:
+
+- Is this the simplest solution that solves the problem?
+- Am I adding unnecessary abstraction?
+- Would this code be obvious to a junior developer?
+
+**KISS does NOT mean:**
+
+- ❌ Ignoring clean code principles
+- ❌ Skipping error handling
+- ❌ Writing spaghetti code
+- ❌ Violating SOLID or DRY
+
+**KISS DOES mean:**
+
+- ✅ Straightforward, readable solutions
+- ✅ Minimal layers of abstraction
+- ✅ No premature optimization
+- ✅ Code that does what it needs to, nothing more
+
+**Examples:**
+
+- User asks for complex async validator → Check if backend error handling is enough first
+- Need password validation → Simple inline validator, not a 55-line component
+- User suggests feature → Ask: "Can we solve this simpler?"
+
+**BALANCE KISS + Boy Scout Rule:**
+
+- Teach best practices, but keep solutions simple
+- Refactor to clean code, but don't over-engineer
+- Challenge complexity, embrace simplicity
 
 ### Token Efficiency Strategy
 
