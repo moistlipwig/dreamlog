@@ -1,3 +1,11 @@
+app:
+  # Frontend URL for OAuth2 redirects
+  # Dev: http://localhost:4200 | Production: leave empty or set to your domain
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:4200}
+    # Path to redirect after successful OAuth2 login
+    oauth-success-path: /app
+
 spring:
   application:
     name: dreamlog
@@ -18,9 +26,25 @@ spring:
     user: ${spring.datasource.username}
     password: ${spring.datasource.password}
   security:
-    user:
-      name: ${APP_BASIC_USER:admin}
-      password: ${APP_BASIC_PASSWORD:admin}
+    oauth2:
+      client:
+        registration:
+          google:
+            # REQUIRED: Set via environment variables or application-local.yml
+            # See OAUTH_SETUP.md for configuration instructions
+            client-id: ${GOOGLE_CLIENT_ID:REPLACE_WITH_ACTUAL_GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET:REPLACE_WITH_ACTUAL_GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid  # Required for OpenID Connect (MUST be lowercase)
+              - email
+              - profile
+          facebook:
+            # OPTIONAL: Only if you want Facebook login
+            client-id: ${FACEBOOK_CLIENT_ID:REPLACE_WITH_ACTUAL_FACEBOOK_APP_ID}
+            client-secret: ${FACEBOOK_CLIENT_SECRET:REPLACE_WITH_ACTUAL_FACEBOOK_APP_SECRET}
+            scope:
+              - email
+              - public_profile
 management:
   endpoints:
     web:

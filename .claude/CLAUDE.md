@@ -60,7 +60,7 @@ AI agents should work smart, not hard. Use these strategies:
 
 **Educational Goals:**
 
-- Learn modern Java 21 features (Virtual Threads, Records, Sealed classes)
+- Learn modern Java 25 features (Virtual Threads, Scoped Values, Records, Sealed classes)
 - Master Angular 20 with Signals and standalone components
 - Implement full-text search (PostgreSQL FTS + trigrams)
 - Build real-time features (SSE, gRPC)
@@ -69,7 +69,7 @@ AI agents should work smart, not hard. Use these strategies:
 
 **Key Technologies:**
 
-- Backend: Java 21, Spring Boot 3.5+, PostgreSQL 17, Flyway
+- Backend: Java 25, Spring Boot 3.5+, PostgreSQL 17, Flyway
 - Frontend: Angular 20, Material Design, TailwindCSS, Jest
 - Infrastructure: Docker Compose, GitHub Actions CI/CD
 
@@ -128,7 +128,7 @@ dreamlog/
 - Entities: `backend/src/main/java/pl/kalin/dreamlog/model/`
 - DTOs: `backend/src/main/java/pl/kalin/dreamlog/dto/`
 - Flyway migrations: `backend/src/main/resources/db/migration/`
-- Tests: `backend/src/test/java/` (mirrors main structure)
+- Tests (Groovy/Spock): `backend/src/test/groovy/`
 
 **Frontend Critical Paths:**
 
@@ -151,7 +151,7 @@ dreamlog/
 
 **Core Framework:**
 
-- Java 21 (with Gradle toolchain enforcement)
+- Java 25 (with Gradle toolchain enforcement)
 - Spring Boot 3.5.x
 - Spring Web (REST APIs)
 - Spring Data JPA (with Hibernate)
@@ -173,10 +173,10 @@ dreamlog/
 
 **Testing:**
 
-- JUnit 5
+- Groovy 4.0 + Spock Framework
 - Testcontainers (Postgres 17 required for integration tests)
-- MockMvc for controller tests
-- AssertJ for fluent assertions
+- Do not use MockMVC, instead use full integration test with rest template
+- Spring Security Test
 
 **Future Additions:**
 
@@ -305,7 +305,7 @@ npm run generate:api  # Generates from backend OpenAPI spec
 
 **Language Level & Style:**
 
-- Java 21 features encouraged (Records, Sealed classes, Pattern matching)
+- Java 25 features encouraged (Virtual Threads, Scoped Values, Records, Sealed classes, Pattern matching)
 - Indentation: 4 spaces
 - Encoding: UTF-8
 - Line endings: Unix (LF)
@@ -316,6 +316,55 @@ npm run generate:api  # Generates from backend OpenAPI spec
 Prefer constructor injection with Lombok
 Use @Data for simple DTOs
 Use @Builder for multiple argument contructors
+
+**Testing (Groovy/Spock):**
+
+**ALL backend tests MUST be written in Groovy using Spock Framework**
+
+Why Spock?
+
+- More readable with given/when/then blocks
+- Better data-driven testing with `where:` blocks
+- Cleaner mocking and stubbing
+- Native Groovy power (closures, operator overloading)
+
+**Spock Test Structure:**
+
+```groovy
+def "should do something meaningful"() {
+  given: "initial context"
+  def user = new User(email: "test@example.com")
+
+  when: "action happens"
+  def result = service.doSomething(user)
+
+  then: "verify outcome"
+  result.success
+  result.data.size() == 1
+}
+```
+
+**Integration Test Pattern:**
+
+```groovy
+@SpringBootTest
+@Testcontainers
+@Transactional
+class MyIntegrationSpec extends Specification {
+
+  @Shared
+  static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17-alpine")
+
+  @DynamicPropertySource
+  static void configureProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.datasource.url", postgres::getJdbcUrl)
+  }
+
+  def "test name"() {
+    // test implementation
+  }
+}
+```
 
 **Layering (Strict Separation):**
 
@@ -395,13 +444,30 @@ Examples:
 
 ### Backend Testing
 
-**Test Naming:** `*Tests.java` (NOT `*Test.java`)
+**Test Naming:** `*Spec.groovy` for Spock tests (Groovy) - **PRIMARY**
+
+**CRITICAL RULE: ALL integration tests MUST extend `IntegrationSpec`**
+
+Integration test base class (`backend/src/test/groovy/pl/kalin/dreamlog/IntegrationSpec.groovy`) provides:
+
+- Shared PostgreSQL Testcontainer (faster test execution)
+- Automatic Spring Boot configuration
+- Dynamic property registration for database connection
+- Proper setup/cleanup lifecycle
 
 **Test Types:**
 
 1. **Unit Tests (Fast, No Spring Context):**
-2. **Web Slice Tests (MockMvc, No Database):**
-3. **Integration Tests (Full Context + Testcontainers):**
+
+- Plain Spock specifications
+- Mock dependencies with Spock's built-in mocking
+- NO `@SpringBootTest` annotation
+
+2. **Integration Tests (Full Context + Testcontainers):**
+
+- **MUST extend `IntegrationSpec`**
+- Add `@Transactional` for automatic rollback
+- Example:
 
 **Running Tests:**
 
@@ -409,11 +475,11 @@ Examples:
 # All tests (requires Docker)
 ./gradlew :backend:test
 
-# Only controller tests (no Docker)
-./gradlew :backend:test --tests "*controller*"
+# Only integration tests
+./gradlew :backend:test --tests "*IntegrationSpec"
 
 # Specific test class
-./gradlew :backend:test --tests "DreamControllerTests"
+./gradlew :backend:test --tests "GoogleOAuthIntegrationSpec"
 
 # Test reports
 # backend/build/reports/tests/test/index.html
@@ -575,10 +641,6 @@ Use **Conventional Commits** format:
    ├─ Run specific test: npm test -- <test-name>
    └─ Check for missing imports in standalone components
 
-4. Common fixes
-   ├─ Backend: Add @AutoConfigureMockMvc(addFilters = false)
-   ├─ Frontend: Add missing component imports
-   └─ Both: Update snapshots if behavior changed intentionally
 ```
 
 ### Pattern Reference Library
@@ -595,18 +657,6 @@ Pattern includes:
 - @RequiredArgsConstructor for DI
 - @Valid for request validation
 - ResponseEntity return types
-```
-
-**Backend Controller Test Pattern:**
-
-```
-Reference: backend/src/test/java/pl/kalin/dreamlog/controller/DreamEntryControllerTests.java:1
-Search: Grep for "@WebMvcTest" in backend/src/test/
-Pattern includes:
-- @WebMvcTest(ControllerClass.class)
-- @AutoConfigureMockMvc(addFilters = false)
-- @MockBean for services
-- MockMvc for HTTP testing
 ```
 
 **Angular Component Pattern:**
@@ -859,7 +909,7 @@ For detailed roadmap with learning objectives and DoD criteria, see: [README.md]
 - Phase 6: Reminders and notifications
 - Phase 7: Observability (Prometheus, Grafana)
 - Phase 8: Image generation (Stable Diffusion)
-- Phase 9-10: Java 21+ features, Kotlin migration
+- Phase 9-10: Java 25+ features, Kotlin migration
 - Phase 11: Experiments (GraphQL, Redis, Kafka)
 
 **When working on tasks:**

@@ -1,0 +1,12 @@
+/* TailwindCSS v4 import using native CSS @import */
+@import "tailwindcss";
+
+/* CSS Variables for Landing Page */
+:root {
+  --color-primary: #667eea;
+  --color-primary-dark: #764ba2;
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-bg-card: rgba(255, 255, 255, 0.95);
+  --font-family: 'Poppins', sans-serif;
+}

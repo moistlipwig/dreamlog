@@ -1,20 +1,44 @@
-<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" autocomplete="off">
+  @if (errorMessage()) {
+    <div class="error-message bg-red-50 text-red-800 p-3 rounded-md mb-4">
+      {{ errorMessage() }}
+    </div>
+  }
+
   <mat-form-field appearance="outline" class="w-full">
-    <mat-label>Username</mat-label>
-    <input matInput formControlName="username" type="text" placeholder="Enter your username" />
+    <input
+      matInput
+      formControlName="username"
+      type="email"
+      placeholder="your@email.com"
+      autocomplete="email"
+      autocapitalize="off"
+      spellcheck="false"
+      inputmode="email"
+    />
     @if (loginForm.get('username')?.hasError('required') && loginForm.get('username')?.touched) {
-      <mat-error>Username is required</mat-error>
+      <mat-error>Email is required</mat-error>
+    }
+    @if (loginForm.get('username')?.hasError('email') && loginForm.get('username')?.touched) {
+      <mat-error>Please enter a valid email</mat-error>
     }
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="w-full">
-    <mat-label>Password</mat-label>
-    <input matInput formControlName="password" type="password" placeholder="Enter your password" />
+    <input
+      matInput
+      formControlName="password"
+      type="password"
+      placeholder="Enter your password"
+      autocomplete="current-password"
+      autocapitalize="off"
+      spellcheck="false"
+    />
     @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
       <mat-error>Password is required</mat-error>
     }
     @if (loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched) {
-      <mat-error>Password must be at least 6 characters</mat-error>
+      <mat-error>Password must be at least 8 characters</mat-error>
     }
   </mat-form-field>
 

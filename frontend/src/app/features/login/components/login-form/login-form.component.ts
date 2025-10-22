@@ -1,8 +1,11 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { Router } from '@angular/router';
+
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login-form',
@@ -12,30 +15,41 @@ import { MatInputModule } from '@angular/material/input';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginFormComponent {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
   loginForm = new FormGroup({
     username: new FormControl('', {
-      validators: [(control) => Validators.required(control)],
+      validators: [Validators.required, Validators.email],
       nonNullable: true,
     }),
     password: new FormControl('', {
-      validators: [(control) => Validators.required(control) ?? Validators.minLength(6)(control)],
+      validators: [Validators.required, Validators.minLength(8)],
       nonNullable: true,
     }),
   });
 
   isLoading = signal(false);
+  errorMessage = signal<string | null>(null);
 
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.isLoading.set(true);
-      // TODO: Implement actual login logic with backend
-      console.log('Login form submitted:', this.loginForm.value);
+      this.errorMessage.set(null);
 
-      // Simulate API call
-      setTimeout(() => {
-        this.isLoading.set(false);
-        alert('Login with username/password not yet implemented. Please use Google login.');
-      }, 1000);
+      const { username, password } = this.loginForm.getRawValue();
+
+      this.authService.login(username, password).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          void this.router.navigateByUrl('/app');
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          const message = error.error?.error || 'Login failed. Please check your credentials.';
+          this.errorMessage.set(message);
+        },
+      });
     }
   }
 }
