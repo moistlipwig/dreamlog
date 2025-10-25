@@ -9,18 +9,19 @@
 ## Table of Contents
 
 1. [Core Principles](#core-principles)
-2. [Project Overview](#project-overview)
-3. [Architecture & Repository Layout](#architecture--repository-layout)
-4. [Technology Stack](#technology-stack)
-5. [Development Workflow](#development-workflow)
-6. [Coding Standards](#coding-standards)
-7. [Database & Migrations](#database--migrations)
-8. [Testing Strategy](#testing-strategy)
-9. [Commit & PR Guidelines](#commit--pr-guidelines)
-10. [Token Optimization for AI Agents](#token-optimization-for-ai-agents)
-11. [Agent Feedback Protocol](#agent-feedback-protocol)
-12. [Common Pitfalls & Troubleshooting](#common-pitfalls--troubleshooting)
-13. [Project Roadmap Context](#project-roadmap-context)
+2. [Workflow with User (IMPORTANT)](#workflow-with-user-important)
+3. [Project Overview](#project-overview)
+4. [Architecture & Repository Layout](#architecture--repository-layout)
+5. [Technology Stack](#technology-stack)
+6. [Development Workflow](#development-workflow)
+7. [Coding Standards](#coding-standards)
+8. [Database & Migrations](#database--migrations)
+9. [Testing Strategy](#testing-strategy)
+10. [Commit & PR Guidelines](#commit--pr-guidelines)
+11. [Token Optimization for AI Agents](#token-optimization-for-ai-agents)
+12. [Agent Feedback Protocol](#agent-feedback-protocol)
+13. [Common Pitfalls & Troubleshooting](#common-pitfalls--troubleshooting)
+14. [Project Roadmap Context](#project-roadmap-context)
 
 ---
 
@@ -87,6 +88,111 @@ AI agents should work smart, not hard. Use these strategies:
 4. **Decision Trees:** Follow task-specific guides below instead of guessing
 
 **Estimated token savings:** 60-80% reduction in exploration phase
+
+---
+
+## Workflow with User (IMPORTANT)
+
+### Two-Phase Collaborative Workflow
+
+**This project uses a structured two-session approach for implementing features:**
+
+#### Phase 1: Planning & Analysis Session
+
+**User responsibilities:**
+
+1. Creates task ticket based on `.claude/tickets/example_ticket.md`
+2. Fills in high-level goals, design references, rough scope
+3. Starts conversation with AI agent
+
+**AI Agent responsibilities (STAGE 0):**
+
+1. **Analyze** existing codebase structure (use Glob/Grep, NOT full file reads)
+2. **Identify** similar patterns and reusable code
+3. **Detect** potential conflicts, duplications, bad practices
+4. **Propose** refactoring if needed (Boy Scout Rule)
+5. **Break down** task into detailed stages with time estimates
+6. **Update** ticket with findings in "Pre-implementation Analysis" section
+7. **Ask clarifying questions** if scope is unclear
+8. **⚠️ STOP and wait for user approval** - DO NOT start implementation!
+
+**Key principle:** Agent acts as **technical reviewer and architect**, not implementer yet.
+
+**Output of Phase 1:**
+
+- Updated ticket with detailed stage breakdown
+- List of files/patterns to reuse
+- Identified problems and proposed solutions
+- User approval to proceed OR adjustments to plan
+
+#### Phase 2: Implementation Session (Separate Context)
+
+**User responsibilities:**
+
+1. Reviews and approves the plan from Phase 1
+2. Starts **new conversation** with approved ticket
+3. Instructs agent to execute specific stages
+
+**AI Agent responsibilities:**
+
+1. **Execute** approved stages from ticket
+2. **Update** ticket status (🔵/🟢/🔴) in real-time
+3. **Check off** completed tasks
+4. **Apply** Boy Scout Rule during implementation
+5. **Write tests** as part of each stage
+6. **Verify** with `npm run verify` / `./gradlew test`
+7. **Document** any deviations or discoveries
+
+**Why separate sessions?**
+
+- ✅ Prevents premature implementation
+- ✅ Ensures alignment before costly coding work
+- ✅ Allows user to review architecture decisions
+- ✅ Cleaner context - planning vs execution
+- ✅ Agent can focus on one mode at a time
+
+### Task Ticket Structure
+
+**Location:** `.claude/temporary_instructions/`
+
+**Template:** Use `ticket_template.md` for new tasks
+
+**Key sections:**
+
+- **Tracker:** Visual progress with stages and time estimates
+- **Goal:** What and why (not how)
+- **Architecture:** High-level decisions only
+- **STAGE 0:** Planning checklist for AI
+- **STAGE 1-N:** Implementation stages (filled during planning)
+- **Pre-implementation Analysis:** AI fills this in STAGE 0
+- **Done Criteria:** Measurable success metrics
+
+**What tickets should NOT contain:**
+
+- ❌ Full code implementations (only schemas/signatures)
+- ❌ Style guidelines (link to guidelines.md instead)
+- ❌ "How to code" instructions (that's in guidelines)
+- ❌ Detailed component lists (high-level only, details emerge during work)
+
+### Separation of Concerns
+
+**Tickets (.claude/ticket/):**
+
+- WHAT to build
+- WHY we're building it
+- Success criteria
+- Stage breakdown
+- Progress tracking
+
+**Guidelines (.claude/CLAUDE.md + frontend/.junie/guidelines.md):**
+
+- HOW to write code
+- Technology stack rules
+- Forbidden patterns
+- Best practices
+- Architectural principles
+
+**Don't duplicate between tickets and guidelines!**
 
 ---
 
@@ -284,6 +390,39 @@ dreamlog/
 
 ## Development Workflow
 
+### Backend Development (Gradle)
+
+**IMPORTANT: This is a multi-module Gradle project**
+
+- Root project contains `gradlew` / `gradlew.bat`
+- Backend is a submodule (`:backend`)
+- Always run Gradle from root directory
+
+**Running Gradle commands:**
+
+```bash
+# On Windows (standard terminal / Bash tool)
+./gradlew.bat build                         # Build entire project
+./gradlew.bat :backend:build               # Build backend only
+./gradlew.bat :backend:test                # Run backend tests
+./gradlew.bat :backend:bootRun             # Run backend application
+./gradlew.bat clean                         # Clean build artifacts
+
+# On Unix/Linux/Mac
+./gradlew build
+./gradlew :backend:build
+./gradlew :backend:test
+./gradlew :backend:bootRun
+./gradlew clean
+```
+
+**Special case - MCP IntelliJ terminal only:**
+```bash
+# If using mcp__jetbrains__execute_terminal_command (NOT Bash tool)
+cmd /c gradlew.bat build
+# Reason: MCP IntelliJ's terminal wrapper requires cmd /c prefix for .bat files
+```
+
 **Backend URLs:**
 
 - API: http://localhost:8080/api/v1/
@@ -291,7 +430,7 @@ dreamlog/
 - OpenAPI spec: http://localhost:8080/v3/api-docs
 - Actuator health: http://localhost:8080/actuator/health
 
-**Frontend Development:**
+### Frontend Development
 
 ```bash
 cd frontend

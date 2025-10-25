@@ -387,9 +387,64 @@ Use binding syntax instead of directives:
 
 ## Project-Specific Patterns
 
+### Feature Module Organization
+
+**Principle:** Organize by FUNCTION, not by auth status.
+
+```
+features/
+├── dashboard/       # Main screen after login (protected by authGuard)
+├── dreams/          # Dream management (protected by authGuard)
+├── calendar/        # Calendar view (protected by authGuard)
+├── settings/        # User settings (protected by authGuard)
+├── landing/         # Public landing page (loggedInGuard - redirects if logged in)
+└── login/           # Auth flow (loggedInGuard - redirects if logged in)
+```
+
+**Why function-based structure?**
+- ✅ Easier lazy loading per feature
+- ✅ Easier to find code ("where's calendar?" → `features/calendar/`)
+- ✅ Guards control access, not folder structure
+- ✅ Reusable components work across features
+
+**Within each feature:**
+```
+features/my-feature/
+├── components/              # Presentational (dumb) components
+│   ├── sub-component-1/
+│   └── sub-component-2/
+├── my-feature-page.ts       # Smart component (fetches data, manages state)
+├── my-feature-page.html
+└── my-feature-page.scss
+```
+
+**Smart vs Presentational:**
+- **Smart (Page) components:** Fetch data, manage routing, handle state
+- **Presentational components:** Display data via `input()`, emit events via `output()`
+
+### Responsive Design
+
+**Breakpoints (Tailwind):**
+- Mobile: `< 768px` (default, no prefix)
+- Tablet: `md:` (768px - 1024px)
+- Desktop: `lg:` (> 1024px)
+
+**Example:**
+```html
+<!-- Stack on mobile, 2 columns on tablet, 3 on desktop -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+```
+
+**Accessibility:**
+- Always provide `aria-label` for icon-only buttons
+- Ensure focus states are visible
+- Respect `prefers-reduced-motion` (already in global styles)
+
 ### API Integration
 
-Location: `frontend/src/app/services/`
+Location: `frontend/src/app/core/services/`
+
+Pattern: All HTTP services in `core/services/`, models in `core/models/`
 
 ### Forms (Reactive)
 

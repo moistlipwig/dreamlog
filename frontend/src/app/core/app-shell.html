@@ -1,8 +1,18 @@
 <mat-sidenav-container class="h-full">
   <mat-sidenav #drawer class="w-64" mode="over">
     <mat-nav-list>
-      <a mat-list-item routerLink="/app/dreams" (click)="drawer.close()">Dreams</a>
-      <a mat-list-item routerLink="/app/calendar" (click)="drawer.close()">Calendar</a>
+      <a mat-list-item routerLink="/app/dashboard" (click)="drawer.close()">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Dashboard</span>
+      </a>
+      <a mat-list-item routerLink="/app/dreams" (click)="drawer.close()">
+        <mat-icon matListItemIcon>bedtime</mat-icon>
+        <span matListItemTitle>Dreams</span>
+      </a>
+      <a mat-list-item routerLink="/app/calendar" (click)="drawer.close()">
+        <mat-icon matListItemIcon>calendar_month</mat-icon>
+        <span matListItemTitle>Calendar</span>
+      </a>
     </mat-nav-list>
   </mat-sidenav>
 
@@ -16,6 +26,9 @@
       <app-search-bar class="hidden md:block w-64"></app-search-bar>
       <button mat-icon-button aria-label="Settings" routerLink="/app/settings">
         <mat-icon>settings</mat-icon>
+      </button>
+      <button mat-icon-button aria-label="Logout" (click)="logout()">
+        <mat-icon>logout</mat-icon>
       </button>
     </mat-toolbar>
     @if (loading$ | async) {

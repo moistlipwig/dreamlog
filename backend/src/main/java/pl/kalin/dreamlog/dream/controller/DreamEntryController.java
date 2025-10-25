@@ -2,6 +2,10 @@ package pl.kalin.dreamlog.dream.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -32,12 +36,34 @@ public class DreamEntryController {
     private final UserService userService;
 
     /**
-     * Get all dreams for the authenticated user.
+     * Get paginated dreams for the authenticated user.
+     * Supports pagination and sorting via query parameters.
+     *
+     * @param page zero-based page number (default: 0)
+     * @param size number of items per page (default: 20)
+     * @param sort sorting criteria in format "property,direction" (default: "date,desc")
+     * @param authentication Spring Security authentication object
+     * @return page of dreams with metadata (totalElements, totalPages, etc.)
+     *
+     * @example GET /api/dreams?page=0&size=5&sort=date,desc
      */
     @GetMapping
-    public ResponseEntity<List<DreamResponse>> getUserDreams(Authentication authentication) {
+    public ResponseEntity<Page<DreamResponse>> getUserDreams(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "date,desc") String sort,
+            Authentication authentication) {
         User user = getCurrentUser(authentication);
-        List<DreamResponse> dreams = dreamService.getUserDreams(user);
+
+        // Parse sort parameter (format: "property,direction")
+        String[] sortParams = sort.split(",");
+        String sortProperty = sortParams[0];
+        Sort.Direction sortDirection = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("asc")
+            ? Sort.Direction.ASC
+            : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortProperty));
+        Page<DreamResponse> dreams = dreamService.getUserDreams(user, pageable);
         return ResponseEntity.ok(dreams);
     }
 

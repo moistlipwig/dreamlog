@@ -2,6 +2,8 @@ package pl.kalin.dreamlog.dream.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,13 +31,28 @@ public class DreamService {
     private final DreamEntryRepository dreamRepository;
 
     /**
-     * Get all dreams for the authenticated user.
+     * Get paginated dreams for the authenticated user.
      * @param user the authenticated user
-     * @return list of user's dreams (empty if no dreams found)
+     * @param pageable pagination parameters (page, size, sort)
+     * @return page of user's dreams
      */
     @Transactional(readOnly = true)
+    public Page<DreamResponse> getUserDreams(User user, Pageable pageable) {
+        log.debug("Fetching dreams for user: {} with pagination: {}", user.getEmail(), pageable);
+        return dreamRepository.findByUserId(user.getId(), pageable)
+            .map(DreamResponse::from);
+    }
+
+    /**
+     * Get all dreams for the authenticated user (unpaginated).
+     * @param user the authenticated user
+     * @return list of user's dreams (empty if no dreams found)
+     * @deprecated Use {@link #getUserDreams(User, Pageable)} for better performance with large datasets
+     */
+    @Deprecated
+    @Transactional(readOnly = true)
     public List<DreamResponse> getUserDreams(User user) {
-        log.debug("Fetching dreams for user: {}", user.getEmail());
+        log.debug("Fetching all dreams for user: {}", user.getEmail());
         return dreamRepository.findByUserId(user.getId())
             .stream()
             .map(DreamResponse::from)

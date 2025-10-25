@@ -1,0 +1,119 @@
+<div class="dashboard-container">
+  <!-- Header with greeting -->
+  <div class="dashboard-header mb-6">
+    <h1 class="text-3xl font-bold">Welcome back{{ user() ? ', ' + user()!.name : '' }}!</h1>
+    <p class="text-gray-600 mt-2">Here's your dream journal summary</p>
+  </div>
+
+  @if (isLoading()) {
+    <!-- Loading state -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      @for (_ of [1, 2]; track $index) {
+        <mat-card class="p-4 animate-pulse">
+          <div class="h-16 bg-gray-200 rounded"></div>
+        </mat-card>
+      }
+    </div>
+  } @else if (error()) {
+    <!-- Error state -->
+    <mat-card class="p-6 text-center">
+      <mat-icon class="text-red-500 text-5xl mb-4">error_outline</mat-icon>
+      <p class="text-red-600">{{ error() }}</p>
+      <button mat-raised-button color="primary" class="mt-4" (click)="loadDashboardData()">
+        Retry
+      </button>
+    </mat-card>
+  } @else {
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <!-- Total Dreams Card -->
+      <mat-card class="stat-card">
+        <mat-card-content class="flex items-center p-6">
+          <mat-icon class="text-primary text-5xl mr-4">bedtime</mat-icon>
+          <div>
+            <p class="text-gray-600 text-sm">Total Dreams</p>
+            <p class="text-3xl font-bold">{{ stats()?.totalDreams || 0 }}</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Most Common Mood Card -->
+      <mat-card class="stat-card">
+        <mat-card-content class="flex items-center p-6">
+          <mat-icon class="text-primary text-5xl mr-4">mood</mat-icon>
+          <div>
+            <p class="text-gray-600 text-sm">Most Common Mood</p>
+            <p class="text-2xl font-bold">{{ getMoodLabel(stats()?.mostCommonMood || null) }}</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Recent Dreams Section -->
+    <div class="recent-dreams-section">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-semibold">Recent Dreams</h2>
+        <a mat-button color="primary" routerLink="/app/dreams">
+          View All
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </div>
+
+      @if (recentDreams().length === 0) {
+        <!-- Empty state -->
+        <mat-card class="p-8 text-center">
+          <mat-icon class="text-gray-400 text-6xl mb-4">psychology_alt</mat-icon>
+          <p class="text-gray-600 text-lg mb-4">No dreams yet</p>
+          <p class="text-gray-500 mb-6">Start your dream journaling journey today!</p>
+          <a mat-raised-button color="primary" routerLink="/app/dreams/new">
+            <mat-icon>add</mat-icon>
+            Add Your First Dream
+          </a>
+        </mat-card>
+      } @else {
+        <!-- Dreams list -->
+        <div class="grid grid-cols-1 gap-4">
+          @for (dream of recentDreams(); track dream.id) {
+            <mat-card
+              class="dream-card cursor-pointer hover:shadow-lg transition-shadow"
+              [routerLink]="['/app/dreams', dream.id]"
+            >
+              <mat-card-header>
+                <mat-card-title class="text-lg font-semibold truncate">
+                  {{ dream.title }}
+                </mat-card-title>
+                <mat-card-subtitle>{{ dream.date | date }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content class="pt-2">
+                <p class="text-sm text-gray-600 line-clamp-2">
+                  {{ dream.content.substring(0, 150) }}{{ dream.content.length > 150 ? '...' : '' }}
+                </p>
+                @if (dream.tags && dream.tags.length > 0) {
+                  <div class="flex flex-wrap gap-2 mt-3">
+                    @for (tag of dream.tags.slice(0, 3); track tag) {
+                      <span class="px-2 py-1 bg-primary bg-opacity-10 text-primary text-xs rounded">
+                        {{ tag }}
+                      </span>
+                    }
+                    @if (dream.tags.length > 3) {
+                      <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                        +{{ dream.tags.length - 3 }} more
+                      </span>
+                    }
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+
+        <!-- Add dream FAB -->
+        <div class="mt-6 flex justify-center">
+          <a mat-fab color="primary" routerLink="/app/dreams/new" aria-label="Add new dream">
+            <mat-icon>add</mat-icon>
+          </a>
+        </div>
+      }
+    </div>
+  }
+</div>

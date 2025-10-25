@@ -10,13 +10,13 @@
 
 html {
   @include mat.theme(
-      (
-        color: (
-          primary: mat.$blue-palette,
-          tertiary: mat.$violet-palette,
-        ),
-        density: 0,
-      )
+    (
+      color: (
+        primary: mat.$blue-palette,
+        tertiary: mat.$violet-palette,
+      ),
+      density: 0,
+    )
   );
 
   // Custom background overrides (Material 3 system colors)

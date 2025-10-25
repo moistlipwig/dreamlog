@@ -1,5 +1,7 @@
 package pl.kalin.dreamlog.dream.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import pl.kalin.dreamlog.dream.model.DreamEntry;
 
@@ -10,10 +12,20 @@ import java.util.UUID;
 public interface DreamEntryRepository extends JpaRepository<DreamEntry, UUID> {
 
     /**
-     * Find all dreams belonging to a specific user.
+     * Find all dreams belonging to a specific user with pagination support.
+     * @param userId the user's ID
+     * @param pageable pagination parameters (page, size, sort)
+     * @return page of dreams
+     */
+    Page<DreamEntry> findByUserId(UUID userId, Pageable pageable);
+
+    /**
+     * Find all dreams belonging to a specific user (unpaginated).
      * @param userId the user's ID
      * @return list of dreams (empty if user has no dreams)
+     * @deprecated Use {@link #findByUserId(UUID, Pageable)} for better performance with large datasets
      */
+    @Deprecated
     List<DreamEntry> findByUserId(UUID userId);
 
     /**
