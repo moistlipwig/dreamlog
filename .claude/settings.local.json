@@ -39,7 +39,16 @@
       "mcp__jetbrains__rename_refactoring",
       "mcp__jetbrains__execute_terminal_command",
       "mcp__jetbrains__get_repositories",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(findstr:*)",
+      "Bash(cmd //c gradlew.bat test:*)",
+      "Bash(cmd //c gradlew.bat:*)",
+      "Bash(cmd //c \"gradlew.bat test --rerun-tasks\")",
+      "Bash(groovy)",
+      "Bash(cmd //c \"cd backend && gradlew.bat test --tests *DreamEntryControllerIntegrationSpec*\")",
+      "Bash(cmd //c \"gradlew.bat test --tests *DreamEntryControllerIntegrationSpec*\")",
+      "Bash(cmd //c:*)",
+      "Read(//c/**)"
     ],
     "deny": [],
     "ask": []

@@ -7,6 +7,7 @@ import { dreamResolver } from '@core/resolvers/dream.resolver';
 
 import { AppShell } from './core/app-shell';
 import { CalendarPage } from './features/calendar/calendar-page';
+import { DashboardPage } from './features/dashboard/dashboard-page';
 import { DreamDetail } from './features/dreams/dream-detail';
 import { DreamEdit } from './features/dreams/dream-edit';
 import { DreamList } from './features/dreams/dream-list';
@@ -24,7 +25,8 @@ export const routes: Routes = [
     component: AppShell,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'dreams', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardPage },
       { path: 'dreams', component: DreamList },
       { path: 'dreams/new', component: DreamEdit, canDeactivate: [pendingChangesGuard] },
       {

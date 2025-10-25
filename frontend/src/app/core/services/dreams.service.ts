@@ -2,29 +2,54 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { ApiHttp } from '../http/api-http';
-import { Dream } from '../models/dream';
+import { Dream, CreateDreamRequest, UpdateDreamRequest, PagedResponse } from '../models/dream';
 
+/**
+ * Service for managing dream entries (CRUD operations).
+ * Base endpoint: /api/dreams
+ */
 @Injectable({ providedIn: 'root' })
 export class DreamsService {
-  private api = inject(ApiHttp);
+  private readonly api = inject(ApiHttp);
+  private readonly baseUrl = '/dreams';
 
-  list(): Observable<Dream[]> {
-    return this.api.get<Dream[]>('/dreams');
+  /**
+   * Get paginated dreams.
+   * @param page zero-based page number (default: 0)
+   * @param size number of items per page (default: 20)
+   * @param sort sorting criteria in format "property,direction" (default: "date,desc")
+   */
+  list(page = 0, size = 20, sort = 'date,desc'): Observable<PagedResponse<Dream>> {
+    return this.api.get<PagedResponse<Dream>>(
+      `${this.baseUrl}?page=${page}&size=${size}&sort=${sort}`,
+    );
   }
 
+  /**
+   * Get single dream by ID.
+   */
   get(id: string): Observable<Dream> {
-    return this.api.get<Dream>(`/dreams/${id}`);
+    return this.api.get<Dream>(`${this.baseUrl}/${id}`);
   }
 
-  create(dream: Partial<Dream>): Observable<Dream> {
-    return this.api.post<Dream>('/dreams', dream);
+  /**
+   * Create new dream entry.
+   */
+  create(request: CreateDreamRequest): Observable<Dream> {
+    return this.api.post<Dream>(this.baseUrl, request);
   }
 
-  update(id: string, dream: Partial<Dream>): Observable<Dream> {
-    return this.api.post<Dream>(`/dreams/${id}`, dream);
+  /**
+   * Update existing dream entry (PUT - full replacement).
+   */
+  update(id: string, request: UpdateDreamRequest): Observable<Dream> {
+    return this.api.put<Dream>(`${this.baseUrl}/${id}`, request);
   }
 
-  delete(id: string) {
-    return this.api.post<void>(`/dreams/${id}/delete`, {});
+  /**
+   * Delete dream entry.
+   */
+  delete(id: string): Observable<void> {
+    return this.api.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

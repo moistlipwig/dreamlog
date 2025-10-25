@@ -1,12 +1,63 @@
-export interface Dream {
-  id: string; // UUID
-  title: string;
-  content: string;
-  date: string; // ISO
-  tags: string[];
-  mood: number; // 1-5
+/**
+ * Mood enum matching backend Mood enum values.
+ * Backend: pl.kalin.dreamlog.dream.model.Mood
+ */
+export enum Mood {
+  POSITIVE = 'POSITIVE',
+  NEUTRAL = 'NEUTRAL',
+  NEGATIVE = 'NEGATIVE',
+  NIGHTMARE = 'NIGHTMARE',
+  MIXED = 'MIXED',
 }
 
-export type Tag = string;
+/**
+ * Dream entry model matching backend DreamResponse.
+ * Backend: pl.kalin.dreamlog.dream.dto.DreamResponse
+ */
+export interface Dream {
+  id: string; // UUID
+  date: string; // ISO LocalDate format (YYYY-MM-DD)
+  title: string;
+  content: string;
+  moodInDream: Mood | null;
+  moodAfterDream: Mood | null;
+  vividness: number; // 0-10
+  lucid: boolean;
+  tags: string[];
+}
 
-export type Mood = 1 | 2 | 3 | 4 | 5;
+/**
+ * Request for creating a new dream entry.
+ * Backend: pl.kalin.dreamlog.dream.dto.DreamCreateRequest
+ */
+export interface CreateDreamRequest {
+  date: string; // ISO LocalDate format (YYYY-MM-DD)
+  title: string;
+  content: string;
+  moodInDream?: Mood;
+  moodAfterDream?: Mood;
+  vividness?: number;
+  lucid?: boolean;
+  tags?: string[];
+}
+
+/**
+ * Request for updating an existing dream entry.
+ * Backend: pl.kalin.dreamlog.dream.dto.DreamUpdateRequest
+ */
+export type UpdateDreamRequest = CreateDreamRequest;
+
+/**
+ * Paginated response from backend.
+ * Matches Spring Data Page<T> structure.
+ */
+export interface PagedResponse<T> {
+  content: T[]; // Array of items
+  totalElements: number; // Total count across all pages
+  totalPages: number; // Total number of pages
+  size: number; // Page size
+  number: number; // Current page number (0-indexed)
+  first: boolean; // Is first page
+  last: boolean; // Is last page
+  empty: boolean; // Is content empty
+}

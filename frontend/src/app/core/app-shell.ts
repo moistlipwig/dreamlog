@@ -18,6 +18,7 @@ import {
 import { filter, map } from 'rxjs';
 
 import { SearchBar } from './search-bar';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-app-shell',
@@ -38,7 +39,8 @@ import { SearchBar } from './search-bar';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppShell {
-  private router = inject(Router);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   loading$ = this.router.events.pipe(
     filter(
@@ -50,4 +52,8 @@ export class AppShell {
     ),
     map((e) => e instanceof NavigationStart),
   );
+
+  logout(): void {
+    this.authService.logout().subscribe();
+  }
 }

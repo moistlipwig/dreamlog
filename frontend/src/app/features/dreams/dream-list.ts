@@ -2,6 +2,7 @@ import { AsyncPipe, DatePipe, SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
+import { map } from 'rxjs';
 
 import { DreamsService } from '../../core/services/dreams.service';
 import { EmptyState } from '../../shared/empty-state';
@@ -15,7 +16,7 @@ import { TagChips } from '../../shared/tag-chips';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DreamList {
-  private dreams = inject(DreamsService);
-  dreams$ = this.dreams.list();
+  private dreamsService = inject(DreamsService);
+  dreams$ = this.dreamsService.list().pipe(map((page) => page.content));
   skeletons = Array.from({ length: 4 });
 }

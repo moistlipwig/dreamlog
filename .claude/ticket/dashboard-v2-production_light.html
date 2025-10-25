@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Dziennik Snów (Production Ready)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f1419;
+            color: #e0e0e0;
+        }
+        
+        /* ============================================
+           TYLKO 4 ANIMACJE - ESSENTIAL ONLY
+           1. Hover transitions (podstawa)
+           2. Loading skeleton (UX)
+           3. Smooth page transitions (płynność)
+           4. Focus states (accessibility)
+           ============================================ */
+        
+        /* 1️⃣ HOVER TRANSITIONS - Must have */
+        .interactive {
+            transition: transform 0.2s ease, box-shadow 0.2s ease, 
+                        background-color 0.2s ease, border-color 0.2s ease;
+        }
+        
+        /* 2️⃣ SKELETON LOADING - Tylko gdy potrzebne */
+        @keyframes skeleton {
+            0% { opacity: 0.6; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.6; }
+        }
+        
+        .skeleton {
+            background: rgba(255, 255, 255, 0.05);
+            animation: skeleton 1.5s ease-in-out infinite;
+        }
+        
+        /* 3️⃣ SMOOTH TRANSITIONS - dla *ngIf w Angular */
+        .fade-enter {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 4️⃣ ACCESSIBILITY - Focus states */
+        *:focus-visible {
+            outline: 2px solid #4f46e5;
+            outline-offset: 2px;
+        }
+        
+        /* Respect user preferences */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* ============================================
+           MAIN STYLES
+           ============================================ */
+        
+        .top-nav {
+            background: rgba(20, 25, 35, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .nav-link {
+            color: #999;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        
+        /* Subtelny hover - tylko kolor */
+        .nav-link.interactive:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-link.active {
+            color: #fff;
+            background: rgba(79, 70, 229, 0.2);
+        }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .search-mini {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: white;
+            width: 200px;
+            font-size: 13px;
+        }
+        
+        /* Focus - accessibility */
+        .search-mini:focus {
+            outline: 2px solid #4f46e5;
+            outline-offset: 2px;
+            border-color: #4f46e5;
+        }
+        
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        /* Subtelny hover */
+        .icon-btn.interactive:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: #ef4444;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+        
+        .user-menu.interactive:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .user-avatar-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        
+        .welcome-section {
+            margin-bottom: 40px;
+        }
+        
+        .welcome-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 30px;
+        }
+        
+        .welcome-text h1 {
+            font-size: 36px;
+            font-weight: 300;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-text p {
+            color: #888;
+            font-size: 16px;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+        }
+        
+        /* Subtelny hover - tylko transform */
+        .btn-primary.interactive:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .btn-outline.interactive:hover {
+            border-color: #4f46e5;
+            background: rgba(79, 70, 229, 0.1);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(30, 35, 45, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+        }
+        
+        /* Subtelny hover na kartach */
+        .card.interactive:hover {
+            border-color: rgba(79, 70, 229, 0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .card-action {
+            color: #4f46e5;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .card-action.interactive:hover {
+            background: rgba(79, 70, 229, 0.1);
+        }
+        
+        .stats-mini {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-mini-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .stat-mini-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .stat-mini-label {
+            font-size: 13px;
+            color: #888;
+        }
+        
+        .stat-mini-icon {
+            font-size: 20px;
+        }
+        
+        .stat-mini-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .stat-mini-change {
+            font-size: 12px;
+            color: #4ade80;
+            margin-top: 5px;
+        }
+        
+        .dream-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .timeline-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 18px;
+            cursor: pointer;
+        }
+        
+        /* Subtelny hover */
+        .timeline-item.interactive:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(79, 70, 229, 0.5);
+        }
+        
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        
+        .timeline-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-date {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .timeline-mood {
+            font-size: 24px;
+        }
+        
+        .timeline-content {
+            font-size: 14px;
+            color: #999;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        
+        .timeline-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: rgba(79, 70, 229, 0.15);
+            color: #a5b4fc;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+        
+        .tag.interactive:hover {
+            background: rgba(79, 70, 229, 0.25);
+        }
+        
+        .activity-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .activity-item {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .activity-icon-wrapper {
+            width: 40px;
+            height: 40px;
+            background: rgba(79, 70, 229, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-text {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .full-width-section {
+            grid-column: 1 / -1;
+        }
+        
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .insight-card {
+            background: rgba(79, 70, 229, 0.1);
+            border: 1px solid rgba(79, 70, 229, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .insight-card.interactive:hover {
+            border-color: rgba(79, 70, 229, 0.5);
+            background: rgba(79, 70, 229, 0.15);
+        }
+        
+        .insight-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        
+        .insight-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .insight-text {
+            font-size: 14px;
+            color: #999;
+            line-height: 1.6;
+        }
+        
+        /* ============================================
+           LOADING STATE - używane tylko gdy ładujemy dane
+           ============================================ */
+        .loading-indicator {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background: #4f46e5;
+            border-radius: 50%;
+            animation: loadingBounce 1.4s ease-in-out infinite;
+        }
+        
+        .loading-dot:nth-child(1) { animation-delay: 0s; }
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes loadingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+        
+        .ai-analyzing {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(79, 70, 229, 0.1);
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #a5b4fc;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="brand">
+                <span>🌙</span>
+                <span>Dziennik Snów</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active interactive">Dashboard</a>
+                <a href="#" class="nav-link interactive">Moje sny</a>
+                <a href="#" class="nav-link interactive">Analiza</a>
+                <a href="#" class="nav-link interactive">Statystyki</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <input type="text" class="search-mini" placeholder="Szukaj...">
+            <div class="icon-btn interactive">
+                🔔
+                <span class="notification-badge">3</span>
+            </div>
+            <div class="icon-btn interactive">⚙️</div>
+            <div class="user-menu interactive">
+                <div class="user-avatar-small">JK</div>
+                <span style="font-size: 14px;">Jan</span>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-header">
+                <div class="welcome-text">
+                    <h1>Dobry wieczór, Jan 👋</h1>
+                    <p>Gotowy zapisać dzisiejszy sen?</p>
+                </div>
+                <div class="quick-actions">
+                    <button class="btn btn-primary interactive">
+                        <span>➕</span>
+                        Nowy sen
+                    </button>
+                    <button class="btn btn-outline interactive">
+                        <span>🎨</span>
+                        Generuj obraz
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Recent Dreams -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Ostatnie sny</h2>
+                    <a href="#" class="card-action interactive">Zobacz wszystkie →</a>
+                </div>
+                
+                <div class="dream-timeline">
+                    <div class="timeline-item interactive">
+                        <div class="timeline-header">
+                            <div>
+                                <div class="timeline-title">Lot nad oceanem</div>
+                                <div class="timeline-date">Dziś, 06:45</div>
+                            </div>
+                            <div class="timeline-mood">😊</div>
+                        </div>
+                        <div class="timeline-content">
+                            Leciałem nad bezkresnym oceanem w promieniach wschodzącego słońca. 
+                            Woda miała wszystkie odcienie błękitu. Czułem niesamowity spokój...
+                        </div>
+                        <div class="timeline-tags">
+                            <span class="tag interactive">#lot</span>
+                            <span class="tag interactive">#ocean</span>
+                            <span class="tag interactive">#spokój</span>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item interactive">
+                        <div class="timeline-header">
+                            <div>
+                                <div class="timeline-title">Stara biblioteka</div>
+                                <div class="timeline-date">Wczoraj, 07:20</div>
+                            </div>
+                            <div class="timeline-mood">😐</div>
+                        </div>
+                        <div class="timeline-content">
+                            Znalazłem się w ogromnej bibliotece pełnej starych książek. 
+                            Szukałem konkretnej pozycji, ale ciągle się gubiłem między półkami...
+                        </div>
+                        <div class="timeline-tags">
+                            <span class="tag interactive">#biblioteka</span>
+                            <span class="tag interactive">#poszukiwanie</span>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item interactive">
+                        <div class="timeline-header">
+                            <div>
+                                <div class="timeline-title">Rozmowa z obcymi</div>
+                                <div class="timeline-date">2 dni temu</div>
+                            </div>
+                            <div class="timeline-mood">🤔</div>
+                        </div>
+                        <div class="timeline-content">
+                            Spotkałem istoty z innej planety. Komunikowaliśmy się bez słów, 
+                            za pomocą myśli. Przekazali mi ważną wiadomość, ale nie pamiętam jaką...
+                        </div>
+                        <div class="timeline-tags">
+                            <span class="tag interactive">#obcy</span>
+                            <span class="tag interactive">#komunikacja</span>
+                            <span class="tag interactive">#tajemnica</span>
+                        </div>
+                        
+                        <!-- AI Analyzing - pokazujemy TYLKO gdy rzeczywiście analizuje -->
+                        <div class="ai-analyzing">
+                            <div class="loading-indicator">
+                                <span class="loading-dot"></span>
+                                <span class="loading-dot"></span>
+                                <span class="loading-dot"></span>
+                            </div>
+                            <span>AI analizuje sen...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div style="display: flex; flex-direction: column; gap: 25px;">
+                <!-- Stats -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Twoje statystyki</h2>
+                    </div>
+                    <div class="stats-mini">
+                        <div class="stat-mini-card">
+                            <div class="stat-mini-header">
+                                <span class="stat-mini-label">Liczba snów</span>
+                                <span class="stat-mini-icon">📝</span>
+                            </div>
+                            <div class="stat-mini-value">127</div>
+                            <div class="stat-mini-change">+3 w tym tygodniu</div>
+                        </div>
+                        
+                        <div class="stat-mini-card">
+                            <div class="stat-mini-header">
+                                <span class="stat-mini-label">Seria dni</span>
+                                <span class="stat-mini-icon">🔥</span>
+                            </div>
+                            <div class="stat-mini-value">15</div>
+                            <div class="stat-mini-change">Kontynuuj!</div>
+                        </div>
+                        
+                        <div class="stat-mini-card">
+                            <div class="stat-mini-header">
+                                <span class="stat-mini-label">Analiz AI</span>
+                                <span class="stat-mini-icon">🤖</span>
+                            </div>
+                            <div class="stat-mini-value">89</div>
+                            <div class="stat-mini-change">70% snów</div>
+                        </div>
+                        
+                        <div class="stat-mini-card">
+                            <div class="stat-mini-header">
+                                <span class="stat-mini-label">Najczęstszy nastrój</span>
+                                <span class="stat-mini-icon">😊</span>
+                            </div>
+                            <div class="stat-mini-value">Dobry</div>
+                            <div class="stat-mini-change">65% snów</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Activity Feed -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Ostatnia aktywność</h2>
+                    </div>
+                    <div class="activity-feed">
+                        <div class="activity-item">
+                            <div class="activity-icon-wrapper">🤖</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Analiza AI zakończona dla "Lot nad oceanem"</div>
+                                <div class="activity-time">5 minut temu</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon-wrapper">📝</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Dodano nowy sen</div>
+                                <div class="activity-time">2 godziny temu</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon-wrapper">📊</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Osiągnięto 15-dniową serię!</div>
+                                <div class="activity-time">Wczoraj</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon-wrapper">🎨</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Wygenerowano obraz dla snu</div>
+                                <div class="activity-time">2 dni temu</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Insights Section (Full Width) -->
+            <div class="card full-width-section">
+                <div class="card-header">
+                    <h2 class="card-title">✨ Insights z AI</h2>
+                </div>
+                <div class="insights-grid">
+                    <div class="insight-card interactive">
+                        <div class="insight-icon">🌊</div>
+                        <div class="insight-title">Wzorzec: Woda</div>
+                        <div class="insight-text">
+                            W ostatnim tygodniu woda pojawiała się w 4 snach. 
+                            Może symbolizować emocje i podświadomość.
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card interactive">
+                        <div class="insight-icon">📈</div>
+                        <div class="insight-title">Trend nastrojów</div>
+                        <div class="insight-text">
+                            Twoje sny stają się coraz bardziej pozytywne. 
+                            Ostatnie 10 dni pokazuje wyraźny wzrost dobrego nastroju.
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card interactive">
+                        <div class="insight-icon">⏰</div>
+                        <div class="insight-title">Najlepsza pora</div>
+                        <div class="insight-text">
+                            Najwięcej snów zapisujesz między 6:00 a 8:00 rano. 
+                            To idealny czas na rejestrowanie wspomnień!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
