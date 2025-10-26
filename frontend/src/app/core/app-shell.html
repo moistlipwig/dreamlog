@@ -9,32 +9,31 @@
         <mat-icon matListItemIcon>bedtime</mat-icon>
         <span matListItemTitle>Dreams</span>
       </a>
-      <a mat-list-item routerLink="/app/calendar" (click)="drawer.close()">
-        <mat-icon matListItemIcon>calendar_month</mat-icon>
-        <span matListItemTitle>Calendar</span>
-      </a>
     </mat-nav-list>
   </mat-sidenav>
 
   <mat-sidenav-content class="flex flex-col h-full">
-    <mat-toolbar color="primary" class="gap-4">
-      <button mat-icon-button class="md:hidden" aria-label="Menu" (click)="drawer.toggle()">
-        <mat-icon>menu</mat-icon>
-      </button>
-      <span class="font-bold">Dreamlog</span>
-      <span class="flex-1"></span>
-      <app-search-bar class="hidden md:block w-64"></app-search-bar>
-      <button mat-icon-button aria-label="Settings" routerLink="/app/settings">
-        <mat-icon>settings</mat-icon>
-      </button>
-      <button mat-icon-button aria-label="Logout" (click)="logout()">
-        <mat-icon>logout</mat-icon>
-      </button>
-    </mat-toolbar>
+    <nav class="top-nav">
+      <div class="nav-left">
+        <button mat-icon-button class="menu-btn md:hidden" aria-label="Menu" (click)="drawer.toggle()">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <div class="brand" routerLink="/app/dashboard">
+          <span class="brand-icon">🌙</span>
+          <span class="brand-text">Dreamlog</span>
+        </div>
+      </div>
+      <div class="nav-right">
+        <!--        <app-search-bar class="search-mini hidden md:block"></app-search-bar>-->
+        <button mat-icon-button class="icon-btn" aria-label="Logout" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </nav>
     @if (loading$ | async) {
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     }
-    <main class="p-4 md:p-8 flex-1 max-w-7xl mx-auto w-full">
+    <main class="main-content">
       <router-outlet></router-outlet>
     </main>
   </mat-sidenav-content>

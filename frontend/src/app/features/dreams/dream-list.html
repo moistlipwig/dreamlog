@@ -1,19 +1,47 @@
 @if (dreams$ | async; as dreams) {
   @if (dreams.length) {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       @for (dream of dreams; track dream.id) {
         <mat-card
-          class="cursor-pointer hover:shadow transition-shadow"
+          class="dream-card cursor-pointer"
+          [class]="getMoodClass(dream.moodInDream)"
           [routerLink]="['/app/dreams', dream.id]"
         >
           <mat-card-header class="pb-0">
-            <mat-card-title class="text-lg font-semibold truncate">{{
-              dream.title
-            }}</mat-card-title>
-            <mat-card-subtitle>{{ dream.date | date }}</mat-card-subtitle>
+            <div class="flex justify-between items-start w-full">
+              <div class="flex-1">
+                <mat-card-title class="text-xl font-semibold text-white mb-1">
+                  {{ dream.title }}
+                </mat-card-title>
+                <mat-card-subtitle class="text-sm text-gray-400">
+                  {{ dream.date | date: 'dd MMM yyyy' }}
+                </mat-card-subtitle>
+              </div>
+              @if (dream.lucid) {
+                <span class="lucid-badge">
+                  <span class="material-icons">auto_awesome</span>
+                  LUCID
+                </span>
+              }
+            </div>
           </mat-card-header>
-          <mat-card-content class="pt-2">
-            <p class="text-sm text-gray-600 mb-2">{{ dream.content | slice: 0 : 120 }}...</p>
+
+          <mat-card-content class="pt-3">
+            <p class="text-sm text-gray-300 mb-3 line-clamp-2 leading-relaxed">
+              {{ dream.content }}
+            </p>
+
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-xs text-gray-500">Vividness</span>
+              <div class="flex-1 vividness-track">
+                <div
+                  class="vividness-indicator"
+                  [style.width.%]="dream.vividness * 10"
+                ></div>
+              </div>
+              <span class="text-xs font-semibold text-purple-300">{{ dream.vividness }}/10</span>
+            </div>
+
             <app-tag-chips [tags]="dream.tags"></app-tag-chips>
           </mat-card-content>
         </mat-card>
@@ -23,12 +51,13 @@
     <app-empty-state message="No dreams yet"></app-empty-state>
   }
 } @else {
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     @for (_ of skeletons; track $index) {
-      <mat-card class="p-4 animate-pulse space-y-2">
-        <div class="h-5 bg-gray-200 rounded w-1/2"></div>
-        <div class="h-4 bg-gray-200 rounded w-1/3"></div>
-        <div class="h-20 bg-gray-100 rounded"></div>
+      <mat-card class="dream-card p-6 animate-pulse space-y-3">
+        <div class="h-5 bg-gray-700 rounded w-2/3"></div>
+        <div class="h-4 bg-gray-700 rounded w-1/3"></div>
+        <div class="h-20 bg-gray-800 rounded mt-4"></div>
+        <div class="h-2 bg-gray-700 rounded w-full"></div>
       </mat-card>
     }
   </div>

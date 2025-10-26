@@ -7,7 +7,6 @@ import {
   Observable,
   of,
   shareReplay,
-  switchMap,
   tap,
   throwError,
 } from 'rxjs';
@@ -64,27 +63,22 @@ export class AuthService {
    * Backend expects form-encoded data at /api/auth/login.
    *
    * CSRF Flow:
-   * 1. Call /auth/csrf to initialize XSRF-TOKEN cookie (if not already set)
+   * 1. SpaCsrfTokenFilter on backend automatically ensures XSRF-TOKEN cookie is set
    * 2. Angular's HttpClient automatically reads XSRF-TOKEN cookie and sends X-XSRF-TOKEN header
    * 3. Backend validates CSRF token and processes login
    *
    * Note: withXsrfConfiguration in app.config.ts handles automatic cookie→header conversion.
    */
   login(email: string, password: string): Observable<boolean> {
-    // Step 1: Ensure CSRF token cookie is set before login attempt
-    return this.api.get<{ token: string; headerName: string }>('/auth/csrf').pipe(
-      // Step 2: Proceed with login (XSRF-TOKEN cookie now set, Angular auto-sends header)
-      switchMap(() => {
-        const formData = new URLSearchParams();
-        formData.append('username', email);
-        formData.append('password', password);
+    const formData = new URLSearchParams();
+    formData.append('username', email);
+    formData.append('password', password);
 
-        return this.api.post<{ success: boolean }>('/auth/login', formData.toString(), {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        });
-      }),
+    return this.api.post<{ success: boolean }>('/auth/login', formData.toString(), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    }).pipe(
       tap(() => {
         // On success, fetch user info to populate userSubject
         this.check().subscribe();

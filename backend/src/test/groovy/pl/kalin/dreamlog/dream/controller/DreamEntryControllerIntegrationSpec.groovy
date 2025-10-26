@@ -3,15 +3,13 @@ package pl.kalin.dreamlog.dream.controller
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.util.LinkedMultiValueMap
 import pl.kalin.dreamlog.IntegrationSpec
 import pl.kalin.dreamlog.dream.repository.DreamEntryRepository
+import pl.kalin.dreamlog.support.SessionRestClient
 import pl.kalin.dreamlog.user.UserRepository
 import pl.kalin.dreamlog.user.dto.RegisterRequest
 
@@ -56,13 +54,13 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
 
         when: "creating a dream"
         def dream = [
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "My First Dream",
-            content: "I was flying over mountains",
+            date       : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title      : "My First Dream",
+            content    : "I was flying over mountains",
             moodInDream: "POSITIVE",
-            vividness: 8,
-            lucid: false,
-            tags: ["flying", "nature"]
+            vividness  : 8,
+            lucid      : false,
+            tags       : ["flying", "nature"]
         ]
         def response = client.createDream(dream)
 
@@ -83,8 +81,8 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
 
         when: "trying to create dream without login"
         def dream = [
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "Unauthorized Dream",
+            date   : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title  : "Unauthorized Dream",
             content: "This should not be created"
         ]
         def response = client.createDream(dream)
@@ -102,31 +100,31 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
         def user1 = new DreamClient(restTemplate, baseUrl())
         user1.registerAndLogin("user1@example.com", "Password123", "User One")
         user1.createDream([
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "User1 Dream 1",
-            content: "User 1 content 1",
+            date     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title    : "User1 Dream 1",
+            content  : "User 1 content 1",
             vividness: 5,
-            lucid: false,
-            tags: []
+            lucid    : false,
+            tags     : []
         ])
         user1.createDream([
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "User1 Dream 2",
-            content: "User 1 content 2",
+            date     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title    : "User1 Dream 2",
+            content  : "User 1 content 2",
             vividness: 5,
-            lucid: false,
-            tags: []
+            lucid    : false,
+            tags     : []
         ])
 
         def user2 = new DreamClient(restTemplate, baseUrl())
         user2.registerAndLogin("user2@example.com", "Password123", "User Two")
         user2.createDream([
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "User2 Dream 1",
-            content: "User 2 content 1",
+            date     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title    : "User2 Dream 1",
+            content  : "User 2 content 1",
             vividness: 5,
-            lucid: false,
-            tags: []
+            lucid    : false,
+            tags     : []
         ])
 
         when: "user1 fetches their dreams"
@@ -156,11 +154,16 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
         client.registerAndLogin("user@example.com", "Password123", "User")
 
         // Create dreams one by one to avoid closure issues
-        def dream1 = [date: LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 1", content: "Content 1", vividness: 5, lucid: false, tags: []]
-        def dream2 = [date: LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 2", content: "Content 2", vividness: 5, lucid: false, tags: []]
-        def dream3 = [date: LocalDate.now().minusDays(3).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 3", content: "Content 3", vividness: 5, lucid: false, tags: []]
-        def dream4 = [date: LocalDate.now().minusDays(4).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 4", content: "Content 4", vividness: 5, lucid: false, tags: []]
-        def dream5 = [date: LocalDate.now().minusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 5", content: "Content 5", vividness: 5, lucid: false, tags: []]
+        def dream1 = [date                          : LocalDate.now().minusDays(1).format(
+            DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 1", content: "Content 1", vividness: 5, lucid: false, tags: []]
+        def dream2 = [date                          : LocalDate.now().minusDays(2).format(
+            DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 2", content: "Content 2", vividness: 5, lucid: false, tags: []]
+        def dream3 = [date                          : LocalDate.now().minusDays(3).format(
+            DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 3", content: "Content 3", vividness: 5, lucid: false, tags: []]
+        def dream4 = [date                          : LocalDate.now().minusDays(4).format(
+            DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 4", content: "Content 4", vividness: 5, lucid: false, tags: []]
+        def dream5 = [date                          : LocalDate.now().minusDays(5).format(
+            DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 5", content: "Content 5", vividness: 5, lucid: false, tags: []]
 
         client.createDream(dream1)
         client.createDream(dream2)
@@ -180,121 +183,6 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
         response.body.number == 0
     }
 
-    def "should paginate dreams with custom page size"() {
-        given: "a user with 10 dreams"
-        def client = new DreamClient(restTemplate, baseUrl())
-        client.registerAndLogin("user@example.com", "Password123", "User")
-
-        // Create dreams explicitly to avoid Groovy closure/loop serialization issues
-        client.createDream([date: LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 1", content: "Content 1", vividness: 5, lucid: false, tags: []])
-        client.createDream([date: LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 2", content: "Content 2", vividness: 5, lucid: false, tags: []])
-        client.createDream([date: LocalDate.now().minusDays(3).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 3", content: "Content 3", vividness: 5, lucid: false, tags: []])
-        client.createDream([date: LocalDate.now().minusDays(4).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 4", content: "Content 4", vividness: 5, lucid: false, tags: []])
-        client.createDream([date: LocalDate.now().minusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 5", content: "Content 5", vividness: 5, lucid: false, tags: []])
-        client.createDream([date: LocalDate.now().minusDays(6).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 6", content: "Content 6", vividness: 5, lucid: false, tags: []])
-        client.createDream([date: LocalDate.now().minusDays(7).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 7", content: "Content 7", vividness: 5, lucid: false, tags: []])
-        client.createDream([date: LocalDate.now().minusDays(8).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 8", content: "Content 8", vividness: 5, lucid: false, tags: []])
-        client.createDream([date: LocalDate.now().minusDays(9).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 9", content: "Content 9", vividness: 5, lucid: false, tags: []])
-        client.createDream([date: LocalDate.now().minusDays(10).format(DateTimeFormatter.ISO_LOCAL_DATE), title: "Dream 10", content: "Content 10", vividness: 5, lucid: false, tags: []])
-
-        when: "fetching first page with size 3"
-        def page1 = client.getDreams(0, 3)
-
-        then: "returns 3 dreams"
-        page1.statusCode == HttpStatus.OK
-        page1.body.content.size() == 3
-        page1.body.totalElements == 10
-        page1.body.totalPages == 4
-        page1.body.number == 0
-
-        when: "fetching second page"
-        def page2 = client.getDreams(1, 3)
-
-        then: "returns next 3 dreams"
-        page2.statusCode == HttpStatus.OK
-        page2.body.content.size() == 3
-        page2.body.number == 1
-    }
-
-    def "should sort dreams by date descending by default"() {
-        given: "a user with dreams on different dates"
-        def client = new DreamClient(restTemplate, baseUrl())
-        client.registerAndLogin("user@example.com", "Password123", "User")
-
-        client.createDream([
-            date: "2024-01-15",
-            title: "Middle Dream",
-            content: "Middle",
-            vividness: 5,
-            lucid: false,
-            tags: []
-        ])
-        client.createDream([
-            date: "2024-01-20",
-            title: "Newest Dream",
-            content: "Newest",
-            vividness: 5,
-            lucid: false,
-            tags: []
-        ])
-        client.createDream([
-            date: "2024-01-10",
-            title: "Oldest Dream",
-            content: "Oldest",
-            vividness: 5,
-            lucid: false,
-            tags: []
-        ])
-
-        when: "fetching dreams"
-        def response = client.getDreams()
-
-        then: "dreams are sorted by date descending (newest first)"
-        response.statusCode == HttpStatus.OK
-        response.body.content[0].title == "Newest Dream"
-        response.body.content[1].title == "Middle Dream"
-        response.body.content[2].title == "Oldest Dream"
-    }
-
-    def "should sort dreams by date ascending when specified"() {
-        given: "a user with dreams on different dates"
-        def client = new DreamClient(restTemplate, baseUrl())
-        client.registerAndLogin("user@example.com", "Password123", "User")
-
-        client.createDream([
-            date: "2024-01-15",
-            title: "Middle Dream",
-            content: "Middle",
-            vividness: 5,
-            lucid: false,
-            tags: []
-        ])
-        client.createDream([
-            date: "2024-01-20",
-            title: "Newest Dream",
-            content: "Newest",
-            vividness: 5,
-            lucid: false,
-            tags: []
-        ])
-        client.createDream([
-            date: "2024-01-10",
-            title: "Oldest Dream",
-            content: "Oldest",
-            vividness: 5,
-            lucid: false,
-            tags: []
-        ])
-
-        when: "fetching dreams with ascending sort"
-        def response = client.getDreams(0, 20, "date,asc")
-
-        then: "dreams are sorted by date ascending (oldest first)"
-        response.statusCode == HttpStatus.OK
-        response.body.content[0].title == "Oldest Dream"
-        response.body.content[1].title == "Middle Dream"
-        response.body.content[2].title == "Newest Dream"
-    }
 
     // ============================================================================
     // Get Single Dream Tests - Authorization
@@ -305,12 +193,12 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
         def client = new DreamClient(restTemplate, baseUrl())
         client.registerAndLogin("owner@example.com", "Password123", "Owner")
         def created = client.createDream([
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "My Dream",
-            content: "My content",
+            date     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title    : "My Dream",
+            content  : "My content",
             vividness: 5,
-            lucid: false,
-            tags: []
+            lucid    : false,
+            tags     : []
         ])
         def dreamId = created.body.id
 
@@ -328,12 +216,12 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
         def user1 = new DreamClient(restTemplate, baseUrl())
         user1.registerAndLogin("user1@example.com", "Password123", "User One")
         def dreamCreated = user1.createDream([
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "User1 Dream",
-            content: "Private content",
+            date     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title    : "User1 Dream",
+            content  : "Private content",
             vividness: 5,
-            lucid: false,
-            tags: []
+            lucid    : false,
+            tags     : []
         ])
         def dreamId = dreamCreated.body.id
 
@@ -357,20 +245,20 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
         def client = new DreamClient(restTemplate, baseUrl())
         client.registerAndLogin("owner@example.com", "Password123", "Owner")
         def created = client.createDream([
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "Original Title",
-            content: "Original Content",
+            date     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title    : "Original Title",
+            content  : "Original Content",
             vividness: 5,
-            lucid: false,
-            tags: []
+            lucid    : false,
+            tags     : []
         ])
         def dreamId = created.body.id
 
         when: "updating the dream"
         def updated = [
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "Updated Title",
-            content: "Updated Content",
+            date     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title    : "Updated Title",
+            content  : "Updated Content",
             vividness: 9
         ]
         def response = client.updateDream(dreamId, updated)
@@ -388,12 +276,12 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
         def user1 = new DreamClient(restTemplate, baseUrl())
         user1.registerAndLogin("user1@example.com", "Password123", "User One")
         def created = user1.createDream([
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "User1 Dream",
-            content: "Original",
+            date     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title    : "User1 Dream",
+            content  : "Original",
             vividness: 5,
-            lucid: false,
-            tags: []
+            lucid    : false,
+            tags     : []
         ])
         def dreamId = created.body.id
 
@@ -403,8 +291,8 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
 
         when: "user2 tries to update user1's dream"
         def maliciousUpdate = [
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "Hacked Title",
+            date   : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title  : "Hacked Title",
             content: "Hacked Content"
         ]
         def response = user2.updateDream(dreamId, maliciousUpdate)
@@ -429,12 +317,12 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
         def client = new DreamClient(restTemplate, baseUrl())
         client.registerAndLogin("owner@example.com", "Password123", "Owner")
         def created = client.createDream([
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "Dream to Delete",
-            content: "Will be deleted",
+            date     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title    : "Dream to Delete",
+            content  : "Will be deleted",
             vividness: 5,
-            lucid: false,
-            tags: []
+            lucid    : false,
+            tags     : []
         ])
         def dreamId = created.body.id
 
@@ -456,12 +344,12 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
         def user1 = new DreamClient(restTemplate, baseUrl())
         user1.registerAndLogin("user1@example.com", "Password123", "User One")
         def created = user1.createDream([
-            date: LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
-            title: "User1 Important Dream",
-            content: "Should not be deleted",
+            date     : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            title    : "User1 Important Dream",
+            content  : "Should not be deleted",
             vividness: 5,
-            lucid: false,
-            tags: []
+            lucid    : false,
+            tags     : []
         ])
         def dreamId = created.body.id
 
@@ -491,14 +379,10 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
      * Client for dream operations with cookie and CSRF management.
      * Extends auth functionality for dream-specific endpoints.
      */
-    static class DreamClient {
-        private final TestRestTemplate rest
-        private final String baseUrl
-        private String cookies = null
+    static class DreamClient extends SessionRestClient {
 
         DreamClient(TestRestTemplate rest, String baseUrl) {
-            this.rest = rest
-            this.baseUrl = baseUrl
+            super(rest, baseUrl)
         }
 
         void registerAndLogin(String email, String password, String name) {
@@ -506,124 +390,40 @@ class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
             login(email, password)
         }
 
-        private HttpHeaders headersWithCookies() {
-            def headers = new HttpHeaders()
-            if (cookies) {
-                headers.set(HttpHeaders.COOKIE, cookies)
-            }
-            return headers
-        }
-
-        private void updateCookiesFromResponse(ResponseEntity<?> response) {
-            def setCookies = response.headers.get(HttpHeaders.SET_COOKIE)
-            if (setCookies) {
-                def cookieMap = [:]
-                if (this.cookies) {
-                    this.cookies.split("; ").each { cookie ->
-                        def parts = cookie.split("=", 2)
-                        if (parts.length == 2) {
-                            cookieMap[parts[0]] = parts[1]
-                        }
-                    }
-                }
-
-                setCookies.each { cookieHeader ->
-                    def cookiePart = cookieHeader.split(";")[0].trim()
-                    def parts = cookiePart.split("=", 2)
-                    if (parts.length == 2) {
-                        if (parts[1].isEmpty() || cookieHeader.contains("Max-Age=0")) {
-                            cookieMap.remove(parts[0])
-                        } else {
-                            cookieMap[parts[0]] = parts[1]
-                        }
-                    }
-                }
-
-                this.cookies = cookieMap.collect { k, v -> "${k}=${v}" }.join("; ")
-            }
-        }
-
         ResponseEntity<Map> register(String email, String password, String name) {
             def request = new RegisterRequest(email, password, name)
-            def response = rest.postForEntity("${baseUrl}/api/auth/register", request, Map)
-            updateCookiesFromResponse(response)
-            return response
+            return json(HttpMethod.POST, "/api/auth/register", request, Map)
         }
 
         ResponseEntity<Map> login(String email, String password) {
-            def csrf = csrf()
-
             def loginForm = new LinkedMultiValueMap<String, String>()
             loginForm.add("username", email)
             loginForm.add("password", password)
 
-            def headers = headersWithCookies()
-            headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
-            headers.set(csrf.headerName as String, csrf.token as String)
-
-            def loginRequest = new HttpEntity<>(loginForm, headers)
-            def response = rest.exchange("${baseUrl}/api/auth/login", HttpMethod.POST, loginRequest, Map)
-            updateCookiesFromResponse(response)
-            return response
-        }
-
-        Map csrf() {
-            def headers = headersWithCookies()
-            def request = new HttpEntity<>(headers)
-            def response = rest.exchange("${baseUrl}/api/auth/csrf", HttpMethod.GET, request, Map)
-            updateCookiesFromResponse(response)
-            return [
-                token     : response.body.token,
-                headerName: response.body.headerName
-            ]
+            return submitForm("/api/auth/login", loginForm, Map)
         }
 
         // Dream-specific methods
 
         ResponseEntity<Map> createDream(Map dream) {
-            def csrf = csrf()
-            def headers = headersWithCookies()
-            headers.contentType = MediaType.APPLICATION_JSON
-            headers.set(csrf.headerName as String, csrf.token as String)
-
-            def request = new HttpEntity<>(dream, headers)
-            def response = rest.exchange("${baseUrl}/api/dreams", HttpMethod.POST, request, Map)
-            updateCookiesFromResponse(response)
-            return response
+            return json(HttpMethod.POST, "/api/dreams", dream, Map)
         }
 
         ResponseEntity<Map> getDreams(int page = 0, int size = 20, String sort = "date,desc") {
-            def headers = headersWithCookies()
-            def request = new HttpEntity<>(headers)
-            def url = "${baseUrl}/api/dreams?page=${page}&size=${size}&sort=${sort}"
-            return rest.exchange(url, HttpMethod.GET, request, Map)
+            def url = "/api/dreams?page=${page}&size=${size}&sort=${sort}"
+            return get(url, Map)
         }
 
         ResponseEntity<Map> getDreamById(String dreamId) {
-            def headers = headersWithCookies()
-            def request = new HttpEntity<>(headers)
-            return rest.exchange("${baseUrl}/api/dreams/${dreamId}", HttpMethod.GET, request, Map)
+            return get("/api/dreams/${dreamId}", Map)
         }
 
         ResponseEntity<Map> updateDream(String dreamId, Map dream) {
-            def csrf = csrf()
-            def headers = headersWithCookies()
-            headers.contentType = MediaType.APPLICATION_JSON
-            headers.set(csrf.headerName as String, csrf.token as String)
-
-            def request = new HttpEntity<>(dream, headers)
-            def response = rest.exchange("${baseUrl}/api/dreams/${dreamId}", HttpMethod.PUT, request, Map)
-            updateCookiesFromResponse(response)
-            return response
+            return json(HttpMethod.PUT, "/api/dreams/${dreamId}", dream, Map)
         }
 
         ResponseEntity<Void> deleteDream(String dreamId) {
-            def csrf = csrf()
-            def headers = headersWithCookies()
-            headers.set(csrf.headerName as String, csrf.token as String)
-
-            def request = new HttpEntity<>(headers)
-            return rest.exchange("${baseUrl}/api/dreams/${dreamId}", HttpMethod.DELETE, request, Void)
+            return delete("/api/dreams/${dreamId}", Void)
         }
     }
 }

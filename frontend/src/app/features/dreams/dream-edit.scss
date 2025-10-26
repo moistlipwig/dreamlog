@@ -1,0 +1,402 @@
+// Dark theme variables (matching dashboard)
+$dark-bg: #0f1419;
+$dark-card-bg: rgba(30, 35, 45, 0.6);
+$dark-border: rgba(255, 255, 255, 0.1);
+$dark-text: #e0e0e0;
+$dark-text-muted: #888;
+$primary-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
+$primary-color: #4f46e5;
+$primary-light: rgba(79, 70, 229, 0.1);
+$error-color: #ef4444;
+$error-bg: rgba(239, 68, 68, 0.1);
+
+// Container with dark background - FIXED HEIGHT accounting for navbar
+.dream-edit-container {
+  // Subtract navbar height (~64px) from viewport
+  height: calc(100vh - 64px);
+  background: $dark-bg;
+  color: $dark-text;
+  padding: 16px 32px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // Prevent scrolling
+
+  @media (max-width: 1024px) {
+    padding: 16px 20px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+    height: auto; // Allow scroll on mobile
+    min-height: calc(100vh - 64px);
+    overflow: auto;
+  }
+}
+
+// Compact Header
+.edit-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-shrink: 0; // Don't compress
+
+  .back-btn {
+    color: $dark-text;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 300;
+    margin: 0;
+    color: white;
+
+    @media (max-width: 768px) {
+      font-size: 20px;
+    }
+  }
+}
+
+// Main form - FILLS REMAINING SPACE
+.dream-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0; // Allow flex shrinking
+}
+
+// TWO-COLUMN GRID: Content (left) + Metadata (right)
+.form-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr; // 60/40 split
+  gap: 16px;
+  min-height: 0; // Allow flex shrinking
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr; // Stack on smaller screens
+    gap: 12px;
+  }
+}
+
+// LEFT: Content Section (60%)
+.content-section {
+  display: flex;
+  flex-direction: column;
+  background: $dark-card-bg;
+  backdrop-filter: blur(20px);
+  border: 1px solid $dark-border;
+  border-radius: 14px;
+  padding: 16px;
+  min-height: 0; // Allow flex shrinking
+
+  .content-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    margin-bottom: 10px;
+  }
+
+  .content-textarea {
+    flex: 1;
+    width: 100%;
+    padding: 14px;
+    background: rgba(15, 20, 25, 0.8);
+    border: 2px solid $dark-border;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: inherit;
+    resize: none; // Prevent resizing
+    transition: all 0.2s ease;
+    min-height: 180px; // Reduced minimum height
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+      font-style: italic;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      background: rgba(15, 20, 25, 0.95);
+      box-shadow: 0 0 0 3px $primary-light;
+    }
+
+    &.error {
+      border-color: $error-color;
+    }
+  }
+
+  .error-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    color: $error-color;
+    font-size: 12px;
+
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+// RIGHT: Metadata Card (40%) - SUPER COMPACT
+.metadata-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: $dark-card-bg;
+  backdrop-filter: blur(20px);
+  border: 1px solid $dark-border;
+  border-radius: 14px;
+  padding: 16px;
+  overflow-y: auto; // Allow scroll if needed
+
+  // Hide scrollbar but keep functionality
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+}
+
+// Ultra-compact field styling
+.field-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &.lucid-field {
+    margin-top: 2px;
+
+    mat-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      mat-icon {
+        color: #fbbf24;
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        margin-right: 4px;
+      }
+    }
+  }
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: $dark-text;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: $primary-color;
+  }
+}
+
+// Material form field overrides for dark theme - COMPACT
+::ng-deep .dream-edit-container {
+  mat-form-field {
+    width: 100%;
+
+    .mat-mdc-text-field-wrapper {
+      background: rgba(15, 20, 25, 0.6);
+      border-radius: 10px;
+    }
+
+    .mdc-text-field--outlined {
+      .mdc-notched-outline {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: $dark-border !important;
+        }
+      }
+
+      &:hover .mdc-notched-outline {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: rgba(255, 255, 255, 0.2) !important;
+        }
+      }
+
+      &.mdc-text-field--focused .mdc-notched-outline {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: $primary-color !important;
+        }
+      }
+    }
+
+    input,
+    textarea,
+    .mat-mdc-select {
+      color: white !important;
+      caret-color: $primary-color;
+      font-size: 14px;
+    }
+
+    .mat-mdc-form-field-hint {
+      display: none; // Hide hints to save space
+    }
+
+    .mat-mdc-form-field-error {
+      color: $error-color !important;
+      font-size: 12px;
+    }
+  }
+
+  // Compact Slider styling
+  mat-slider {
+    width: 100%;
+    height: 32px; // Reduced height
+
+    .mdc-slider__track {
+      background: rgba(255, 255, 255, 0.1);
+      height: 4px;
+    }
+
+    .mdc-slider__track--active {
+      background: $primary-gradient;
+    }
+
+    .mdc-slider__thumb-knob {
+      background: $primary-color;
+      border-color: $primary-color;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  // Compact Checkbox styling
+  mat-checkbox {
+    .mdc-checkbox__background {
+      border-color: $dark-border;
+    }
+
+    &.mat-mdc-checkbox-checked {
+      .mdc-checkbox__background {
+        background-color: $primary-color;
+        border-color: $primary-color;
+      }
+    }
+
+    .mdc-label {
+      color: $dark-text;
+      font-size: 14px;
+    }
+  }
+}
+
+// Compact form error message
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: $error-bg;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: $error-color;
+  font-size: 13px;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Ultra-compact action buttons (fixed at bottom)
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 12px;
+  flex-shrink: 0; // Don't compress
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  button {
+    min-width: 90px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+
+    @media (max-width: 768px) {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .btn-cancel {
+    border-color: $dark-border;
+    color: $dark-text;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+  }
+
+  .btn-save {
+    background: $primary-gradient !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 2px 10px rgba(79, 70, 229, 0.3);
+    transition: all 0.2s ease;
+
+    .spinner {
+      margin-right: 6px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 14px rgba(79, 70, 229, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}

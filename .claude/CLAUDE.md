@@ -13,15 +13,10 @@
 3. [Project Overview](#project-overview)
 4. [Architecture & Repository Layout](#architecture--repository-layout)
 5. [Technology Stack](#technology-stack)
-6. [Development Workflow](#development-workflow)
-7. [Coding Standards](#coding-standards)
-8. [Database & Migrations](#database--migrations)
-9. [Testing Strategy](#testing-strategy)
-10. [Commit & PR Guidelines](#commit--pr-guidelines)
-11. [Token Optimization for AI Agents](#token-optimization-for-ai-agents)
-12. [Agent Feedback Protocol](#agent-feedback-protocol)
-13. [Common Pitfalls & Troubleshooting](#common-pitfalls--troubleshooting)
-14. [Project Roadmap Context](#project-roadmap-context)
+6. [Coding Standards](#coding-standards)
+7. [Testing Strategy](#testing-strategy)
+8. [Token Optimization for AI Agents](#token-optimization-for-ai-agents)
+   9[Agent Feedback Protocol](#agent-feedback-protocol)
 
 ---
 
@@ -368,60 +363,12 @@ dreamlog/
 
 ### Infrastructure
 
-**Local Development:**
-
-- Docker Compose (Postgres, backend, optional frontend)
-- Hot reload: `./gradlew :backend:bootRun` and `npm start`
-
 **CI/CD:**
 
 - GitHub Actions (build, test, lint on every PR)
 - Automated test reports
-- Future: Docker image publishing, deployment to cloud
-
-**Future Stack (Phases 4-11):**
-
-- MinIO for object storage (Phase 8)
-- Redis for caching (Phase 11 experiments)
-- Kafka for event streaming (Phase 11)
-- Prometheus + Grafana for monitoring (Phase 7)
 
 ---
-
-## Development Workflow
-
-### Backend Development (Gradle)
-
-**IMPORTANT: This is a multi-module Gradle project**
-
-- Root project contains `gradlew` / `gradlew.bat`
-- Backend is a submodule (`:backend`)
-- Always run Gradle from root directory
-
-**Running Gradle commands:**
-
-```bash
-# On Windows (standard terminal / Bash tool)
-./gradlew.bat build                         # Build entire project
-./gradlew.bat :backend:build               # Build backend only
-./gradlew.bat :backend:test                # Run backend tests
-./gradlew.bat :backend:bootRun             # Run backend application
-./gradlew.bat clean                         # Clean build artifacts
-
-# On Unix/Linux/Mac
-./gradlew build
-./gradlew :backend:build
-./gradlew :backend:test
-./gradlew :backend:bootRun
-./gradlew clean
-```
-
-**Special case - MCP IntelliJ terminal only:**
-```bash
-# If using mcp__jetbrains__execute_terminal_command (NOT Bash tool)
-cmd /c gradlew.bat build
-# Reason: MCP IntelliJ's terminal wrapper requires cmd /c prefix for .bat files
-```
 
 **Backend URLs:**
 
@@ -563,6 +510,67 @@ Database
 - Repositories are thin (extend JpaRepository)
 - NO business logic in controllers or repositories
 
+**Data Access Patterns (CRITICAL for Performance):**
+
+Use the right tool for the job. Hibernate/JPA is great for simple operations but becomes a performance killer for complex queries.
+
+**When to use JPA/Hibernate method naming (e.g., `findByUserId`):**
+
+✅ Simple queries with 1-2 conditions
+✅ Single entity fetching
+✅ Queries that return <100 entities
+✅ Standard CRUD operations
+
+**When to use `@Query` with JPQL/HQL:**
+
+✅ Complex joins across multiple tables
+✅ Queries with 3+ conditions
+✅ Need for projections (fetching subset of fields)
+✅ Aggregations (COUNT, SUM, AVG) that can be done in single query
+
+**When to use `@Query` with native SQL:**
+
+✅ Database-specific features (COALESCE, window functions, CTEs)
+✅ Aggregations with GROUP BY (performance critical!)
+✅ Full-text search with PostgreSQL-specific syntax
+✅ Bulk updates with complex conditions
+✅ Performance-critical queries where you need exact control over SQL
+
+**When to use JDBC Template:**
+
+✅ Batch inserts/updates (>1000 records)
+✅ `INSERT ... ON CONFLICT DO UPDATE` (upserts)
+✅ Complex transactions with multiple steps
+✅ Scenarios where you need raw JDBC control
+✅ Performance-critical bulk operations
+
+**❌ ANTI-PATTERN - Loading entities to do aggregation in Java:**
+
+```java
+// NEVER DO THIS ❌
+List<DreamEntry> dreams = dreamRepository.findByUserId(userId);  // Loads 10,000 entities!
+long count = dreams.stream().filter(d -> d.isLucid()).count();   // Counts in Java
+
+// DO THIS INSTEAD ✅
+@Query("SELECT COUNT(d) FROM DreamEntry d WHERE d.userId = :userId AND d.lucid = true")
+long countLucidDreams(@Param("userId") UUID userId);
+```
+
+**Why?**
+
+- Loading 10,000 entities: ~50MB RAM, ~500-2000ms
+- Database COUNT: <1MB RAM, ~5-50ms
+- **50-400x performance improvement!**
+
+**Real example from this project:**
+
+- Before: `findByUserId()` + Java grouping for mood stats → 500ms
+- After: Native query with `GROUP BY COALESCE(...)` → 10ms
+- See: `DreamEntryRepository.findMostCommonMoodByUserId()`
+
+**Rule of thumb:**
+If you can express it in SQL and it runs faster there → use `@Query` or JDBC Template, not Hibernate entities!
+
 ### Frontend (Angular)
 
 **TypeScript Style:**
@@ -587,36 +595,9 @@ Database
 
 ---
 
-## Database & Migrations
-
-### PostgreSQL Configuration
-
-**Version:** PostgreSQL 17
-**Extensions Required:**
-
-- `unaccent` - Remove diacritics for search
-- `pg_trgm` - Trigram matching for fuzzy search
-- `pgvector` - Vector similarity search (Phase 4.1)
-
 ### Flyway Migrations
 
 **Location:** `backend/src/main/resources/db/migration/`
-
-**Naming Convention:**
-
-V<version>__<description>.sql
-Examples:
-1_init_schema.sql
-2_add_dream_entries_table.sql
-3_add_fulltext_search_indexes.sql
-10_add_user_table.sql
-
-**Best Practices:**
-
-- NEVER modify existing migrations in production
-- Always test migrations on clean database
-
----
 
 ## Testing Strategy
 
@@ -668,44 +649,6 @@ Integration test base class (`backend/src/test/groovy/pl/kalin/dreamlog/Integrat
 **Test Location:** Next to source file as `<name>.spec.ts`
 
 **Jest Configuration:** `frontend/jest.config.ts` (uses `jest-preset-angular`)
-
----
-
-## Commit & PR Guidelines
-
-### Commit Message Format
-
-Use **Conventional Commits** format:
-
-```
-<type>(<scope>): <subject>
-
-<body>
-
-<footer>
-```
-
-**Rules:**
-
-- Keep subject line ≤ 50 characters
-- Use imperative mood ("add" not "added" or "adds")
-- Don't end subject with period
-- Separate subject from body with blank line
-- Wrap body at 72 characters
-- Use body to explain WHAT and WHY, not HOW
-
-### Pull Request Guidelines
-
-**PR Title:** Same format as commit messages
-**PR Checklist:**
-
-- [ ] Code follows project style guidelines
-- [ ] Self-review completed
-- [ ] Comments added for complex logic
-- [ ] Tests added/updated
-- [ ] Documentation updated (if needed)
-- [ ] No new warnings or errors
-- [ ] Migration tested (if database changes)
 
 ---
 
@@ -821,86 +764,6 @@ Use **Conventional Commits** format:
 
 ```
 
-### Pattern Reference Library
-
-When implementing new features, USE THESE as templates (saves 60% tokens):
-
-**Backend Controller Pattern:**
-
-```
-Reference: backend/src/main/java/pl/kalin/dreamlog/controller/DreamEntryController.java:1
-Search: Grep for "@RestController" in backend/src/main/java/
-Pattern includes:
-- @RestController + @RequestMapping
-- @RequiredArgsConstructor for DI
-- @Valid for request validation
-- ResponseEntity return types
-```
-
-**Angular Component Pattern:**
-
-```
-Reference: frontend/src/app/components/landing-page/landing-page.component.ts:1
-Search: Glob for "**/*.component.ts" in frontend/src/app/
-Pattern includes:
-- Standalone component (no NgModules)
-- ChangeDetectionStrategy.OnPush
-- Signal-based state
-- Native control flow (@if/@for)
-```
-
-**Angular Service Pattern:**
-
-```
-Reference: frontend/src/app/services/*.service.ts
-Search: Glob for "**/*.service.ts" in frontend/src/app/
-Pattern includes:
-- @Injectable({ providedIn: 'root' })
-- inject() instead of constructor DI
-- Observable-based API methods
-```
-
-### Guided Exploration vs Full Reads
-
-**❌ INEFFICIENT (Full Read):**
-
-```typescript
-// Agent reads entire file to find one method
-Read: backend / src / main / java / pl / kalin / dreamlog / service / DreamService.java
-// 300 lines, 2000 tokens consumed
-```
-
-**✅ EFFICIENT (Guided Grep):**
-
-```typescript
-// Agent searches for specific method
-Grep: pattern = "findDreamById"
-path = "backend/src/main/java/pl/kalin/dreamlog/service/"
-output_mode = "content" - B
-2 - A
-10
-// Returns only relevant method (15 lines, 100 tokens)
-```
-
-**Commands for Efficient Exploration:**
-
-```bash
-# Find all controllers
-Glob: **/controller/*Controller.java
-
-# Find specific method implementation
-Grep: pattern="@PostMapping.*dreams" path="backend/src/main/java"
-
-# Find test for specific class
-Glob: **/test/**/DreamServiceTests.java
-
-# Find Angular component by name
-Glob: **/components/**/dream-list.component.ts
-
-# Find where a service is injected
-Grep: pattern="inject\(DreamService\)" path="frontend/src/app"
-```
-
 ### Caching Strategies
 
 **Information to remember across tasks (reduces repeat reads):**
@@ -998,65 +861,6 @@ Shall I implement the better approach?"
 
 ---
 
-## Common Pitfalls & Troubleshooting
-
-```
-
-### Frontend Issues
-
-**Problem: `npm start` fails with "Cannot find module"**
-
-```
-
-Solution:
-
-1. Remove node_modules: rm -rf node_modules package-lock.json
-2. Clean install: npm ci
-3. Verify Node version: node -v (must be 20/22/24)
-4. Verify npm version: npm -v (must be >=10)
-
-```
-
-**Problem: Jest tests hang indefinitely**
-
-```
-
-Solution:
-
-1. Check for open handles: npm test -- --detectOpenHandles
-2. Ensure TestBed.inject() is called within test function, not globally
-3. Add timeout: jest.setTimeout(10000) in problematic test
-
-```
-
-**Problem: Angular build fails with "Component is not standalone"**
-
-```
-
-Solution:
-
-1. Ensure component has standalone: true (or omit, it's default in Angular 20)
-2. Check imports array includes all used components/directives
-3. Don't import NgModules in standalone components
-
-```
-
-**Problem: Proxy to backend not working (404 on API calls)**
-
-```
-
-Solution:
-
-1. Check proxy.conf.json has correct backend URL (http://localhost:8080)
-2. Ensure backend is running: curl http://localhost:8080/actuator/health
-3. Restart dev server: npm start
-
-## Project Roadmap Context
-
-**Current Status:** Phase 0 (Setup) → Phase 1 (Auth) beginning
-
-For detailed roadmap with learning objectives and DoD criteria, see: [README.md](../README.md)
-
 **Completed:**
 
 - ✅ Repository setup with CI/CD
@@ -1105,16 +909,6 @@ For detailed roadmap with learning objectives and DoD criteria, see: [README.md]
 - API Documentation: http://localhost:8080/swagger-ui.html (when backend running)
 - Project Roadmap: [README.md](../README.md)
 - Frontend Guidelines: [frontend/.junie/guidelines.md](../frontend/.junie/guidelines.md)
-
-**External References:**
-
-- Spring Boot 3.5: https://docs.spring.io/spring-boot/docs/current/reference/html/
-- Angular 20: https://angular.dev
-- PostgreSQL 17: https://www.postgresql.org/docs/17/
-- Flyway: https://flywaydb.org/documentation/
-- Testcontainers: https://www.testcontainers.org/
-- Jest: https://jestjs.io/
-- Conventional Commits: https://www.conventionalcommits.org/
 
 ---
 

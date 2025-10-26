@@ -10,6 +10,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.CsrfFilter;
 
 import lombok.RequiredArgsConstructor;
 import pl.kalin.dreamlog.user.service.CustomUserDetailsService;
@@ -59,7 +60,6 @@ public class SecurityConfig {
         "/error",
         "/api/auth/register",
         "/api/auth/login",
-        "/api/auth/csrf",
         "/oauth2/**",
         "/login/**"
     };
@@ -100,7 +100,6 @@ public class SecurityConfig {
                 .ignoringRequestMatchers("/login/oauth2/code/*")
                 .ignoringRequestMatchers("/oauth2/*")
                 .ignoringRequestMatchers("/api/auth/register") // First-time users can't have CSRF token yet
-                .ignoringRequestMatchers("/api/auth/csrf")     // CSRF token endpoint cannot require CSRF token (catch-22)
             )
             // Authorization: public endpoints vs. authenticated endpoints
             .authorizeHttpRequests(auth -> auth
@@ -148,7 +147,10 @@ public class SecurityConfig {
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID", "XSRF-TOKEN")
                 .permitAll()
-            );
+            )
+            // SPA CSRF token filter: ensures token is loaded on every request
+            // This prevents "first request fails, second succeeds" behavior in SPAs
+            .addFilterAfter(new SpaCsrfTokenFilter(), CsrfFilter.class);
 
         return http.build();
     }

@@ -3,15 +3,13 @@ package pl.kalin.dreamlog.user.controller
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.util.LinkedMultiValueMap
 import pl.kalin.dreamlog.IntegrationSpec
 import pl.kalin.dreamlog.dream.repository.DreamEntryRepository
+import pl.kalin.dreamlog.support.SessionRestClient
 import pl.kalin.dreamlog.user.UserRepository
 import pl.kalin.dreamlog.user.dto.RegisterRequest
 
@@ -241,14 +239,10 @@ class StatsControllerIntegrationSpec extends IntegrationSpec {
     /**
      * Client for stats operations with cookie and CSRF management.
      */
-    static class StatsClient {
-        private final TestRestTemplate rest
-        private final String baseUrl
-        private String cookies = null
+    static class StatsClient extends SessionRestClient {
 
         StatsClient(TestRestTemplate rest, String baseUrl) {
-            this.rest = rest
-            this.baseUrl = baseUrl
+            super(rest, baseUrl)
         }
 
         void registerAndLogin(String email, String password, String name) {
@@ -256,98 +250,25 @@ class StatsControllerIntegrationSpec extends IntegrationSpec {
             login(email, password)
         }
 
-        private HttpHeaders headersWithCookies() {
-            def headers = new HttpHeaders()
-            if (cookies) {
-                headers.set(HttpHeaders.COOKIE, cookies)
-            }
-            return headers
-        }
-
-        private void updateCookiesFromResponse(ResponseEntity<?> response) {
-            def setCookies = response.headers.get(HttpHeaders.SET_COOKIE)
-            if (setCookies) {
-                def cookieMap = [:]
-                if (this.cookies) {
-                    this.cookies.split("; ").each { cookie ->
-                        def parts = cookie.split("=", 2)
-                        if (parts.length == 2) {
-                            cookieMap[parts[0]] = parts[1]
-                        }
-                    }
-                }
-
-                setCookies.each { cookieHeader ->
-                    def cookiePart = cookieHeader.split(";")[0].trim()
-                    def parts = cookiePart.split("=", 2)
-                    if (parts.length == 2) {
-                        if (parts[1].isEmpty() || cookieHeader.contains("Max-Age=0")) {
-                            cookieMap.remove(parts[0])
-                        } else {
-                            cookieMap[parts[0]] = parts[1]
-                        }
-                    }
-                }
-
-                this.cookies = cookieMap.collect { k, v -> "${k}=${v}" }.join("; ")
-            }
-        }
-
         ResponseEntity<Map> register(String email, String password, String name) {
             def request = new RegisterRequest(email, password, name)
-            def response = rest.postForEntity("${baseUrl}/api/auth/register", request, Map)
-            updateCookiesFromResponse(response)
-            return response
+            return json(HttpMethod.POST, "/api/auth/register", request, Map)
         }
 
         ResponseEntity<Map> login(String email, String password) {
-            def csrf = csrf()
-
             def loginForm = new LinkedMultiValueMap<String, String>()
             loginForm.add("username", email)
             loginForm.add("password", password)
 
-            def headers = headersWithCookies()
-            headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
-            headers.set(csrf.headerName as String, csrf.token as String)
-
-            def loginRequest = new HttpEntity<>(loginForm, headers)
-            def response = rest.exchange("${baseUrl}/api/auth/login", HttpMethod.POST, loginRequest, Map)
-            updateCookiesFromResponse(response)
-            return response
+            return submitForm("/api/auth/login", loginForm, Map)
         }
-
-        Map csrf() {
-            def headers = headersWithCookies()
-            def request = new HttpEntity<>(headers)
-            def response = rest.exchange("${baseUrl}/api/auth/csrf", HttpMethod.GET, request, Map)
-            updateCookiesFromResponse(response)
-            return [
-                token     : response.body.token,
-                headerName: response.body.headerName
-            ]
-        }
-
-        // Stats-specific methods
 
         ResponseEntity<Map> getMyStats() {
-            def headers = headersWithCookies()
-            def request = new HttpEntity<>(headers)
-            return rest.exchange("${baseUrl}/api/stats/me", HttpMethod.GET, request, Map)
+            return get("/api/stats/me", Map)
         }
 
-        // Dream creation for test setup
-
         ResponseEntity<Map> createDream(Map dream) {
-            def csrf = csrf()
-            def headers = headersWithCookies()
-            headers.contentType = MediaType.APPLICATION_JSON
-            headers.set(csrf.headerName as String, csrf.token as String)
-
-            def request = new HttpEntity<>(dream, headers)
-            def response = rest.exchange("${baseUrl}/api/dreams", HttpMethod.POST, request, Map)
-            updateCookiesFromResponse(response)
-            return response
+            return json(HttpMethod.POST, "/api/dreams", dream, Map)
         }
     }
 }

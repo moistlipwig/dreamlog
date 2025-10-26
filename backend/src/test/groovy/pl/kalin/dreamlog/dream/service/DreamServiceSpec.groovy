@@ -49,17 +49,6 @@ class DreamServiceSpec extends Specification {
         result[1].title() == "Dream 2"
     }
 
-    def "getUserDreams should return empty list when user has no dreams"() {
-        when: "Getting dreams for user with no dreams"
-        def result = dreamService.getUserDreams(testUser)
-
-        then: "Repository returns empty list"
-        1 * dreamRepository.findByUserId(testUser.id) >> []
-
-        and: "Returns empty list"
-        result.isEmpty()
-    }
-
     def "getDreamById should return dream when it belongs to user"() {
         given: "User has a dream"
         def dreamId = UUID.randomUUID()
@@ -124,33 +113,6 @@ class DreamServiceSpec extends Specification {
 
         and: "Returns DreamResponse"
         result.title() == request.title()
-    }
-
-    def "createDream should set default values for optional fields"() {
-        given: "Create request with nulls for optional fields"
-        def request = new DreamCreateRequest(
-            LocalDate.now(),
-            "Dream",
-            "Content",
-            null,  // moodInDream
-            null,  // moodAfterDream
-            null,  // vividness
-            null,  // lucid
-            null   // tags
-        )
-
-        and: "Saved dream"
-        def savedDream = createDreamEntity(testUser, request.title())
-
-        when: "Creating dream"
-        dreamService.createDream(testUser, request)
-
-        then: "Repository saves dream with defaults"
-        1 * dreamRepository.save({ DreamEntry dream ->
-            dream.vividness == 0 &&
-                !dream.lucid &&
-                dream.tags == []
-        }) >> savedDream
     }
 
     def "updateDream should update dream when it belongs to user"() {

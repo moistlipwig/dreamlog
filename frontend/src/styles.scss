@@ -19,13 +19,15 @@ html {
     )
   );
 
-  // Custom background overrides (Material 3 system colors)
-  --mat-sys-surface: #ffffff;
-  --mat-sys-background: #f8fafc;
+  // Dark theme for dashboard
+  --mat-sys-surface: #1e232d;
+  --mat-sys-background: #0f1419;
+  --mat-sys-on-surface: #e0e0e0;
+  --mat-sys-on-background: #e0e0e0;
 }
 
 body {
-  color-scheme: light;
+  color-scheme: dark;
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
   font: var(--mat-sys-body-medium);

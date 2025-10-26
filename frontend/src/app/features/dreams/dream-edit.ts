@@ -1,19 +1,20 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSliderModule } from '@angular/material/slider';
-import { Router, RouterLink } from '@angular/router';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatNativeDateModule} from '@angular/material/core';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatSelectModule} from '@angular/material/select';
+import {MatSliderModule} from '@angular/material/slider';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 
-import { Mood, CreateDreamRequest } from '../../core/models/dream';
-import { DreamsService } from '../../core/services/dreams.service';
+import {CreateDreamRequest, Dream, Mood} from '../../core/models/dream';
+import {DreamsService} from '../../core/services/dreams.service';
 
 @Component({
   selector: 'app-dream-edit',
@@ -29,33 +30,35 @@ import { DreamsService } from '../../core/services/dreams.service';
     MatCheckboxModule,
     MatSliderModule,
     MatProgressSpinnerModule,
+    MatIconModule,
     RouterLink,
   ],
   templateUrl: './dream-edit.html',
   styleUrls: ['./dream-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DreamEdit {
+export class DreamEdit implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly dreamsService = inject(DreamsService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   // Expose Mood enum to template
   readonly Mood = Mood;
   readonly moodOptions = [
-    { value: Mood.POSITIVE, label: 'Positive' },
-    { value: Mood.NEUTRAL, label: 'Neutral' },
-    { value: Mood.NEGATIVE, label: 'Negative' },
-    { value: Mood.NIGHTMARE, label: 'Nightmare' },
-    { value: Mood.MIXED, label: 'Mixed' },
+    {value: Mood.POSITIVE, label: '😊 Positive', emoji: '😊'},
+    {value: Mood.NEUTRAL, label: '😐 Neutral', emoji: '😐'},
+    {value: Mood.NEGATIVE, label: '😢 Negative', emoji: '😢'},
+    {value: Mood.NIGHTMARE, label: '😱 Nightmare', emoji: '😱'},
+    {value: Mood.MIXED, label: '🤔 Mixed', emoji: '🤔'},
   ];
 
   // State signals
   isSaving = signal(false);
   error = signal<string | null>(null);
+  private editingDream: Dream | null = null;
 
   form = this.fb.nonNullable.group({
-    title: ['', Validators.required], // eslint-disable-line @typescript-eslint/unbound-method
     content: ['', Validators.required], // eslint-disable-line @typescript-eslint/unbound-method
     date: [new Date(), Validators.required], // eslint-disable-line @typescript-eslint/unbound-method
     tags: [''],
@@ -64,6 +67,33 @@ export class DreamEdit {
     vividness: [5], // 0-10 scale
     lucid: [false],
   });
+
+  ngOnInit(): void {
+    // Check if we're editing an existing dream
+    const dream = this.route.snapshot.data['dream'] as Dream | undefined;
+    if (dream) {
+      this.editingDream = dream;
+      this.populateForm(dream);
+    }
+  }
+
+  private populateForm(dream: Dream): void {
+    // Parse tags array to comma-separated string
+    const tagsString = dream.tags.join(', ');
+
+    // Parse date string (YYYY-MM-DD) to Date object
+    const dateObj = new Date(dream.date);
+
+    this.form.patchValue({
+      content: dream.content,
+      date: dateObj,
+      tags: tagsString,
+      moodInDream: dream.moodInDream,
+      moodAfterDream: dream.moodAfterDream,
+      vividness: dream.vividness,
+      lucid: dream.lucid,
+    });
+  }
 
   save(): void {
     if (this.form.invalid) {
@@ -79,17 +109,16 @@ export class DreamEdit {
     // Parse tags from comma-separated string
     const tags = value.tags
       ? value.tags
-          .split(',')
-          .map((t) => t.trim())
-          .filter(Boolean)
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean)
       : [];
 
     // Format date as YYYY-MM-DD for LocalDate
     const dateStr = this.formatDateToLocalDate(value.date);
 
-    // Build request matching CreateDreamRequest interface
+    // Build request matching CreateDreamRequest interface (UpdateDreamRequest is identical)
     const request: CreateDreamRequest = {
-      title: value.title,
       content: value.content,
       date: dateStr,
       tags,
@@ -99,15 +128,20 @@ export class DreamEdit {
       lucid: value.lucid,
     };
 
-    this.dreamsService.create(request).subscribe({
+    // Determine if we're creating or updating
+    const operation = this.editingDream
+      ? this.dreamsService.update(this.editingDream.id, request)
+      : this.dreamsService.create(request);
+
+    operation.subscribe({
       next: (dream) => {
         this.form.markAsPristine();
         this.isSaving.set(false);
-        // Navigate to the created dream detail page
+        // Navigate to the dream detail page
         void this.router.navigate(['/app/dreams', dream.id]);
       },
       error: (err) => {
-        console.error('Failed to create dream:', err);
+        console.error('Failed to save dream:', err);
         this.error.set('Failed to save dream. Please try again.');
         this.isSaving.set(false);
       },

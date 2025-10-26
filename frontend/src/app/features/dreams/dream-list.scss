@@ -1,0 +1,92 @@
+@use '@angular/material' as mat;
+
+.dream-card {
+  background: linear-gradient(135deg, rgba(30, 30, 46, 0.95) 0%, rgba(26, 26, 46, 0.9) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(138, 116, 249, 0.2);
+  border-left: 4px solid;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  padding: 1.5rem;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(138, 116, 249, 0.3);
+    border-color: rgba(138, 116, 249, 0.4);
+  }
+
+  &.mood-happy {
+    border-left-color: #FFB347;
+  }
+
+  &.mood-neutral {
+    border-left-color: #6B8E9F;
+  }
+
+  &.mood-sad {
+    border-left-color: #8B7EC8;
+  }
+
+  &.mood-anxious {
+    border-left-color: #E57373;
+  }
+
+  ::ng-deep {
+    .mat-mdc-card-header {
+      padding: 0;
+    }
+
+    .mat-mdc-card-content {
+      padding: 0;
+      margin: 0;
+    }
+
+    .mat-mdc-card-title {
+      margin: 0;
+    }
+
+    .mat-mdc-card-subtitle {
+      margin: 0;
+    }
+  }
+}
+
+.lucid-badge {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #1a1a2e;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  white-space: nowrap;
+
+  .material-icons {
+    font-size: 14px;
+  }
+}
+
+.vividness-track {
+  height: 6px;
+  background: rgba(138, 116, 249, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.vividness-indicator {
+  height: 100%;
+  background: linear-gradient(90deg, #8A74F9 0%, #B794F6 100%);
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(138, 116, 249, 0.4);
+  transition: width 0.3s ease;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

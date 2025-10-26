@@ -26,4 +26,19 @@ export class DreamDetail {
   formatMood(mood: Mood): string {
     return mood.charAt(0) + mood.slice(1).toLowerCase();
   }
+
+  /**
+   * Get Material icon name for mood.
+   */
+  getMoodIcon(mood: Mood): string {
+    const iconMap: Record<Mood, string> = {
+      [Mood.POSITIVE]: 'sentiment_very_satisfied',
+      [Mood.NEUTRAL]: 'sentiment_neutral',
+      [Mood.NEGATIVE]: 'sentiment_dissatisfied',
+      [Mood.NIGHTMARE]: 'sentiment_very_dissatisfied',
+      [Mood.MIXED]: 'sentiment_neutral',
+    };
+
+    return iconMap[mood] || 'sentiment_neutral';
+  }
 }

@@ -28,16 +28,19 @@
 ### Lint Rules (Required)
 
 **No `any` in runtime code:**
+
 - Use `unknown` instead and narrow types before accessing properties
 - All HTTP responses and external data must be explicitly typed
 - ESLint rule: `@typescript-eslint/no-explicit-any: "error"`
 
 **Never pass unbound class methods:**
+
 - Wrap validators in arrow functions: `(control) => Validators.required(control)`
 - Or add `this: void` annotation for methods without context
 - ESLint rule: `@typescript-eslint/unbound-method`
 
 **Handle errors as `unknown`:**
+
 ```typescript
 error: (error: unknown) => {
   if (error instanceof HttpErrorResponse) {
@@ -48,21 +51,25 @@ error: (error: unknown) => {
   }
 }
 ```
+
 - Always check `instanceof HttpErrorResponse` before accessing `.error`
 - Cast `error.error` to expected shape with type guard
 - ESLint rule: `@typescript-eslint/no-unsafe-*`
 
 **Import ordering:**
+
 - Group imports: built-in/external → internal → parent/sibling
 - Alphabetize within groups
 - Newlines between groups
 - ESLint auto-fixes this: `npm run lint:fix`
 
 **DTOs and interfaces:**
+
 - Keep in `src/app/core/types` or co-located with feature
 - All I/O operations must have explicit, validated types
 
 **Rule exceptions:**
+
 - Only in tests or generated code
 - Never disable ESLint rules globally
 - Use `// eslint-disable-next-line` with justification comment
@@ -395,19 +402,12 @@ Use binding syntax instead of directives:
 features/
 ├── dashboard/       # Main screen after login (protected by authGuard)
 ├── dreams/          # Dream management (protected by authGuard)
-├── calendar/        # Calendar view (protected by authGuard)
-├── settings/        # User settings (protected by authGuard)
 ├── landing/         # Public landing page (loggedInGuard - redirects if logged in)
 └── login/           # Auth flow (loggedInGuard - redirects if logged in)
 ```
 
-**Why function-based structure?**
-- ✅ Easier lazy loading per feature
-- ✅ Easier to find code ("where's calendar?" → `features/calendar/`)
-- ✅ Guards control access, not folder structure
-- ✅ Reusable components work across features
-
 **Within each feature:**
+
 ```
 features/my-feature/
 ├── components/              # Presentational (dumb) components
@@ -419,23 +419,27 @@ features/my-feature/
 ```
 
 **Smart vs Presentational:**
+
 - **Smart (Page) components:** Fetch data, manage routing, handle state
 - **Presentational components:** Display data via `input()`, emit events via `output()`
 
 ### Responsive Design
 
 **Breakpoints (Tailwind):**
+
 - Mobile: `< 768px` (default, no prefix)
 - Tablet: `md:` (768px - 1024px)
 - Desktop: `lg:` (> 1024px)
 
 **Example:**
+
 ```html
 <!-- Stack on mobile, 2 columns on tablet, 3 on desktop -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 ```
 
 **Accessibility:**
+
 - Always provide `aria-label` for icon-only buttons
 - Ensure focus states are visible
 - Respect `prefers-reduced-motion` (already in global styles)

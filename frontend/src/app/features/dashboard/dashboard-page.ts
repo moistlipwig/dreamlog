@@ -82,7 +82,24 @@ export class DashboardPage {
   }
 
   getMoodLabel(mood: string | null): string {
-    if (!mood) return 'No mood data';
+    if (!mood) return 'No data';
     return mood.charAt(0) + mood.slice(1).toLowerCase();
+  }
+
+  getMoodEmoji(mood: string | null | undefined): string {
+    if (!mood) return '😐';
+
+    const moodMap: Record<string, string> = {
+      HAPPY: '😊',
+      SAD: '😢',
+      NEUTRAL: '😐',
+      EXCITED: '🤩',
+      ANXIOUS: '😰',
+      PEACEFUL: '😌',
+      CONFUSED: '🤔',
+      SCARED: '😨',
+    };
+
+    return moodMap[mood.toUpperCase()] || '😐';
   }
 }
