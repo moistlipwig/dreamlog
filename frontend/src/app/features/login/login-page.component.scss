@@ -1,53 +1,227 @@
+// Login page with landing page style
 .login-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  padding: 2rem 1rem;
+  position: relative;
+
+  // Same gradient as landing page for consistency
+  background:
+    linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%),
+    url('/assets/images/hero-background.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 }
 
 .login-card {
   width: 100%;
-  max-width: 420px;
-  padding: 2rem;
+  max-width: 440px;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(20px);
+  border-radius: 24px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+
+  @media (max-width: 768px) {
+    padding: 2rem 1.5rem;
+    max-width: 100%;
+  }
 
   &__title {
-    font-size: 1.75rem;
-    font-weight: 600;
+    font-size: 2rem;
+    font-weight: 700;
     text-align: center;
-    color: var(--color-text-primary);
-    margin: 0 0 0.5rem;
+    color: #1a1a2e;
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.02em;
+
+    @media (max-width: 768px) {
+      font-size: 1.75rem;
+    }
   }
 
   &__subtitle {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     text-align: center;
-    color: var(--color-text-secondary);
+    color: #64748b;
     margin: 0 0 2rem;
+    font-weight: 400;
+
+    @media (max-width: 768px) {
+      font-size: 0.9375rem;
+    }
   }
 
   &__divider-text {
     text-align: center;
     font-size: 0.875rem;
-    color: var(--color-text-secondary);
-    margin: 1rem 0;
+    color: #94a3b8;
+    margin: 1.5rem 0;
+    font-weight: 500;
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 35%;
+      height: 1px;
+      background: linear-gradient(
+        to right,
+        transparent,
+        rgba(148, 163, 184, 0.3),
+        transparent
+      );
+    }
+
+    &::before {
+      left: 0;
+    }
+
+    &::after {
+      right: 0;
+    }
   }
 
   &__footer {
     text-align: center;
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
-    margin-top: 1.5rem;
+    font-size: 0.9375rem;
+    color: #64748b;
+    margin-top: 2rem;
+    font-weight: 400;
   }
 
   &__link {
-    color: var(--color-primary);
+    color: #667eea !important;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    transition: all 0.2s ease;
 
     &:hover {
-      text-decoration: underline;
+      color: #5a67d8 !important;
+      background: rgba(102, 126, 234, 0.08);
+      border-radius: 6px;
+    }
+  }
+}
+
+// Form field styling for MAXIMUM readability - white inputs with dark text
+::ng-deep .login-card {
+  mat-form-field {
+    .mat-mdc-form-field-focus-overlay {
+      background-color: transparent !important;
+    }
+
+    // Pure WHITE background for inputs
+    .mat-mdc-text-field-wrapper {
+      background: #ffffff !important;
+      border-radius: 12px;
+    }
+
+    // Strong, visible borders
+    .mdc-text-field--outlined {
+      .mdc-notched-outline {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: #cbd5e1 !important; // Slate-300
+          border-width: 2px !important;
+        }
+      }
+
+      // Hover state - darker border
+      &:hover:not(.mdc-text-field--focused) .mdc-notched-outline {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: #94a3b8 !important; // Slate-400
+        }
+      }
+
+      // Focus state - primary purple
+      &.mdc-text-field--focused .mdc-notched-outline {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: #667eea !important;
+          border-width: 2px !important;
+        }
+      }
+    }
+
+    // DARK text on white background for contrast
+    input {
+      color: #0f172a !important; // Slate-900 - almost black
+      font-size: 1rem;
+      font-weight: 500;
+
+      &::placeholder {
+        color: #94a3b8 !important; // Slate-400
+        opacity: 1;
+        font-weight: 400;
+      }
+
+      // FIX: Override browser autofill styles (gray background + white text)
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover,
+      &:-webkit-autofill:focus,
+      &:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #ffffff inset !important; // Force white background
+        -webkit-text-fill-color: #0f172a !important; // Force dark text
+        caret-color: #0f172a !important; // Dark cursor
+        transition: background-color 5000s ease-in-out 0s; // Prevent browser from overriding
+      }
+
+      // Firefox autofill
+      &:-moz-autofill,
+      &:-moz-autofill-preview {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+      }
+    }
+
+    // Label colors
+    .mat-mdc-form-field-label,
+    .mdc-floating-label {
+      color: #64748b !important; // Slate-500
+    }
+
+    .mdc-text-field--focused .mdc-floating-label {
+      color: #667eea !important; // Primary on focus
+    }
+  }
+
+  mat-divider {
+    border-top-color: rgba(148, 163, 184, 0.2);
+  }
+
+  button[mat-flat-button] {
+    height: 48px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.6;
     }
   }
 }

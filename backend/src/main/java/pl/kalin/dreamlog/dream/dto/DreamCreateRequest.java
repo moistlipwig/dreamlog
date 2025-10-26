@@ -9,13 +9,13 @@ import java.util.List;
 
 /**
  * Request to create a new dream entry.
+ * Title is optional - if not provided, it will be auto-generated from content.
  */
 public record DreamCreateRequest(
     @NotNull(message = "Date is required")
     LocalDate date,
 
-    @NotBlank(message = "Title is required")
-    String title,
+    String title, // Optional - auto-generated if null/blank
 
     @NotBlank(message = "Content is required")
     String content,

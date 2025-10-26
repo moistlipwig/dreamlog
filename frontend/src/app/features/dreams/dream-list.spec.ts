@@ -17,16 +17,39 @@ describe('DreamList', () => {
           provide: DreamsService,
           useValue: {
             list: () =>
-              of([{ id: '1', title: 'A', content: 'c', date: '2020-01-01', tags: [], mood: 3 }]),
+              of({
+                content: [
+                  {
+                    id: '1',
+                    title: 'A',
+                    content: 'c',
+                    date: '2020-01-01',
+                    tags: [],
+                    moodInDream: null,
+                    moodAfterDream: null,
+                    vividness: 5,
+                    lucid: false,
+                  },
+                ],
+                totalElements: 1,
+                totalPages: 1,
+                size: 10,
+                number: 0,
+                first: true,
+                last: true,
+                empty: false,
+              }),
           },
         },
       ],
     }).compileComponents();
   });
 
-  it('renders list', () => {
+  it('renders list', async () => {
     const fixture = TestBed.createComponent(DreamList);
     fixture.detectChanges();
+    await fixture.whenStable(); // Wait for async pipe to resolve
+    fixture.detectChanges(); // Re-render after data loads
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelectorAll('mat-card').length).toBe(1);
   });

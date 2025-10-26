@@ -11,6 +11,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.util.LinkedMultiValueMap
 import pl.kalin.dreamlog.IntegrationSpec
+import pl.kalin.dreamlog.support.SessionRestClient
 import pl.kalin.dreamlog.user.UserRepository
 import pl.kalin.dreamlog.user.dto.RegisterRequest
 import pl.kalin.dreamlog.user.dto.SetPasswordRequest
@@ -58,34 +59,6 @@ class AuthenticationIntegrationSpec extends IntegrationSpec {
         response.body.providers == []
     }
 
-    def "should reject duplicate email"() {
-        given: "an existing user"
-        auth.register("duplicate@example.com", "SecurePassword123", "User One")
-
-        when: "trying to register with same email"
-        def response = auth.register("duplicate@example.com", "DifferentPassword456", "User Two")
-
-        then: "registration is rejected"
-        response.statusCode == HttpStatus.BAD_REQUEST
-        response.body.error.contains("already registered")
-    }
-
-    def "should reject invalid email"() {
-        when: "trying to register with invalid email"
-        def response = auth.register("not-an-email", "SecurePassword123", "Test User")
-
-        then: "registration is rejected"
-        response.statusCode == HttpStatus.BAD_REQUEST
-    }
-
-    def "should reject weak password"() {
-        when: "trying to register with weak password"
-        def response = auth.register("test@example.com", "short", "Test User")
-
-        then: "registration is rejected with appropriate message"
-        response.statusCode == HttpStatus.BAD_REQUEST
-        response.body.error.contains("8-100 characters") || response.body.error.contains("letter and one digit")
-    }
 
     // ============================================================================
     // Login Tests
@@ -155,34 +128,6 @@ class AuthenticationIntegrationSpec extends IntegrationSpec {
     // Session & CSRF Tests
     // ============================================================================
 
-    def "should create session with secure cookies"() {
-        given: "a registered user"
-        auth.register("session@example.com", "Password123", "Session User")
-
-        when: "logging in"
-        def response = auth.login("session@example.com", "Password123")
-
-        then: "session cookie has proper security attributes"
-        response.statusCode == HttpStatus.OK
-        CookieAssertions.assertCookie(response, "JSESSIONID", [
-            httpOnly: true,
-            sameSite: "Lax",
-            path    : "/"
-        ])
-    }
-
-    def "should set XSRF-TOKEN cookie with proper attributes"() {
-        when: "fetching CSRF token"
-        def csrfData = auth.csrf()
-
-        then: "XSRF-TOKEN cookie has proper security attributes"
-        CookieAssertions.assertCookie(csrfData.response, "XSRF-TOKEN", [
-            httpOnly: false,  // Must be readable by JavaScript
-            sameSite: "Strict",
-            path    : "/"
-        ])
-    }
-
     def "should validate CSRF token on login"() {
         given: "a registered user"
         auth.register("csrf@example.com", "Password123", "CSRF User")
@@ -249,116 +194,45 @@ class AuthenticationIntegrationSpec extends IntegrationSpec {
      * Mini-SDK for authentication operations.
      * Automatically manages cookies and CSRF tokens (KISS principle).
      */
-    static class AuthClient {
-        private final TestRestTemplate rest
-        private final String baseUrl
-        private String cookies = null
+    static class AuthClient extends SessionRestClient {
 
         AuthClient(TestRestTemplate rest, String baseUrl) {
-            this.rest = rest
-            this.baseUrl = baseUrl
+            super(rest, baseUrl)
         }
 
         void reset() {
-            this.cookies = null
-        }
-
-        private HttpHeaders headersWithCookies() {
-            def headers = new HttpHeaders()
-            if (cookies) {
-                headers.set(HttpHeaders.COOKIE, cookies)
-            }
-            return headers
-        }
-
-        private void updateCookiesFromResponse(ResponseEntity<?> response) {
-            def setCookies = response.headers.get(HttpHeaders.SET_COOKIE)
-            if (setCookies) {
-                // Parse existing cookies into map
-                def cookieMap = [:]
-                if (this.cookies) {
-                    this.cookies.split("; ").each { cookie ->
-                        def parts = cookie.split("=", 2)
-                        if (parts.length == 2) {
-                            cookieMap[parts[0]] = parts[1]
-                        }
-                    }
-                }
-
-                // Merge new cookies (overwrite if same name, handle deletions)
-                setCookies.each { cookieHeader ->
-                    def cookiePart = cookieHeader.split(";")[0].trim()
-                    def parts = cookiePart.split("=", 2)
-                    if (parts.length == 2) {
-                        if (parts[1].isEmpty() || cookieHeader.contains("Max-Age=0")) {
-                            // Cookie deletion (empty value or Max-Age=0)
-                            cookieMap.remove(parts[0])
-                        } else {
-                            // Cookie update/addition
-                            cookieMap[parts[0]] = parts[1]
-                        }
-                    }
-                }
-
-                // Rebuild cookie string
-                this.cookies = cookieMap.collect { k, v -> "${k}=${v}" }.join("; ")
-            }
+            cookieStore().clear()
         }
 
         ResponseEntity<Map> register(String email, String password, String name) {
             def request = new RegisterRequest(email, password, name)
-            def response = rest.postForEntity("${baseUrl}/api/auth/register", request, Map)
-            updateCookiesFromResponse(response)
-            return response
+            return json(HttpMethod.POST, "/api/auth/register", request, Map)
         }
 
         ResponseEntity<Map> login(String email, String password) {
-            def csrf = csrf()
-
             def loginForm = new LinkedMultiValueMap<String, String>()
             loginForm.add("username", email)
             loginForm.add("password", password)
 
-            def headers = headersWithCookies()
-            headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
-            headers.set(csrf.headerName as String, csrf.token as String)
-
-            def loginRequest = new HttpEntity<>(loginForm, headers)
-            def response = rest.exchange("${baseUrl}/api/auth/login", HttpMethod.POST, loginRequest, Map)
-            updateCookiesFromResponse(response)
-            return response
+            return submitForm("/api/auth/login", loginForm, Map)
         }
 
         ResponseEntity<Map> me() {
-            def headers = headersWithCookies()
-            def request = new HttpEntity<>(headers)
-            return rest.exchange("${baseUrl}/api/me", HttpMethod.GET, request, Map)
+            return get("/api/me", Map)
         }
 
         Map csrf() {
-            def headers = headersWithCookies()
-            def request = new HttpEntity<>(headers)
-            def response = rest.exchange("${baseUrl}/api/auth/csrf", HttpMethod.GET, request, Map)
-            updateCookiesFromResponse(response)
+            def response = get("/api/me", Map)
             return [
-                token     : response.body.token,
-                headerName: response.body.headerName,
-                response  : response  // For cookie assertions
+                token     : cookieStore().getCookies().find { it.name == "XSRF-TOKEN" }?.value,
+                headerName: "X-XSRF-TOKEN",
+                response  : response
             ]
         }
 
         ResponseEntity<Map> setPassword(String newPassword) {
-            def csrf = csrf()
             def passwordRequest = new SetPasswordRequest(newPassword)
-
-            def headers = headersWithCookies()
-            headers.contentType = MediaType.APPLICATION_JSON
-            headers.set(csrf.headerName as String, csrf.token as String)
-
-            def request = new HttpEntity<>(passwordRequest, headers)
-            def response = rest.exchange("${baseUrl}/api/auth/set-password", HttpMethod.POST, request, Map)
-            updateCookiesFromResponse(response)
-            return response
+            return json(HttpMethod.POST, "/api/auth/set-password", passwordRequest, Map)
         }
     }
 

@@ -1,22 +1,23 @@
 package pl.kalin.dreamlog.dream.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import pl.kalin.dreamlog.dream.dto.DreamCreateRequest;
 import pl.kalin.dreamlog.dream.dto.DreamResponse;
 import pl.kalin.dreamlog.dream.dto.DreamUpdateRequest;
 import pl.kalin.dreamlog.dream.model.DreamEntry;
 import pl.kalin.dreamlog.dream.repository.DreamEntryRepository;
 import pl.kalin.dreamlog.user.User;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Service for managing dream entries with user-based authorization.
@@ -32,7 +33,8 @@ public class DreamService {
 
     /**
      * Get paginated dreams for the authenticated user.
-     * @param user the authenticated user
+     *
+     * @param user     the authenticated user
      * @param pageable pagination parameters (page, size, sort)
      * @return page of user's dreams
      */
@@ -45,11 +47,10 @@ public class DreamService {
 
     /**
      * Get all dreams for the authenticated user (unpaginated).
+     *
      * @param user the authenticated user
      * @return list of user's dreams (empty if no dreams found)
-     * @deprecated Use {@link #getUserDreams(User, Pageable)} for better performance with large datasets
      */
-    @Deprecated
     @Transactional(readOnly = true)
     public List<DreamResponse> getUserDreams(User user) {
         log.debug("Fetching all dreams for user: {}", user.getEmail());
@@ -61,7 +62,8 @@ public class DreamService {
 
     /**
      * Get a single dream by ID, only if it belongs to the authenticated user.
-     * @param user the authenticated user
+     *
+     * @param user    the authenticated user
      * @param dreamId the dream ID
      * @return dream response
      * @throws AccessDeniedException if dream not found or doesn't belong to user
@@ -76,17 +78,23 @@ public class DreamService {
 
     /**
      * Create a new dream entry for the authenticated user.
-     * @param user the authenticated user (becomes owner of the dream)
+     *
+     * @param user    the authenticated user (becomes owner of the dream)
      * @param request the dream data
      * @return created dream response
      */
     public DreamResponse createDream(User user, DreamCreateRequest request) {
         log.debug("Creating dream for user: {}", user.getEmail());
 
+        // Auto-generate title from content if not provided
+        String title = (request.title() == null || request.title().isBlank())
+            ? generateTitleFromContent(request.content())
+            : request.title();
+
         DreamEntry dream = DreamEntry.builder()
             .user(user)
             .date(request.date())
-            .title(request.title())
+            .title(title)
             .content(request.content())
             .moodInDream(request.moodInDream())
             .moodAfterDream(request.moodAfterDream())
@@ -102,9 +110,47 @@ public class DreamService {
     }
 
     /**
+     * Generate a title from the first sentence or first 50 characters of content.
+     *
+     * @param content the dream content
+     * @return generated title
+     */
+    private String generateTitleFromContent(String content) {
+        if (content == null || content.isBlank()) {
+            return "Untitled Dream";
+        }
+
+        // Try to extract first sentence (up to first period, exclamation, or question mark)
+        int firstSentenceEnd = content.length();
+        int periodIdx = content.indexOf('.');
+        int exclamIdx = content.indexOf('!');
+        int questionIdx = content.indexOf('?');
+
+        if (periodIdx > 0) {
+            firstSentenceEnd = Math.min(firstSentenceEnd, periodIdx);
+        }
+        if (exclamIdx > 0) {
+            firstSentenceEnd = Math.min(firstSentenceEnd, exclamIdx);
+        }
+        if (questionIdx > 0) {
+            firstSentenceEnd = Math.min(firstSentenceEnd, questionIdx);
+        }
+
+        String title = content.substring(0, firstSentenceEnd).trim();
+
+        // If first sentence is too long, truncate to 50 chars
+        if (title.length() > 50) {
+            title = title.substring(0, 47).trim() + "...";
+        }
+
+        return title.isEmpty() ? "Untitled Dream" : title;
+    }
+
+    /**
      * Update an existing dream (PUT - full replacement).
      * Only the owner can update their dream.
-     * @param user the authenticated user
+     *
+     * @param user    the authenticated user
      * @param dreamId the dream ID
      * @param request the updated dream data
      * @return updated dream response
@@ -135,7 +181,8 @@ public class DreamService {
     /**
      * Delete a dream entry.
      * Only the owner can delete their dream.
-     * @param user the authenticated user
+     *
+     * @param user    the authenticated user
      * @param dreamId the dream ID
      * @throws AccessDeniedException if dream not found or doesn't belong to user
      */

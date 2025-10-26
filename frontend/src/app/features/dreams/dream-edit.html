@@ -1,116 +1,134 @@
-<mat-card class="max-w-2xl mx-auto p-4 md:p-6">
-  <mat-card-header class="mb-4">
-    <mat-card-title>Add New Dream</mat-card-title>
-    <mat-card-subtitle>Record your dream experience</mat-card-subtitle>
-  </mat-card-header>
+<div class="dream-edit-container">
+  <!-- Compact Header -->
+  <div class="edit-header">
+    <button mat-icon-button routerLink="/app/dreams" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>✍️ Record Your Dream</h1>
+  </div>
 
-  <mat-card-content>
-    <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4">
-      <!-- Title -->
-      <mat-form-field>
-        <mat-label>Title</mat-label>
-        <input matInput formControlName="title" placeholder="A memorable dream..." required />
-        @if (form.controls.title.hasError('required') && form.controls.title.touched) {
-          <mat-error>Title is required</mat-error>
-        }
-      </mat-form-field>
-
-      <!-- Date -->
-      <mat-form-field>
-        <mat-label>Date</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="date" required />
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-        <mat-hint>When did you have this dream?</mat-hint>
-      </mat-form-field>
-
-      <!-- Content -->
-      <mat-form-field>
-        <mat-label>Dream Description</mat-label>
+  <form [formGroup]="form" (ngSubmit)="save()" class="dream-form">
+    <!-- Two-Column Layout: Content (left) + Metadata (right) -->
+    <div class="form-grid">
+      <!-- LEFT: Dream Content (60%) -->
+      <div class="content-section">
+        <label for="dream-content" class="content-label">What did you dream about?</label>
         <textarea
-          matInput
-          rows="8"
+          id="dream-content"
+          class="content-textarea"
           formControlName="content"
-          placeholder="Describe your dream in detail..."
+          placeholder="I was standing in a vast field of flowers..."
           required
+          [class.error]="form.controls.content.hasError('required') && form.controls.content.touched"
         ></textarea>
         @if (form.controls.content.hasError('required') && form.controls.content.touched) {
-          <mat-error>Description is required</mat-error>
+          <div class="error-hint">
+            <mat-icon>warning</mat-icon>
+            Dream description is required
+          </div>
         }
-      </mat-form-field>
-
-      <!-- Mood In Dream -->
-      <mat-form-field>
-        <mat-label>Mood During Dream</mat-label>
-        <mat-select formControlName="moodInDream">
-          <mat-option [value]="null">Not specified</mat-option>
-          @for (mood of moodOptions; track mood.value) {
-            <mat-option [value]="mood.value">{{ mood.label }}</mat-option>
-          }
-        </mat-select>
-        <mat-hint>How did you feel while dreaming?</mat-hint>
-      </mat-form-field>
-
-      <!-- Mood After Dream -->
-      <mat-form-field>
-        <mat-label>Mood After Waking Up</mat-label>
-        <mat-select formControlName="moodAfterDream">
-          <mat-option [value]="null">Not specified</mat-option>
-          @for (mood of moodOptions; track mood.value) {
-            <mat-option [value]="mood.value">{{ mood.label }}</mat-option>
-          }
-        </mat-select>
-        <mat-hint>How did you feel upon waking?</mat-hint>
-      </mat-form-field>
-
-      <!-- Vividness Slider -->
-      <div class="flex flex-col gap-2">
-        <span class="text-sm text-gray-600">Vividness: {{ form.controls.vividness.value }}/10</span>
-        <mat-slider min="0" max="10" step="1" discrete showTickMarks>
-          <input matSliderThumb formControlName="vividness" />
-        </mat-slider>
-        <span class="text-xs text-gray-500">How clear and detailed was the dream?</span>
       </div>
 
-      <!-- Lucid Checkbox -->
-      <div class="flex items-center gap-2">
-        <mat-checkbox formControlName="lucid">Lucid Dream</mat-checkbox>
-        <span class="text-xs text-gray-500">Were you aware you were dreaming?</span>
-      </div>
-
-      <!-- Tags -->
-      <mat-form-field>
-        <mat-label>Tags</mat-label>
-        <input matInput formControlName="tags" placeholder="flying, nature, family" />
-        <mat-hint>Comma-separated keywords</mat-hint>
-      </mat-form-field>
-
-      <!-- Error Message -->
-      @if (error()) {
-        <div class="p-3 bg-red-50 text-red-700 rounded border border-red-200">
-          {{ error() }}
+      <!-- RIGHT: Metadata Card (40%) -->
+      <div class="metadata-card">
+        <!-- Date -->
+        <div class="field-compact">
+          <label for="dream-date" class="field-label">
+            <mat-icon>event</mat-icon>
+            Date
+          </label>
+          <mat-form-field appearance="outline">
+            <input id="dream-date" matInput [matDatepicker]="picker" formControlName="date" required/>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
         </div>
-      }
 
-      <!-- Actions -->
-      <div class="flex gap-3 justify-end mt-4">
-        <button mat-button type="button" routerLink="/app/dreams" [disabled]="isSaving()">
-          Cancel
-        </button>
-        <button
-          mat-flat-button
-          color="primary"
-          type="submit"
-          [disabled]="form.invalid || isSaving()"
-        >
-          @if (isSaving()) {
-            <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
-            Saving...
-          } @else {
-            Save Dream
-          }
-        </button>
+        <!-- Tags -->
+        <div class="field-compact">
+          <label for="dream-tags" class="field-label">
+            <mat-icon>label</mat-icon>
+            Tags
+          </label>
+          <mat-form-field appearance="outline">
+            <input id="dream-tags" matInput formControlName="tags" placeholder="flying, ocean..."/>
+          </mat-form-field>
+        </div>
+
+        <!-- Mood During Dream -->
+        <div class="field-compact">
+          <label for="mood-in-dream" class="field-label">
+            <mat-icon>mood</mat-icon>
+            Mood during dream
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select id="mood-in-dream" formControlName="moodInDream" placeholder="Select">
+              <mat-option [value]="null">Not specified</mat-option>
+              @for (mood of moodOptions; track mood.value) {
+                <mat-option [value]="mood.value">{{ mood.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Mood After Waking -->
+        <div class="field-compact">
+          <label for="mood-after-dream" class="field-label">
+            <mat-icon>wb_twilight</mat-icon>
+            Mood after waking
+          </label>
+          <mat-form-field appearance="outline">
+            <mat-select id="mood-after-dream" formControlName="moodAfterDream" placeholder="Select">
+              <mat-option [value]="null">Not specified</mat-option>
+              @for (mood of moodOptions; track mood.value) {
+                <mat-option [value]="mood.value">{{ mood.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Vividness -->
+        <div class="field-compact">
+          <label for="dream-vividness" class="field-label">
+            <mat-icon>visibility</mat-icon>
+            Vividness: {{ form.controls.vividness.value }}/10
+          </label>
+          <mat-slider min="0" max="10" step="1" discrete showTickMarks>
+            <input id="dream-vividness" matSliderThumb formControlName="vividness"/>
+          </mat-slider>
+        </div>
+
+        <!-- Lucid -->
+        <div class="field-compact lucid-field">
+          <mat-checkbox formControlName="lucid">
+            <mat-icon>lightbulb</mat-icon>
+            Lucid Dream
+          </mat-checkbox>
+        </div>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+    </div>
+
+    <!-- Error Message -->
+    @if (error()) {
+      <div class="form-error">
+        <mat-icon>error</mat-icon>
+        {{ error() }}
+      </div>
+    }
+
+    <!-- Action Buttons (Fixed at bottom) -->
+    <div class="actions">
+      <button mat-stroked-button type="button" routerLink="/app/dreams" [disabled]="isSaving()" class="btn-cancel">
+        Cancel
+      </button>
+      <button mat-flat-button type="submit" [disabled]="form.invalid || isSaving()" class="btn-save">
+        @if (isSaving()) {
+          <mat-spinner diameter="18" class="spinner"></mat-spinner>
+          Saving...
+        } @else {
+          Save Dream
+        }
+      </button>
+    </div>
+  </form>
+</div>

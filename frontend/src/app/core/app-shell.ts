@@ -1,24 +1,24 @@
-import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import {AsyncPipe} from '@angular/common';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatListModule} from '@angular/material/list';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatToolbarModule} from '@angular/material/toolbar';
 import {
-  Router,
-  RouterOutlet,
-  RouterLink,
-  NavigationStart,
-  NavigationEnd,
   NavigationCancel,
+  NavigationEnd,
   NavigationError,
+  NavigationStart,
+  Router,
+  RouterLink,
+  RouterOutlet,
 } from '@angular/router';
-import { filter, map } from 'rxjs';
+import {filter, map} from 'rxjs';
 
-import { SearchBar } from './search-bar';
-import { AuthService } from './services/auth.service';
+// import { SearchBar } from './search-bar';
+import {AuthService} from './services/auth.service';
 
 @Component({
   selector: 'app-app-shell',
@@ -31,7 +31,7 @@ import { AuthService } from './services/auth.service';
     MatSidenavModule,
     MatListModule,
     MatProgressBarModule,
-    SearchBar,
+    // SearchBar,
     AsyncPipe,
   ],
   templateUrl: './app-shell.html',

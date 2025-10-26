@@ -8,8 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,15 +25,6 @@ import pl.kalin.dreamlog.user.service.UserService;
 @RequiredArgsConstructor
 public class AuthController {
     private final UserService userService;
-
-    @GetMapping("/csrf")
-    public ResponseEntity<?> csrf(CsrfToken csrfToken) {
-        return ResponseEntity.ok(Map.of(
-            "token", csrfToken.getToken(),
-            "headerName", csrfToken.getHeaderName(),
-            "parameterName", csrfToken.getParameterName()
-        ));
-    }
 
     /**
      * Register new user with email and password.

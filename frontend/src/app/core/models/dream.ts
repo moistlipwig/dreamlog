@@ -28,11 +28,12 @@ export interface Dream {
 
 /**
  * Request for creating a new dream entry.
+ * Title is optional - if not provided, it will be auto-generated from content on backend.
  * Backend: pl.kalin.dreamlog.dream.dto.DreamCreateRequest
  */
 export interface CreateDreamRequest {
   date: string; // ISO LocalDate format (YYYY-MM-DD)
-  title: string;
+  title?: string; // Optional - auto-generated if not provided
   content: string;
   moodInDream?: Mood;
   moodAfterDream?: Mood;
