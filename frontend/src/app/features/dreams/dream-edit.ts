@@ -57,8 +57,10 @@ export class DreamEdit implements OnInit {
   isSaving = signal(false);
   error = signal<string | null>(null);
   private editingDream: Dream | null = null;
+  isEditMode = false;
 
   form = this.fb.nonNullable.group({
+    title: ['', [Validators.maxLength(120)]],
     content: ['', Validators.required], // eslint-disable-line @typescript-eslint/unbound-method
     date: [new Date(), Validators.required], // eslint-disable-line @typescript-eslint/unbound-method
     tags: [''],
@@ -73,6 +75,7 @@ export class DreamEdit implements OnInit {
     const dream = this.route.snapshot.data['dream'] as Dream | undefined;
     if (dream) {
       this.editingDream = dream;
+      this.isEditMode = true;
       this.populateForm(dream);
     }
   }
@@ -85,6 +88,7 @@ export class DreamEdit implements OnInit {
     const dateObj = new Date(dream.date);
 
     this.form.patchValue({
+      title: dream.title,
       content: dream.content,
       date: dateObj,
       tags: tagsString,
@@ -105,6 +109,7 @@ export class DreamEdit implements OnInit {
     this.error.set(null);
 
     const value = this.form.getRawValue();
+    const trimmedTitle = value.title?.trim();
 
     // Parse tags from comma-separated string
     const tags = value.tags
@@ -119,6 +124,7 @@ export class DreamEdit implements OnInit {
 
     // Build request matching CreateDreamRequest interface (UpdateDreamRequest is identical)
     const request: CreateDreamRequest = {
+      title: trimmedTitle || undefined,
       content: value.content,
       date: dateStr,
       tags,

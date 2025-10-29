@@ -16,7 +16,7 @@
 6. [Coding Standards](#coding-standards)
 7. [Testing Strategy](#testing-strategy)
 8. [Token Optimization for AI Agents](#token-optimization-for-ai-agents)
-   9[Agent Feedback Protocol](#agent-feedback-protocol)
+9. [Agent Feedback Protocol](#agent-feedback-protocol)
 
 ---
 
