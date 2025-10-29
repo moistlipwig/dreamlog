@@ -49,9 +49,23 @@
     opacity: 0.95;
   }
 
+  &__actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
   &__cta {
     font-size: 1.125rem;
     padding: 0.75rem 2rem !important;
     height: auto !important;
+    min-width: 180px;
+
+    @media (max-width: 600px) {
+      width: 100%;
+      min-width: unset;
+    }
   }
 }

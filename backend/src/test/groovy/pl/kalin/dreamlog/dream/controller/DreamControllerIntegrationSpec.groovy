@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter
  * Integration tests for Dream Entry Controller.
  * Verifies user isolation: users can only access their own dreams.
  */
-class DreamEntryControllerIntegrationSpec extends IntegrationSpec {
+class DreamControllerIntegrationSpec extends IntegrationSpec {
 
     @LocalServerPort
     int port

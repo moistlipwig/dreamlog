@@ -1,14 +1,14 @@
-import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {Observable, of} from 'rxjs';
 
-import { ApiHttp } from '../http/api-http';
-import { Dream, CreateDreamRequest, UpdateDreamRequest, PagedResponse } from '../models/dream';
+import {ApiHttp} from '../http/api-http';
+import {CreateDreamRequest, Dream, PagedResponse, UpdateDreamRequest} from '../models/dream';
 
 /**
  * Service for managing dream entries (CRUD operations).
  * Base endpoint: /api/dreams
  */
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class DreamsService {
   private readonly api = inject(ApiHttp);
   private readonly baseUrl = '/dreams';
@@ -51,5 +51,18 @@ export class DreamsService {
    */
   delete(id: string): Observable<void> {
     return this.api.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  /**
+   * Search dreams by query string.
+   * Minimum 3 characters required.
+   * @param query search query
+   * @returns array of matching dreams
+   */
+  search(query: string): Observable<Dream[]> {
+    if (!query || query.trim().length < 3) {
+      return of([]);
+    }
+    return this.api.get<Dream[]>(`${this.baseUrl}/search?query=${encodeURIComponent(query.trim())}`);
   }
 }

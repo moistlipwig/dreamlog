@@ -1,5 +1,67 @@
 @use '@angular/material' as mat;
 
+// Dream List Container - dark theme with padding
+.dream-list-container {
+  min-height: 100vh;
+  background: #0f1419;
+  padding: 60px 40px 40px 40px; // Increased top padding for breathing room
+
+  @media (max-width: 768px) {
+    padding: 40px 16px 20px 16px;
+  }
+}
+
+// Header Toolbar: Title | Search in one line
+.dream-list-header {
+  display: flex;
+  align-items: center; // Perfect vertical alignment
+  gap: 32px; // Generous gap between title and search
+  margin-bottom: 40px; // More breathing room before dream grid
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  h1 {
+    font-size: 32px; // Larger for better hierarchy
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    flex-shrink: 0;
+    line-height: 1; // Perfect alignment
+
+    @media (max-width: 768px) {
+      font-size: 28px;
+    }
+  }
+
+  .header-search {
+    flex: 1; // Take all available space after title
+    // No max-width - full width within available space
+
+    // Add subtle background to search bar for better visibility
+    ::ng-deep .search-field {
+      .mat-mdc-text-field-wrapper {
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.12);
+        }
+      }
+
+      .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(138, 116, 249, 0.5);
+      }
+    }
+  }
+}
+
 .dream-card {
   background: linear-gradient(135deg, rgba(30, 30, 46, 0.95) 0%, rgba(26, 26, 46, 0.9) 100%);
   backdrop-filter: blur(20px);

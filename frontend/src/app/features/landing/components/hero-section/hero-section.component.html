@@ -8,14 +8,25 @@
     <p class="hero-section__subtitle">
       Your personal dream journal with AI-powered insights and beautiful visualization
     </p>
-    <a
-      mat-flat-button
-      color="primary"
-      class="hero-section__cta"
-      href="/oauth2/authorization/google"
-      aria-label="Get started with Dreamlog for free"
-    >
-      Get Started Free
-    </a>
+    <div class="hero-section__actions">
+      <a
+        mat-flat-button
+        color="primary"
+        class="hero-section__cta hero-section__cta--primary"
+        href="/oauth2/authorization/google"
+        aria-label="Get started with Dreamlog for free"
+      >
+        Get Started Free
+      </a>
+      <a
+        mat-stroked-button
+        color="primary"
+        class="hero-section__cta hero-section__cta--secondary"
+        href="/login"
+        aria-label="Sign in to your Dreamlog account"
+      >
+        Sign In
+      </a>
+    </div>
   </div>
 </section>

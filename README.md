@@ -56,57 +56,33 @@ Każda faza zawiera **cel**, **zakres** oraz **kryteria ukończenia (DoD)**, kt�
 - Repozytorium, CI/CD (build+test), Docker Compose (Postgres), Spring Boot skeleton (Actuator, Swagger), Angular skeleton (Material+Tailwind).  
   **DoD:** `docker compose up` podnosi bazę; CI testy przechodzą; backend `/actuator/health` = UP; frontend działa lokalnie.
 
-**Co się nauczę:**
+### DONE
 
-- Konfiguracja środowiska deweloperskiego i narzędzi CI/CD
-- Podstawy Docker Compose i integracja z bazą danych
-- Tworzenie szkieletu aplikacji backend i frontend z wykorzystaniem Spring Boot i Angular
-
-**Pytania do zadania:**
-
-- Jak skonfigurować Docker Compose, aby uruchomić wszystkie usługi lokalnie?
-- W jaki sposób Actuator i Swagger pomagają w rozwoju i testowaniu backendu?
-- Jak zapewnić, że CI poprawnie buduje i testuje projekt?
-
-### Faza 1 — Auth (Multi-provider + BFF) - in progress
+### Faza 1 — Auth (Multi-provider + BFF) - 90% DONE
 
 **Cel:** Logowanie przez Google/Facebook OAuth oraz manual registration w modelu BFF.
 
 - Konfiguracja Spring Security + OAuth2 (Google, Facebook), endpoint `/api/me`, `/api/auth/*`
 - Manual registration
-- Account linking (OAuth ↔ local credentials)
+- Account linking (OAuth ↔ local credentials)  -- TODO!
 - Angular guardy, login/register components, logout
 - Session-based auth z HttpOnly cookies, CSRF protection
   **DoD:**
   - User może zarejestrować się przez email/password, Google lub Facebook
-  - User może połączyć konto OAuth z local credentials i odwrotnie
+  - User może połączyć konto OAuth z local credentials i odwrotnie --TODO!
   - Zalogowany użytkownik ma cookie HttpOnly; `/api/me` zwraca user info
   - Logout działa poprawnie; testy integracyjne pokrywają wszystkie flow
-
-**Co się nauczę:**
-
-- Implementacja OAuth2 Authorization Code Flow z PKCE w Spring Security
-- Mechanizm BFF (Backend For Frontend) i bezpieczne przechowywanie sesji w HttpOnly cookies
-- Multi-provider authentication (Google, Facebook, local)
-- Account linking patterns i zarządzanie federated identities
-- Obsługa autoryzacji i uwierzytelniania po stronie frontendu i backendu
-
-**Pytania do zadania:**
-
-- Jak działa Authorization Code Flow z PKCE i dlaczego jest bezpieczniejszy?
-- Jak zabezpieczyć sesję użytkownika, aby tokeny nie były dostępne w JavaScript?
-- W jaki sposób Angular guardy współpracują z backendem w modelu BFF?
-  - Jak bezpiecznie przechowywać hasła (Argon2id vs BCrypt)?
-- Jak zaimplementować account linking bez security vulnerabilities?
 
 **Deferred to Phase 6 (Notifications):**
 
 - Email verification for manual registration
 - Password reset flow (forgot password)
 
+### DONE
+
 ### Faza 2 — CRUD snów + FTS/trigramy
 
-**Cel:** Zapis i wyszukiwanie snów.
+**Cel:** Zapis i wyszukiwanie snów FTS
 
 - Model `DreamEntry`, Flyway migracje (`unaccent`, `pg_trgm`), CRUD + `/search`, Angular lista i formularz.  
   **DoD:** CRUD działa end‑to‑end; wyszukiwanie zwraca poprawne wyniki <200 ms na 1000 seedów.

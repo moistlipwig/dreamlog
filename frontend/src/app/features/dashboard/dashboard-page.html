@@ -39,15 +39,19 @@
     <div class="dashboard-grid">
       <!-- Left Column: Recent Dreams -->
       <div class="recent-dreams-section">
-        <div class="flex justify-between items-center mb-4">
-          <h2>Recent Dreams</h2>
-          <a mat-button routerLink="/app/dreams">
+        <!-- Header Toolbar: Title | Search | View All in one line -->
+        <div class="section-header-toolbar">
+          <h2>{{ isSearching() ? 'Search Results' : 'Recent Dreams' }}</h2>
+          <div class="header-search">
+            <app-search-bar></app-search-bar>
+          </div>
+          <a mat-button routerLink="/app/dreams" class="view-all-link">
             View All
             <mat-icon>arrow_forward</mat-icon>
           </a>
         </div>
 
-        @if (recentDreams().length === 0) {
+        @if (displayDreams().length === 0 && !isSearching()) {
           <!-- Empty state -->
           <mat-card class="p-8 text-center">
             <mat-icon class="text-gray-400 text-6xl mb-4">psychology_alt</mat-icon>
@@ -58,10 +62,17 @@
               Add Your First Dream
             </a>
           </mat-card>
+        } @else if (displayDreams().length === 0 && isSearching()) {
+          <!-- No search results -->
+          <mat-card class="p-8 text-center">
+            <mat-icon class="text-gray-400 text-6xl mb-4">search_off</mat-icon>
+            <p class="text-gray-600 text-lg mb-2">No dreams found</p>
+            <p class="text-gray-500">Try a different search term</p>
+          </mat-card>
         } @else {
           <!-- Dreams list -->
           <div class="dreams-list">
-            @for (dream of recentDreams(); track dream.id) {
+            @for (dream of displayDreams(); track dream.id) {
               <mat-card
                 class="dream-card"
                 [routerLink]="['/app/dreams', dream.id]"
@@ -94,12 +105,6 @@
             }
           </div>
 
-          <!-- Add dream FAB -->
-          <div class="mt-6 flex justify-center">
-            <a mat-fab routerLink="/app/dreams/new" aria-label="Add new dream">
-              <mat-icon>add</mat-icon>
-            </a>
-          </div>
         }
       </div>
 
@@ -155,5 +160,12 @@
         </mat-card>
       </div>
     </div>
+  }
+
+  <!-- FAB: Add Dream (fixed position, right bottom corner) -->
+  @if (!isLoading() && !error()) {
+    <a mat-fab routerLink="/app/dreams/new" aria-label="Add new dream" class="fab-add-dream">
+      <mat-icon>add</mat-icon>
+    </a>
   }
 </div>

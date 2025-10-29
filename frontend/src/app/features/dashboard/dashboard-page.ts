@@ -1,20 +1,23 @@
-import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
-import { forkJoin, catchError, of } from 'rxjs';
+import {DatePipe} from '@angular/common';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
+import {RouterLink} from '@angular/router';
+import {catchError, forkJoin, of, switchMap} from 'rxjs';
 
-import { Dream } from '../../core/models/dream';
-import { UserStats } from '../../core/models/user-stats';
-import { AuthService, User } from '../../core/services/auth.service';
-import { DreamsService } from '../../core/services/dreams.service';
-import { UserStatsService } from '../../core/services/user-stats.service';
+import {Dream} from '../../core/models/dream';
+import {UserStats} from '../../core/models/user-stats';
+import {SearchBar} from '../../core/search-bar';
+import {AuthService, User} from '../../core/services/auth.service';
+import {DreamsService} from '../../core/services/dreams.service';
+import {SearchService} from '../../core/services/search.service';
+import {UserStatsService} from '../../core/services/user-stats.service';
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [MatCardModule, MatButtonModule, MatIconModule, RouterLink, DatePipe],
+  imports: [MatCardModule, MatButtonModule, MatIconModule, RouterLink, DatePipe, SearchBar],
   templateUrl: './dashboard-page.html',
   styleUrls: ['./dashboard-page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,16 +26,58 @@ export class DashboardPage {
   private readonly dreamsService = inject(DreamsService);
   private readonly statsService = inject(UserStatsService);
   private readonly authService = inject(AuthService);
+  private readonly searchService = inject(SearchService);
 
   // State signals
   user = signal<User | null>(null);
-  recentDreams = signal<Dream[]>([]);
+  private recentDreamsFromApi = signal<Dream[]>([]);
   stats = signal<UserStats | null>(null);
   isLoading = signal(true);
   error = signal<string | null>(null);
 
+  // Search query as signal
+  private searchQuery = toSignal(this.searchService.query$, {initialValue: ''});
+
+  // Display dreams - switches between search results and recent dreams
+  displayDreams = computed(() => {
+    const query = this.searchQuery();
+    if (query && query.length >= 3) {
+      // Return empty for now, will be updated by search subscription
+      return [];
+    }
+    return this.recentDreamsFromApi();
+  });
+
+  // Computed property to check if we're in search mode
+  isSearching = computed(() => {
+    const query = this.searchQuery();
+    return query && query.length >= 3;
+  });
+
   constructor() {
     this.loadDashboardData();
+    this.setupSearch();
+  }
+
+  /**
+   * Setup search subscription to update dreams when query changes
+   */
+  private setupSearch(): void {
+    this.searchService.query$
+      .pipe(
+        switchMap((query) => {
+          if (query && query.length >= 3) {
+            return this.dreamsService.search(query);
+          }
+          return of([]);
+        }),
+      )
+      .subscribe((searchResults) => {
+        if (this.searchQuery() && this.searchQuery().length >= 3) {
+          // Update recent dreams with search results
+          this.recentDreamsFromApi.set(searchResults);
+        }
+      });
   }
 
   loadDashboardData(): void {
@@ -64,12 +109,12 @@ export class DashboardPage {
       stats: this.statsService.getMyStats().pipe(
         catchError((err) => {
           console.error('Failed to load stats:', err);
-          return of({ totalDreams: 0, mostCommonMood: null });
+          return of({totalDreams: 0, mostCommonMood: null});
         }),
       ),
     }).subscribe({
-      next: ({ dreams, stats }) => {
-        this.recentDreams.set(dreams.content);
+      next: ({dreams, stats}) => {
+        this.recentDreamsFromApi.set(dreams.content);
         this.stats.set(stats);
         this.isLoading.set(false);
       },
