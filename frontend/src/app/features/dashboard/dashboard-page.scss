@@ -13,16 +13,16 @@ $primary-light: rgba(79, 70, 229, 0.1);
   min-height: 100vh;
   background: $dark-bg;
   color: $dark-text;
-  padding: 40px;
+  padding: 60px 40px 40px 40px; // Increased top padding for breathing room
 
   @media (max-width: 768px) {
-    padding: 20px 16px;
+    padding: 40px 16px 20px 16px;
   }
 }
 
 // Welcome header section with quick actions
 .dashboard-header {
-  margin-bottom: 40px;
+  margin-bottom: 60px; // Increased spacing before Recent Dreams section
 
   .header-content {
     display: flex;
@@ -301,43 +301,97 @@ $primary-light: rgba(79, 70, 229, 0.1);
 
 // Recent dreams section
 .recent-dreams-section {
-  h2 {
-    font-size: 18px;
-    font-weight: 600;
-    color: white;
-    margin: 0;
-  }
-
-  a[mat-button] {
-    color: $primary-color;
-    font-size: 13px;
+  // Header Toolbar: Title | Search | View All in one line
+  .section-header-toolbar {
     display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    align-items: center; // Perfect vertical alignment
+    gap: 24px; // Increased gap between elements
+    margin-bottom: 32px; // More breathing room before content
 
-    &:hover {
-      background: $primary-light;
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
     }
 
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+    h2 {
+      font-size: 20px; // Slightly larger for better hierarchy
+      font-weight: 600;
+      color: white;
+      margin: 0;
+      flex-shrink: 0;
+      line-height: 1; // Ensure perfect alignment
+    }
+
+    .header-search {
+      flex: 1; // Take all available space between title and link
+      // No max-width - full width within available space
+
+      // Add subtle background to search bar for better visibility
+      ::ng-deep .search-field {
+        .mat-mdc-text-field-wrapper {
+          background-color: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          transition: all 0.2s ease;
+
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.12);
+          }
+        }
+
+        .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+          background-color: rgba(255, 255, 255, 0.05);
+          border-color: rgba($primary-color, 0.5);
+        }
+      }
+    }
+
+    .view-all-link {
+      color: $primary-color;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      line-height: 1; // Perfect alignment
+      font-weight: 500;
+
+      &:hover {
+        background: $primary-light;
+        transform: translateX(2px);
+      }
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
     }
   }
 }
 
-// FAB button with gradient
-a[mat-fab] {
+// FAB button with gradient - Fixed position (Material Design: right bottom)
+.fab-add-dream {
+  position: fixed !important;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
   background: $primary-gradient !important;
   color: white !important;
+  box-shadow: 0 4px 12px rgba($primary-color, 0.3);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba($primary-color, 0.4);
+    box-shadow: 0 6px 16px rgba($primary-color, 0.5);
+  }
+
+  @media (max-width: 768px) {
+    bottom: 16px;
+    right: 16px;
   }
 }
 

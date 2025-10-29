@@ -1,7 +1,10 @@
 package pl.kalin.dreamlog.dream.controller;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +14,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
 import pl.kalin.dreamlog.dream.dto.DreamCreateRequest;
 import pl.kalin.dreamlog.dream.dto.DreamResponse;
 import pl.kalin.dreamlog.dream.dto.DreamUpdateRequest;
@@ -20,9 +33,6 @@ import pl.kalin.dreamlog.user.User;
 import pl.kalin.dreamlog.user.exception.UserNotFoundException;
 import pl.kalin.dreamlog.user.service.UserService;
 
-import java.util.List;
-import java.util.UUID;
-
 /**
  * REST controller for dream entry operations.
  * All endpoints require authentication and automatically filter by current user.
@@ -30,7 +40,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/dreams")
 @RequiredArgsConstructor
-public class DreamEntryController {
+public class DreamController {
 
     private final DreamService dreamService;
     private final UserService userService;
@@ -39,20 +49,19 @@ public class DreamEntryController {
      * Get paginated dreams for the authenticated user.
      * Supports pagination and sorting via query parameters.
      *
-     * @param page zero-based page number (default: 0)
-     * @param size number of items per page (default: 20)
-     * @param sort sorting criteria in format "property,direction" (default: "date,desc")
+     * @param page           zero-based page number (default: 0)
+     * @param size           number of items per page (default: 20)
+     * @param sort           sorting criteria in format "property,direction" (default: "date,desc")
      * @param authentication Spring Security authentication object
      * @return page of dreams with metadata (totalElements, totalPages, etc.)
-     *
      * @example GET /api/dreams?page=0&size=5&sort=date,desc
      */
     @GetMapping
     public ResponseEntity<Page<DreamResponse>> getUserDreams(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "date,desc") String sort,
-            Authentication authentication) {
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size,
+        @RequestParam(defaultValue = "date,desc") String sort,
+        Authentication authentication) {
         User user = getCurrentUser(authentication);
 
         // Parse sort parameter (format: "property,direction")
@@ -72,8 +81,8 @@ public class DreamEntryController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<DreamResponse> getDreamById(
-            @PathVariable UUID id,
-            Authentication authentication) {
+        @PathVariable UUID id,
+        Authentication authentication) {
         User user = getCurrentUser(authentication);
         DreamResponse dream = dreamService.getDreamById(user, id);
         return ResponseEntity.ok(dream);
@@ -84,8 +93,8 @@ public class DreamEntryController {
      */
     @PostMapping
     public ResponseEntity<DreamResponse> createDream(
-            @Valid @RequestBody DreamCreateRequest request,
-            Authentication authentication) {
+        @Valid @RequestBody DreamCreateRequest request,
+        Authentication authentication) {
         User user = getCurrentUser(authentication);
         DreamResponse created = dreamService.createDream(user, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -97,9 +106,9 @@ public class DreamEntryController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<DreamResponse> updateDream(
-            @PathVariable UUID id,
-            @Valid @RequestBody DreamUpdateRequest request,
-            Authentication authentication) {
+        @PathVariable UUID id,
+        @Valid @RequestBody DreamUpdateRequest request,
+        Authentication authentication) {
         User user = getCurrentUser(authentication);
         DreamResponse updated = dreamService.updateDream(user, id, request);
         return ResponseEntity.ok(updated);
@@ -111,16 +120,42 @@ public class DreamEntryController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDream(
-            @PathVariable UUID id,
-            Authentication authentication) {
+        @PathVariable UUID id,
+        Authentication authentication) {
         User user = getCurrentUser(authentication);
         dreamService.deleteDream(user, id);
         return ResponseEntity.noContent().build();
     }
 
     /**
+     * Search dreams by query string (full-text search).
+     * Minimum 3 characters required in query.
+     *
+     * @param query search query string
+     * @param authentication Spring Security authentication object
+     * @return list of matching dreams for the authenticated user
+     * @example GET /api/dreams/search?query=lucid
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<DreamResponse>> searchDreams(
+        @RequestParam String query,
+        Authentication authentication) {
+        User user = getCurrentUser(authentication);
+
+        // Validate minimum query length
+        if (query == null || query.trim().length() < 3) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        // TODO: Implement full-text search with PostgreSQL FTS (Phase 2)
+        // For now, return empty list as stub
+        return ResponseEntity.ok(List.of());
+    }
+
+    /**
      * Helper method to get current authenticated user from database.
      * Supports both form login (UserDetails) and OAuth2 login (OAuth2User).
+     *
      * @throws UserNotFoundException if authenticated user not found in database
      */
     private User getCurrentUser(Authentication authentication) {

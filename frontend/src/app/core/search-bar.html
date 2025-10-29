@@ -1,4 +1,21 @@
-<mat-form-field appearance="outline" class="w-full">
+<mat-form-field appearance="outline" class="w-full search-field">
   <mat-icon matPrefix>search</mat-icon>
-  <input matInput [formControl]="control" type="search" placeholder="Search dreams" />
+  <input
+    matInput
+    [formControl]="control"
+    type="search"
+    placeholder="Search your dreams..."
+    autocomplete="off"
+  />
+  @if (showClear) {
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      (click)="clear()"
+      aria-label="Clear search"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  }
 </mat-form-field>
