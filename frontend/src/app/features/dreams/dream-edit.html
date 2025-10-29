@@ -4,7 +4,10 @@
     <button mat-icon-button routerLink="/app/dreams" class="back-btn">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1>✍️ Record Your Dream</h1>
+    <h1>
+      <span aria-hidden="true">✍️</span>
+      {{ isEditMode ? 'Edit Your Dream' : 'Record Your Dream' }}
+    </h1>
   </div>
 
   <form [formGroup]="form" (ngSubmit)="save()" class="dream-form">
@@ -12,6 +15,22 @@
     <div class="form-grid">
       <!-- LEFT: Dream Content (60%) -->
       <div class="content-section">
+        <div class="title-row">
+          <label for="dream-title" class="field-label">
+            <mat-icon>title</mat-icon>
+            Dream title
+          </label>
+          <mat-form-field appearance="outline" class="title-field">
+            <input
+              id="dream-title"
+              matInput
+              formControlName="title"
+              placeholder="A stroll above the clouds"
+              maxlength="120"
+            />
+            <mat-hint align="end">{{ form.controls.title.value?.length || 0 }}/120</mat-hint>
+          </mat-form-field>
+        </div>
         <label for="dream-content" class="content-label">What did you dream about?</label>
         <textarea
           id="dream-content"

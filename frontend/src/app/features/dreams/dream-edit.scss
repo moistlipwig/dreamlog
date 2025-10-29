@@ -96,6 +96,37 @@ $error-bg: rgba(239, 68, 68, 0.1);
   border-radius: 14px;
   padding: 16px;
   min-height: 0; // Allow flex shrinking
+  gap: 12px;
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .field-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: $dark-text-muted;
+      min-width: 110px;
+
+      mat-icon {
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+      }
+    }
+
+    .title-field {
+      flex: 1;
+
+      .mat-mdc-form-field-subscript-wrapper {
+        margin-top: 2px;
+      }
+    }
+  }
 
   .content-label {
     font-size: 16px;
