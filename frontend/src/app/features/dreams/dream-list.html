@@ -44,10 +44,7 @@
               <div class="flex items-center gap-2 mb-3">
                 <span class="text-xs text-gray-500">Vividness</span>
                 <div class="flex-1 vividness-track">
-                  <div
-                    class="vividness-indicator"
-                    [style.width.%]="dream.vividness * 10"
-                  ></div>
+                  <div class="vividness-indicator" [style.width.%]="dream.vividness * 10"></div>
                 </div>
                 <span class="text-xs font-semibold text-purple-300">{{ dream.vividness }}/10</span>
               </div>
@@ -72,4 +69,8 @@
       }
     </div>
   }
+
+  <a mat-fab routerLink="/app/dreams/new" aria-label="Add new dream" class="fab-add-dream">
+    <mat-icon>add</mat-icon>
+  </a>
 </div>

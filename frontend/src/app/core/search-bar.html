@@ -8,13 +8,7 @@
     autocomplete="off"
   />
   @if (showClear) {
-    <button
-      mat-icon-button
-      matSuffix
-      type="button"
-      (click)="clear()"
-      aria-label="Clear search"
-    >
+    <button mat-icon-button matSuffix type="button" (click)="clear()" aria-label="Clear search">
       <mat-icon>close</mat-icon>
     </button>
   }

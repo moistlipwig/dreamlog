@@ -127,7 +127,7 @@ public class DreamService {
         int questionIdx = content.indexOf('?');
 
         if (periodIdx > 0) {
-            firstSentenceEnd = Math.min(firstSentenceEnd, periodIdx);
+            firstSentenceEnd = periodIdx;
         }
         if (exclamIdx > 0) {
             firstSentenceEnd = Math.min(firstSentenceEnd, exclamIdx);
@@ -194,5 +194,39 @@ public class DreamService {
 
         dreamRepository.delete(dream);
         log.info("Deleted dream {} for user {}", dreamId, user.getEmail());
+    }
+
+    /**
+     * Search dreams using full-text search with fuzzy fallback.
+     * Strategy: Try PostgreSQL FTS first (fast, exact matching), then fuzzy search if no results.
+     * <p>
+     * Search supports:
+     * - Natural language queries: "lucid dream"
+     * - Boolean operators: "flying -nightmare"
+     * - Phrase search: "\"flying car\""
+     * - Polish characters: "łódź" matches "lodz"
+     * - Typo tolerance: "lucdi" matches "lucid" (fuzzy fallback)
+     *
+     * @param user  the authenticated user
+     * @param query search query string (minimum 3 characters)
+     * @return list of matching dreams ordered by relevance (max 100 results)
+     */
+    @Transactional(readOnly = true)
+    public List<DreamResponse> searchDreams(User user, String query) {
+        log.debug("Searching dreams for user {} with query: {}", user.getEmail(), query);
+
+        // Try full-text search first (fast, PostgreSQL FTS with websearch_to_tsquery)
+        List<DreamEntry> results = dreamRepository.searchByFullText(user.getId(), query);
+
+        // Fallback to fuzzy search if no FTS results (handles typos)
+        if (results.isEmpty()) {
+            log.debug("No FTS results, trying fuzzy search for query: {}", query);
+            results = dreamRepository.searchByFuzzy(user.getId(), query);
+        }
+
+        log.debug("Found {} dreams for query: {}", results.size(), query);
+        return results.stream()
+            .map(DreamResponse::from)
+            .toList();
     }
 }

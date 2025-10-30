@@ -38,7 +38,9 @@
           formControlName="content"
           placeholder="I was standing in a vast field of flowers..."
           required
-          [class.error]="form.controls.content.hasError('required') && form.controls.content.touched"
+          [class.error]="
+            form.controls.content.hasError('required') && form.controls.content.touched
+          "
         ></textarea>
         @if (form.controls.content.hasError('required') && form.controls.content.touched) {
           <div class="error-hint">
@@ -57,7 +59,13 @@
             Date
           </label>
           <mat-form-field appearance="outline">
-            <input id="dream-date" matInput [matDatepicker]="picker" formControlName="date" required/>
+            <input
+              id="dream-date"
+              matInput
+              [matDatepicker]="picker"
+              formControlName="date"
+              required
+            />
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
@@ -70,7 +78,7 @@
             Tags
           </label>
           <mat-form-field appearance="outline">
-            <input id="dream-tags" matInput formControlName="tags" placeholder="flying, ocean..."/>
+            <input id="dream-tags" matInput formControlName="tags" placeholder="flying, ocean..." />
           </mat-form-field>
         </div>
 
@@ -113,7 +121,7 @@
             Vividness: {{ form.controls.vividness.value }}/10
           </label>
           <mat-slider min="0" max="10" step="1" discrete showTickMarks>
-            <input id="dream-vividness" matSliderThumb formControlName="vividness"/>
+            <input id="dream-vividness" matSliderThumb formControlName="vividness" />
           </mat-slider>
         </div>
 
@@ -137,10 +145,21 @@
 
     <!-- Action Buttons (Fixed at bottom) -->
     <div class="actions">
-      <button mat-stroked-button type="button" routerLink="/app/dreams" [disabled]="isSaving()" class="btn-cancel">
+      <button
+        mat-stroked-button
+        type="button"
+        routerLink="/app/dreams"
+        [disabled]="isSaving()"
+        class="btn-cancel"
+      >
         Cancel
       </button>
-      <button mat-flat-button type="submit" [disabled]="form.invalid || isSaving()" class="btn-save">
+      <button
+        mat-flat-button
+        type="submit"
+        [disabled]="form.invalid || isSaving()"
+        class="btn-save"
+      >
         @if (isSaving()) {
           <mat-spinner diameter="18" class="spinner"></mat-spinner>
           Saving...

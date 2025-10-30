@@ -63,6 +63,8 @@ export class DreamsService {
     if (!query || query.trim().length < 3) {
       return of([]);
     }
-    return this.api.get<Dream[]>(`${this.baseUrl}/search?query=${encodeURIComponent(query.trim())}`);
+    return this.api.get<Dream[]>(
+      `${this.baseUrl}/search?query=${encodeURIComponent(query.trim())}`,
+    );
   }
 }

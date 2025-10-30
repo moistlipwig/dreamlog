@@ -15,7 +15,12 @@
   <mat-sidenav-content class="flex flex-col h-full">
     <nav class="top-nav">
       <div class="nav-left">
-        <button mat-icon-button class="menu-btn md:hidden" aria-label="Menu" (click)="drawer.toggle()">
+        <button
+          mat-icon-button
+          class="menu-btn md:hidden"
+          aria-label="Menu"
+          (click)="drawer.toggle()"
+        >
           <mat-icon>menu</mat-icon>
         </button>
         <div class="brand" routerLink="/app/dashboard">

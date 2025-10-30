@@ -1,5 +1,5 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
+import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -8,12 +8,13 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { Router } from '@angular/router';
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {Router} from '@angular/router';
 
-import { AuthService } from '../../../../core/services/auth.service';
+import {AuthService} from '../../../../core/services/auth.service';
 
 function passwordPolicy(control: AbstractControl): ValidationErrors | null {
   const value = control.value as string;
@@ -22,7 +23,7 @@ function passwordPolicy(control: AbstractControl): ValidationErrors | null {
   const hasLetter = /[a-zA-Z]/.test(value);
   const hasDigit = /\d/.test(value);
 
-  return hasLetter && hasDigit ? null : { passwordPolicy: true };
+  return hasLetter && hasDigit ? null : {passwordPolicy: true};
 }
 
 @Component({
@@ -35,6 +36,7 @@ function passwordPolicy(control: AbstractControl): ValidationErrors | null {
 export class RegisterFormComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
   touchedFields = signal<Set<string>>(new Set());
   formSubmitted = signal(false);
@@ -47,7 +49,7 @@ export class RegisterFormComponent {
       ],
       nonNullable: true,
     }),
-    name: new FormControl('', { nonNullable: true }),
+    name: new FormControl('', {nonNullable: true}),
     password: new FormControl('', {
       validators: [
         (control) => Validators.required(control),
@@ -81,9 +83,39 @@ export class RegisterFormComponent {
       const formValue = this.registerForm.getRawValue();
 
       this.authService.register(formValue).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          void this.router.navigateByUrl('/app');
+        next: (user) => {
+          // Show success message with user's name
+          const welcomeMessage = user.name
+            ? `Welcome ${user.name}! Your account has been created.`
+            : 'Account created successfully! Welcome to DreamLog.';
+
+          this.snackBar.open(welcomeMessage, 'OK', {
+            duration: 5000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+          });
+
+          // Verify session is established before navigating
+          // This ensures auth guard will pass
+          this.authService.check().subscribe({
+            next: (authenticated) => {
+              this.isLoading.set(false);
+              if (authenticated) {
+                void this.router.navigateByUrl('/app');
+              } else {
+                // Session not established - show error
+                this.errorMessage.set(
+                  'Registration succeeded but login failed. Please try logging in manually.',
+                );
+              }
+            },
+            error: () => {
+              this.isLoading.set(false);
+              this.errorMessage.set(
+                'Registration succeeded but login failed. Please try logging in manually.',
+              );
+            },
+          });
         },
         error: (error: unknown) => {
           this.isLoading.set(false);
@@ -112,7 +144,7 @@ export class RegisterFormComponent {
         `[formControlName="${firstInvalidControl}"]`,
       ) as HTMLElement;
       element?.focus();
-      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element?.scrollIntoView({behavior: 'smooth', block: 'center'});
     }
   }
 }

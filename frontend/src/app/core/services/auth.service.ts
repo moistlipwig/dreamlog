@@ -1,17 +1,8 @@
-import { inject, Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  catchError,
-  map,
-  Observable,
-  of,
-  shareReplay,
-  tap,
-  throwError,
-} from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {BehaviorSubject, catchError, map, Observable, of, shareReplay, tap, throwError,} from 'rxjs';
 
-import { ApiHttp } from '../http/api-http';
+import {ApiHttp} from '../http/api-http';
 
 export interface User {
   id: string;
@@ -33,7 +24,7 @@ export interface RegisterRequest {
   name?: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class AuthService {
   private readonly api = inject(ApiHttp);
   private readonly router = inject(Router);
@@ -54,7 +45,7 @@ export class AuthService {
         this.userSubject.next(null);
         return of(false);
       }),
-      shareReplay({ bufferSize: 1, refCount: true }), // Share request, auto-cleanup when no subscribers
+      shareReplay({bufferSize: 1, refCount: true}), // Share request, auto-cleanup when no subscribers
     );
   }
 
@@ -74,21 +65,23 @@ export class AuthService {
     formData.append('username', email);
     formData.append('password', password);
 
-    return this.api.post<{ success: boolean }>('/auth/login', formData.toString(), {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    }).pipe(
-      tap(() => {
-        // On success, fetch user info to populate userSubject
-        this.check().subscribe();
-      }),
-      map(() => true),
-      catchError((error: unknown) => {
-        this.userSubject.next(null);
-        return throwError(() => error);
-      }),
-    );
+    return this.api
+      .post<{ success: boolean }>('/auth/login', formData.toString(), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
+      .pipe(
+        tap(() => {
+          // On success, fetch user info to populate userSubject
+          this.check().subscribe();
+        }),
+        map(() => true),
+        catchError((error: unknown) => {
+          this.userSubject.next(null);
+          return throwError(() => error);
+        }),
+      );
   }
 
   /**
@@ -98,7 +91,6 @@ export class AuthService {
     return this.api.post<User>('/auth/register', request).pipe(
       tap((user) => {
         this.userSubject.next(user);
-        void this.router.navigateByUrl('/app');
       }),
       catchError((error: unknown) => {
         return throwError(() => error);

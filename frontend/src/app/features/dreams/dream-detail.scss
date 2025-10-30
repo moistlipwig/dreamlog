@@ -9,7 +9,7 @@
 }
 
 .detail-hero {
-  background: linear-gradient(135deg, #8A74F9 0%, #6B5CE7 100%);
+  background: linear-gradient(135deg, #8a74f9 0%, #6b5ce7 100%);
   color: white;
   padding: 3rem 2rem;
   position: relative;
@@ -35,7 +35,7 @@
 }
 
 .lucid-badge {
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
   color: #1a1a2e;
   padding: 6px 12px;
   border-radius: 12px;
@@ -64,7 +64,7 @@
   align-items: center;
   justify-content: center;
   min-height: 350px;
-  color: #B794F6;
+  color: #b794f6;
   margin-bottom: 2rem;
 
   .placeholder-icon {
@@ -86,7 +86,7 @@
   gap: 0.5rem;
 
   .material-icons {
-    color: #B794F6;
+    color: #b794f6;
     font-size: 1.5rem;
   }
 }
@@ -138,15 +138,15 @@
     font-size: 1.125rem;
 
     &.mood-icon {
-      color: #FFA500;
+      color: #ffa500;
     }
 
     &.vividness-icon {
-      color: #B794F6;
+      color: #b794f6;
     }
 
     &.type-icon {
-      color: #FFD700;
+      color: #ffd700;
     }
   }
 }
@@ -184,12 +184,12 @@
 
   &:hover {
     background: rgba(138, 116, 249, 0.1);
-    color: #B794F6;
+    color: #b794f6;
   }
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #8A74F9 0%, #6B5CE7 100%);
+  background: linear-gradient(135deg, #8a74f9 0%, #6b5ce7 100%);
   color: white;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
@@ -198,7 +198,7 @@
   box-shadow: 0 4px 12px rgba(138, 116, 249, 0.3);
 
   &:hover {
-    background: linear-gradient(135deg, #9B85FF 0%, #7C6DF8 100%);
+    background: linear-gradient(135deg, #9b85ff 0%, #7c6df8 100%);
     box-shadow: 0 6px 16px rgba(138, 116, 249, 0.4);
     transform: translateY(-1px);
   }

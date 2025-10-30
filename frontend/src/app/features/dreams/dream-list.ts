@@ -1,6 +1,8 @@
 import {AsyncPipe, DatePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
 import {RouterLink} from '@angular/router';
 import {map, switchMap} from 'rxjs';
 
@@ -13,7 +15,17 @@ import {TagChips} from '../../shared/tag-chips';
 
 @Component({
   selector: 'app-dream-list',
-  imports: [AsyncPipe, MatCardModule, RouterLink, TagChips, DatePipe, EmptyState, SearchBar],
+  imports: [
+    AsyncPipe,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    RouterLink,
+    TagChips,
+    DatePipe,
+    EmptyState,
+    SearchBar,
+  ],
   templateUrl: './dream-list.html',
   styleUrls: ['./dream-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

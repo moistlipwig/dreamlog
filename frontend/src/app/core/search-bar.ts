@@ -32,15 +32,13 @@ export class SearchBar {
 
   constructor() {
     // Debounce for 500ms and only emit when value actually changes
-    this.control.valueChanges
-      .pipe(debounceTime(500), distinctUntilChanged())
-      .subscribe((query) => {
-        const trimmedQuery = query?.trim() ?? '';
-        // Only search if 3+ characters or empty (to reset)
-        if (trimmedQuery.length === 0 || trimmedQuery.length >= 3) {
-          this.search.setQuery(trimmedQuery);
-        }
-      });
+    this.control.valueChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe((query) => {
+      const trimmedQuery = query?.trim() ?? '';
+      // Only search if 3+ characters or empty (to reset)
+      if (trimmedQuery.length === 0 || trimmedQuery.length >= 3) {
+        this.search.setQuery(trimmedQuery);
+      }
+    });
   }
 
   /**
