@@ -75,12 +75,7 @@
       top: 50%;
       width: 35%;
       height: 1px;
-      background: linear-gradient(
-        to right,
-        transparent,
-        rgba(148, 163, 184, 0.3),
-        transparent
-      );
+      background: linear-gradient(to right, transparent, rgba(148, 163, 184, 0.3), transparent);
     }
 
     &::before {

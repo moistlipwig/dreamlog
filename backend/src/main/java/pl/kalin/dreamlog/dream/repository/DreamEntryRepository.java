@@ -52,14 +52,6 @@ public interface DreamEntryRepository extends JpaRepository<DreamEntry, UUID> {
     long countByUserId(UUID userId);
 
     /**
-     * Find the most common mood for a user using database aggregation.
-     * Prefers moodAfterDream over moodInDream (using COALESCE).
-     * This is optimized for performance - does GROUP BY in database instead of loading all entities.
-     * <p>
-     * Performance comparison (for 10,000 dreams):
-     * - Old approach (fetch all + Java stream): ~500-2000ms, ~50MB memory
-     * - This approach (native query): ~5-50ms, minimal memory
-     *
      * @param userId the user's ID
      * @return most common mood, or empty if user has no dreams or no moods recorded
      */
@@ -73,4 +65,42 @@ public interface DreamEntryRepository extends JpaRepository<DreamEntry, UUID> {
         LIMIT 1
         """, nativeQuery = true)
     Optional<String> findMostCommonMoodByUserId(@Param("userId") UUID userId);
+
+    @Query(value = """
+        SELECT d.*
+        FROM dream_entry d
+        WHERE d.user_id = :userId
+          AND d.search_vector @@ websearch_to_tsquery('simple', unaccent(:searchQuery))
+        ORDER BY ts_rank(d.search_vector, websearch_to_tsquery('simple', unaccent(:searchQuery))) DESC
+        LIMIT 100
+        """, nativeQuery = true)
+    List<DreamEntry> searchByFullText(@Param("userId") UUID userId, @Param("searchQuery") String searchQuery);
+
+    /**
+     * Fuzzy search using PostgreSQL's trigram similarity (pg_trgm).
+     * Fallback for FTS when no results found. Tolerates typos (e.g., "lucdi" → "lucid").
+     * Uses similarity() function with threshold 0.2 (20% similarity required).
+     * <p>
+     * Performance note: Slower than FTS but more forgiving for typos.
+     * Uses GIN indexes on title and content for optimization.
+     *
+     * @param userId      the user's ID (security filter)
+     * @param searchQuery fuzzy query string
+     * @return list of matching dreams ordered by similarity (max 100 results)
+     */
+    @Query(value = """
+        SELECT d.*, GREATEST(
+            similarity(d.title, :searchQuery),
+            similarity(d.content, :searchQuery)
+        ) AS similarity_score
+        FROM dream_entry d
+        WHERE d.user_id = :userId
+          AND (
+              similarity(d.title, :searchQuery) > 0.2
+              OR similarity(d.content, :searchQuery) > 0.2
+          )
+        ORDER BY similarity_score DESC
+        LIMIT 100
+        """, nativeQuery = true)
+    List<DreamEntry> searchByFuzzy(@Param("userId") UUID userId, @Param("searchQuery") String searchQuery);
 }

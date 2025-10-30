@@ -71,7 +71,9 @@
         <div class="metadata-badge">
           <span class="metadata-label">Type</span>
           <span class="metadata-value">
-            <span class="material-icons type-icon">{{ dream.lucid ? 'auto_awesome' : 'bedtime' }}</span>
+            <span class="material-icons type-icon">{{
+              dream.lucid ? 'auto_awesome' : 'bedtime'
+            }}</span>
             {{ dream.lucid ? 'Lucid' : 'Regular' }}
           </span>
         </div>
@@ -98,10 +100,12 @@
 
       <!-- Action Buttons -->
       <div class="action-buttons">
-        <button mat-button class="btn-secondary" routerLink="/app/dreams">
-          Back to Dreams
-        </button>
-        <button mat-flat-button class="btn-primary" [routerLink]="['/app/dreams', dream.id, 'edit']">
+        <button mat-button class="btn-secondary" routerLink="/app/dreams">Back to Dreams</button>
+        <button
+          mat-flat-button
+          class="btn-primary"
+          [routerLink]="['/app/dreams', dream.id, 'edit']"
+        >
           Edit Dream
         </button>
       </div>

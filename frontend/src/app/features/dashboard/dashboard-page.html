@@ -73,10 +73,7 @@
           <!-- Dreams list -->
           <div class="dreams-list">
             @for (dream of displayDreams(); track dream.id) {
-              <mat-card
-                class="dream-card"
-                [routerLink]="['/app/dreams', dream.id]"
-              >
+              <mat-card class="dream-card" [routerLink]="['/app/dreams', dream.id]">
                 <div class="dream-header">
                   <div class="dream-info">
                     <h3 class="dream-title">{{ dream.title }}</h3>
@@ -88,7 +85,8 @@
                 </div>
                 <mat-card-content>
                   <p class="dream-content">
-                    {{ dream.content.substring(0, 150) }}{{ dream.content.length > 150 ? '...' : '' }}
+                    {{ dream.content.substring(0, 150)
+                    }}{{ dream.content.length > 150 ? '...' : '' }}
                   </p>
                   @if (dream.tags && dream.tags.length > 0) {
                     <div class="dream-tags">
@@ -104,7 +102,6 @@
               </mat-card>
             }
           </div>
-
         }
       </div>
 

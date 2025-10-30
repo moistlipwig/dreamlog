@@ -147,9 +147,8 @@ public class DreamController {
             return ResponseEntity.ok(List.of());
         }
 
-        // TODO: Implement full-text search with PostgreSQL FTS (Phase 2)
-        // For now, return empty list as stub
-        return ResponseEntity.ok(List.of());
+        List<DreamResponse> results = dreamService.searchDreams(user, query.trim());
+        return ResponseEntity.ok(results);
     }
 
     /**

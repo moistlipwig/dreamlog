@@ -3,14 +3,18 @@ package pl.kalin.dreamlog.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 import lombok.RequiredArgsConstructor;
 import pl.kalin.dreamlog.user.service.CustomUserDetailsService;
@@ -45,6 +49,7 @@ import pl.kalin.dreamlog.user.service.UserService;
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
@@ -70,6 +75,7 @@ public class SecurityConfig {
         return new OAuth2SuccessHandler(userService, redirectUrl);
     }
 
+
     /**
      * CSRF token repository with SameSite=Strict for enhanced security.
      * XSRF-TOKEN cookie is readable by JavaScript (httpOnly=false) but restricted to same-site requests.
@@ -79,6 +85,19 @@ public class SecurityConfig {
         CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         repository.setCookieCustomizer(cookie -> cookie.sameSite("Strict"));
         return repository;
+    }
+
+    /**
+     * AuthenticationManager bean for programmatic authentication in controllers.
+     * Note: This creates a SEPARATE manager from the one .formLogin() uses internally,
+     * but with identical configuration (same UserDetailsService + PasswordEncoder).
+     */
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return new ProviderManager(provider);
     }
 
     @Bean
