@@ -1,8 +1,9 @@
 import {inject, Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {BehaviorSubject, catchError, map, Observable, of, shareReplay, tap, throwError,} from 'rxjs';
+import {BehaviorSubject, catchError, map, Observable, of, shareReplay, switchMap, tap, throwError,} from 'rxjs';
 
 import {ApiHttp} from '../http/api-http';
+import {CreatedResponse} from '../models/dream';
 
 export interface User {
   id: string;
@@ -88,7 +89,11 @@ export class AuthService {
    * Register new user with email and password.
    */
   register(request: RegisterRequest): Observable<User> {
-    return this.api.post<User>('/auth/register', request).pipe(
+    return this.api.post<CreatedResponse>('/auth/register', request).pipe(
+      switchMap(() => {
+        // Auto-login happened on backend, now fetch user data
+        return this.api.get<User>('/me');
+      }),
       tap((user) => {
         this.userSubject.next(user);
       }),

@@ -134,24 +134,33 @@ export class DreamEdit implements OnInit {
       lucid: value.lucid,
     };
 
-    // Determine if we're creating or updating
-    const operation = this.editingDream
-      ? this.dreamsService.update(this.editingDream.id, request)
-      : this.dreamsService.create(request);
-
-    operation.subscribe({
-      next: (dream) => {
-        this.form.markAsPristine();
-        this.isSaving.set(false);
-        // Navigate to the dream detail page
-        void this.router.navigate(['/app/dreams', dream.id]);
-      },
-      error: (err) => {
-        console.error('Failed to save dream:', err);
-        this.error.set('Failed to save dream. Please try again.');
-        this.isSaving.set(false);
-      },
-    });
+    if (this.editingDream) {
+      this.dreamsService.update(this.editingDream.id, request).subscribe({
+        next: () => {
+          this.form.markAsPristine();
+          this.isSaving.set(false);
+          void this.router.navigate(['/app/dreams', this.editingDream!.id]);
+        },
+        error: (err) => {
+          console.error('Failed to update dream:', err);
+          this.error.set('Failed to save dream. Please try again.');
+          this.isSaving.set(false);
+        },
+      });
+    } else {
+      this.dreamsService.create(request).subscribe({
+        next: (response) => {
+          this.form.markAsPristine();
+          this.isSaving.set(false);
+          void this.router.navigate(['/app/dreams', response.id]);
+        },
+        error: (err) => {
+          console.error('Failed to create dream:', err);
+          this.error.set('Failed to save dream. Please try again.');
+          this.isSaving.set(false);
+        },
+      });
+    }
   }
 
   /**

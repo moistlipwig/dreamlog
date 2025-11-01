@@ -111,8 +111,9 @@ class DreamServiceSpec extends Specification {
                 dream.tags == request.tags()
         }) >> savedDream
 
-        and: "Returns DreamResponse"
-        result.title() == request.title()
+        and: "Returns UUID"
+        result == savedDream.id
+        result instanceof UUID
     }
 
     def "updateDream should update dream when it belongs to user"() {
@@ -151,8 +152,8 @@ class DreamServiceSpec extends Specification {
         and: "Repository saves updated dream"
         1 * dreamRepository.save(existingDream) >> existingDream
 
-        and: "Returns updated DreamResponse"
-        result.title() == request.title()
+        and: "Returns void"
+        result == null
     }
 
     def "updateDream should throw AccessDeniedException when dream belongs to other user"() {

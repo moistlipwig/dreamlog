@@ -12,12 +12,7 @@ Projekt ma charakter edukacyjno‑rozrywkowy, ale z potencjałem do komercjaliza
 
 ### Backend
 
-- Java **21** + Spring Boot **3.3+**
-- Spring Security (OIDC Client + Resource Server)
-- Spring Web (REST, SSE), gRPC (między usługami)
-- Postgres 15/16 + Flyway, JPA/Hibernate, HikariCP
-- Micrometer + Prometheus + Grafana, OpenTelemetry
-- Testcontainers (Postgres, gRPC)
+- Java, Spring Boot, Postgres, Testcontainers
 
 ### Frontend
 
@@ -36,68 +31,66 @@ Projekt ma charakter edukacyjno‑rozrywkowy, ale z potencjałem do komercjaliza
 
 ---
 
-## 🔑 Autoryzacja (OIDC / OAuth2)
-
-- **IdP: Google OAuth** (Authorization Code + PKCE)
-- Backend trzyma tokeny → sesja w cookie (BFF pattern)
-- Angular korzysta z backendu poprzez cookie HttpOnly (brak tokenów w localStorage)
-- Logout: RP-initiated logout z Google
-
----
-
 ## 📚 Roadmapa / Kroki realizacji
 
-Każda faza zawiera **cel**, **zakres** oraz **kryteria ukończenia (DoD)**, które jednoznacznie pozwalają przejść do kolejnej.
+### Faza 0 — Setup - DONE
 
-### Faza 0 — Setup (in progress)
-
-**Cel:** Postawić środowisko deweloperskie i CI.
+Postawić środowisko deweloperskie i CI.
 
 - Repozytorium, CI/CD (build+test), Docker Compose (Postgres), Spring Boot skeleton (Actuator, Swagger), Angular skeleton (Material+Tailwind).  
   **DoD:** `docker compose up` podnosi bazę; CI testy przechodzą; backend `/actuator/health` = UP; frontend działa lokalnie.
 
-### DONE
+**Co się nauczę:**
 
-### Faza 1 — Auth (Multi-provider + BFF) - 90% DONE
+- Konfiguracja środowiska deweloperskiego i narzędzi CI/CD
+- Podstawy Docker Compose i integracja z bazą danych
+- Tworzenie szkieletu aplikacji backend i frontend z wykorzystaniem Spring Boot i Angular
+
+**Pytania do zadania:**
+
+- Jak skonfigurować Docker Compose, aby uruchomić wszystkie usługi lokalnie?
+- W jaki sposób Actuator i Swagger pomagają w rozwoju i testowaniu backendu?
+- Jak zapewnić, że CI poprawnie buduje i testuje projekt?
+
+### Faza 1 — Auth (Multi-provider + BFF) - in progress
 
 **Cel:** Logowanie przez Google/Facebook OAuth oraz manual registration w modelu BFF.
 
 - Konfiguracja Spring Security + OAuth2 (Google, Facebook), endpoint `/api/me`, `/api/auth/*`
 - Manual registration
-- Account linking (OAuth ↔ local credentials)  -- TODO!
+- Account linking (OAuth ↔ local credentials)
 - Angular guardy, login/register components, logout
 - Session-based auth z HttpOnly cookies, CSRF protection
   **DoD:**
   - User może zarejestrować się przez email/password, Google lub Facebook
-  - User może połączyć konto OAuth z local credentials i odwrotnie --TODO!
+  - User może połączyć konto OAuth z local credentials i odwrotnie
   - Zalogowany użytkownik ma cookie HttpOnly; `/api/me` zwraca user info
   - Logout działa poprawnie; testy integracyjne pokrywają wszystkie flow
+
+**Co się nauczę:**
+
+- Implementacja OAuth2 Authorization Code Flow z PKCE w Spring Security
+- Mechanizm BFF (Backend For Frontend) i bezpieczne przechowywanie sesji w HttpOnly cookies
+- Multi-provider authentication (Google, Facebook, local)
+- Account linking patterns i zarządzanie federated identities
+- Obsługa autoryzacji i uwierzytelniania po stronie frontendu i backendu
+
+**Pytania do zadania:**
+
+- Jak działa Authorization Code Flow z PKCE i dlaczego jest bezpieczniejszy?
+- Jak zabezpieczyć sesję użytkownika, aby tokeny nie były dostępne w JavaScript?
+- W jaki sposób Angular guardy współpracują z backendem w modelu BFF?
+  - Jak bezpiecznie przechowywać hasła (Argon2id vs BCrypt)?
+- Jak zaimplementować account linking bez security vulnerabilities?
 
 **Deferred to Phase 6 (Notifications):**
 
 - Email verification for manual registration
 - Password reset flow (forgot password)
 
-### DONE
-
 ### Faza 2 — CRUD snów + FTS/trigramy
 
-**Cel:** Zapis i wyszukiwanie snów FTS
-
-- Model `DreamEntry`, Flyway migracje (`unaccent`, `pg_trgm`), CRUD + `/search`, Angular lista i formularz.  
-  **DoD:** CRUD działa end‑to‑end; wyszukiwanie zwraca poprawne wyniki <200 ms na 1000 seedów.
-
-**Co się nauczę:**
-
-- Tworzenie pełnotekstowego wyszukiwania (FTS) w PostgreSQL z wykorzystaniem unaccent i trigramów
-- Projektowanie migracji bazy danych przy pomocy Flyway
-- Budowa REST API CRUD i integracja z frontendem Angular
-
-**Pytania do zadania:**
-
-- Jak działa pełnotekstowe wyszukiwanie w PostgreSQL i kiedy używać trigramów?
-- Jak zapewnić aktualizację indeksów FTS przy zmianie danych?
-- W jaki sposób zoptymalizować zapytania wyszukiwania pod kątem wydajności?
+**Cel:** Zapis i wyszukiwanie snów.
 
 ### Faza 3 — Nastrój i statystyki
 
@@ -136,26 +129,6 @@ Każda faza zawiera **cel**, **zakres** oraz **kryteria ukończenia (DoD)**, kt�
 - Jak zaprojektować i przetestować kontrakt gRPC między mikroserwisami?
 - W jaki sposób SSE różni się od WebSocket i kiedy go używać?
 - Jak bezpiecznie i efektywnie obsługiwać długotrwałe zadania asynchroniczne?
-
-### **Faza 4.1 — Wyszukiwanie semantyczne (pgvector + Spring AI)**
-
-- Docker Compose: Postgres z rozszerzeniem `pgvector`
-- Encja `DreamEmbedding` (powiązana z `DreamEntry`)
-- Generowanie embeddingów (np. OpenAI, Ollama, HuggingFace)
-- Endpoint: znajdź sny podobne do X (`ORDER BY embedding <-> :vec LIMIT n`)
-- Spring AI: integracja klienta LLM + repozytorium wektorowe
-
-**Co się nauczę:**
-
-- Wykorzystanie rozszerzenia pgvector w PostgreSQL do przechowywania i wyszukiwania wektorów
-- Generowanie i wykorzystanie embeddingów tekstowych z modeli LLM
-- Integracja Spring AI z repozytorium wektorowym i zapytania semantyczne
-
-**Pytania do zadania:**
-
-- Jak działa wyszukiwanie najbliższych sąsiadów (nearest neighbor) w bazie danych?
-- Jak przygotować i przechowywać embeddingi dla danych tekstowych?
-- Jak integrować modele LLM z aplikacjami backendowymi?
 
 ### Faza 5 — PWA + Offline + Outbox
 
@@ -304,15 +277,6 @@ Każda faza zawiera **cel**, **zakres** oraz **kryteria ukończenia (DoD)**, kt�
 
 ---
 
-## 🔍 Wyszukiwanie (FTS + trigramy)
-
-- `to_tsvector('polish', unaccent(content))` + indeks GIN
-- Triggery aktualizujące kolumnę `content_tsv`
-- Fallback na trigramy (`%` operator, `similarity()`)
-- Endpoint `/api/v1/dreams/search?q=…`
-
----
-
 ## 📡 SSE — kanał zdarzeń
 
 - Endpoint `/api/v1/stream`
@@ -320,41 +284,3 @@ Każda faza zawiera **cel**, **zakres** oraz **kryteria ukończenia (DoD)**, kt�
 - Angular wrapper: EventSource + exponential backoff
 
 ---
-
-## 🐳 Docker Compose (skrót)
-
-- postgres 17
-- backend, frontend, ai-service
-- minio
-- prometheus + grafana
-
----
-
-## ✅ Definition of Done (DoD)
-
-- Każda faza kończy się działającym MVP + testami integracyjnymi
-- Testcontainers → zawsze odpalalne testy w CI
-- Observability → minimum dashboard + metryki
-- Prywatność → eksport /me, usuwanie /me
-- Audyt → tabela audit_event
-
----
-
-## 📈 Status śledzenia postępu
-
-- [ ] Faza 0 — Setup
-- [ ] Faza 1 — Auth (OIDC)
-- [ ] Faza 2 — CRUD snów + FTS/trgm
-- [ ] Faza 3 — Nastrój i statystyki
-- [ ] Faza 4 — AI-service + SSE
-- [ ] Faza 5 — PWA + Offline
-- [ ] Faza 6 — Powiadomienia
-- [ ] Faza 7 — Observability
-- [ ] Faza 8 — Obrazy snów
-- [ ] Faza 9 — Java 24 features
-- [ ] Faza 10 — Kotlin
-- [ ] Faza 11 — Eksperymenty
-
----
-
-🚀 Projekt żyje i rośnie wraz z naszymi eksperymentami — ten plik README pełni rolę **roadmapy** i checklisty do śledzenia postępu.

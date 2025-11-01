@@ -2,6 +2,7 @@ package pl.kalin.dreamlog.dream.controller;
 
 import jakarta.validation.Valid;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,11 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import pl.kalin.dreamlog.common.dto.CreatedResponse;
 import pl.kalin.dreamlog.dream.dto.DreamCreateRequest;
 import pl.kalin.dreamlog.dream.dto.DreamResponse;
 import pl.kalin.dreamlog.dream.dto.DreamUpdateRequest;
@@ -90,28 +89,34 @@ public class DreamController {
 
     /**
      * Create a new dream entry for the authenticated user.
+     * Following CQRS: Returns only the ID with 201 Created and Location header.
+     * Client should use the Location header or ID to fetch the full dream if needed.
      */
     @PostMapping
-    public ResponseEntity<DreamResponse> createDream(
+    public ResponseEntity<CreatedResponse> createDream(
         @Valid @RequestBody DreamCreateRequest request,
         Authentication authentication) {
         User user = getCurrentUser(authentication);
-        DreamResponse created = dreamService.createDream(user, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        UUID dreamId = dreamService.createDream(user, request);
+        return ResponseEntity
+            .created(URI.create("/api/dreams/" + dreamId))
+            .body(new CreatedResponse(dreamId));
     }
 
     /**
      * Update an existing dream (PUT - full replacement).
      * Only the owner can update their dream.
+     * Following CQRS: Returns 204 No Content.
+     * Client should refetch the dream if they need the updated data.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<DreamResponse> updateDream(
+    public ResponseEntity<Void> updateDream(
         @PathVariable UUID id,
         @Valid @RequestBody DreamUpdateRequest request,
         Authentication authentication) {
         User user = getCurrentUser(authentication);
-        DreamResponse updated = dreamService.updateDream(user, id, request);
-        return ResponseEntity.ok(updated);
+        dreamService.updateDream(user, id, request);
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -131,7 +136,7 @@ public class DreamController {
      * Search dreams by query string (full-text search).
      * Minimum 3 characters required in query.
      *
-     * @param query search query string
+     * @param query          search query string
      * @param authentication Spring Security authentication object
      * @return list of matching dreams for the authenticated user
      * @example GET /api/dreams/search?query=lucid
@@ -154,8 +159,6 @@ public class DreamController {
     /**
      * Helper method to get current authenticated user from database.
      * Supports both form login (UserDetails) and OAuth2 login (OAuth2User).
-     *
-     * @throws UserNotFoundException if authenticated user not found in database
      */
     private User getCurrentUser(Authentication authentication) {
         String email = extractEmail(authentication);
@@ -170,13 +173,11 @@ public class DreamController {
     private String extractEmail(Authentication authentication) {
         Object principal = authentication.getPrincipal();
 
-        if (principal instanceof UserDetails userDetails) {
-            // Form-based login - username is email
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
             return userDetails.getUsername();
         }
 
-        if (principal instanceof OAuth2User oAuth2User) {
-            // OAuth2 login - email in attributes
+        if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User oAuth2User) {
             return oAuth2User.getAttribute("email");
         }
 
