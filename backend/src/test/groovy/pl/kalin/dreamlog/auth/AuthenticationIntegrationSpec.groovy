@@ -52,11 +52,16 @@ class AuthenticationIntegrationSpec extends IntegrationSpec {
 
         then: "user is created successfully"
         response.statusCode == HttpStatus.OK
-        response.body.email == "test@example.com"
-        response.body.name == "Test User"
-        response.body.emailVerified == false
-        response.body.hasPassword == true
-        response.body.providers == []
+        response.body.id != null // CQRS: Only ID returned
+
+        and: "user is auto-logged in, fetch user data via /api/me"
+        def me = auth.me()
+        me.statusCode == HttpStatus.OK
+        me.body.email == "test@example.com"
+        me.body.name == "Test User"
+        me.body.emailVerified == false
+        me.body.hasPassword == true
+        me.body.providers == []
     }
 
 

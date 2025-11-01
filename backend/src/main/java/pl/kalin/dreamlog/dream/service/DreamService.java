@@ -78,12 +78,13 @@ public class DreamService {
 
     /**
      * Create a new dream entry for the authenticated user.
+     * Following CQRS: Commands return only the ID, not the full entity.
      *
      * @param user    the authenticated user (becomes owner of the dream)
      * @param request the dream data
-     * @return created dream response
+     * @return UUID of the created dream
      */
-    public DreamResponse createDream(User user, DreamCreateRequest request) {
+    public UUID createDream(User user, DreamCreateRequest request) {
         log.debug("Creating dream for user: {}", user.getEmail());
 
         // Auto-generate title from content if not provided
@@ -106,7 +107,7 @@ public class DreamService {
 
         DreamEntry saved = dreamRepository.save(dream);
         log.info("Created dream {} for user {}", saved.getId(), user.getEmail());
-        return DreamResponse.from(saved);
+        return saved.getId();
     }
 
     /**
@@ -149,14 +150,14 @@ public class DreamService {
     /**
      * Update an existing dream (PUT - full replacement).
      * Only the owner can update their dream.
+     * Following CQRS: Commands return void (client should refetch if needed).
      *
      * @param user    the authenticated user
      * @param dreamId the dream ID
      * @param request the updated dream data
-     * @return updated dream response
      * @throws AccessDeniedException if dream not found or doesn't belong to user
      */
-    public DreamResponse updateDream(User user, UUID dreamId, DreamUpdateRequest request) {
+    public void updateDream(User user, UUID dreamId, DreamUpdateRequest request) {
         log.debug("Updating dream {} for user: {}", dreamId, user.getEmail());
 
         DreamEntry dream = dreamRepository.findByIdAndUserId(dreamId, user.getId())
@@ -173,9 +174,8 @@ public class DreamService {
         // Wrap in ArrayList to ensure mutability for Hibernate
         dream.setTags(request.tags() != null ? new ArrayList<>(request.tags()) : new ArrayList<>());
 
-        DreamEntry saved = dreamRepository.save(dream);
+        dreamRepository.save(dream);
         log.info("Updated dream {} for user {}", dreamId, user.getEmail());
-        return DreamResponse.from(saved);
     }
 
     /**

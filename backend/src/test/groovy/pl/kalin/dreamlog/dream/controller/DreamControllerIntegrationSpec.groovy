@@ -66,13 +66,18 @@ class DreamControllerIntegrationSpec extends IntegrationSpec {
 
         then: "dream is created successfully"
         response.statusCode == HttpStatus.CREATED
-        response.body.title == "My First Dream"
-        response.body.content == "I was flying over mountains"
-        response.body.moodInDream == "POSITIVE"
-        response.body.vividness == 8
-        response.body.lucid == false
-        response.body.tags == ["flying", "nature"]
-        response.body.id != null
+        response.body.id != null // CQRS: Only ID returned
+        response.headers.getLocation() != null // Location header present
+
+        and: "fetch created dream to verify data"
+        def created = client.getDreamById(response.body.id)
+        created.statusCode == HttpStatus.OK
+        created.body.title == "My First Dream"
+        created.body.content == "I was flying over mountains"
+        created.body.moodInDream == "POSITIVE"
+        created.body.vividness == 8
+        created.body.lucid == false
+        created.body.tags == ["flying", "nature"]
     }
 
     def "should reject creating dream without authentication"() {
@@ -264,11 +269,15 @@ class DreamControllerIntegrationSpec extends IntegrationSpec {
         def response = client.updateDream(dreamId, updated)
 
         then: "dream is updated successfully"
-        response.statusCode == HttpStatus.OK
-        response.body.id == dreamId
-        response.body.title == "Updated Title"
-        response.body.content == "Updated Content"
-        response.body.vividness == 9
+        response.statusCode == HttpStatus.NO_CONTENT
+
+        and: "fetch updated dream to verify changes"
+        def fetched = client.getDreamById(dreamId)
+        fetched.statusCode == HttpStatus.OK
+        fetched.body.id == dreamId
+        fetched.body.title == "Updated Title"
+        fetched.body.content == "Updated Content"
+        fetched.body.vividness == 9
     }
 
     def "should deny updating dream belonging to other user"() {

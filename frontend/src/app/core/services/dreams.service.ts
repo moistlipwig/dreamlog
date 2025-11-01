@@ -2,7 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
 
 import {ApiHttp} from '../http/api-http';
-import {CreateDreamRequest, Dream, PagedResponse, UpdateDreamRequest} from '../models/dream';
+import {CreateDreamRequest, CreatedResponse, Dream, PagedResponse, UpdateDreamRequest,} from '../models/dream';
 
 /**
  * Service for managing dream entries (CRUD operations).
@@ -35,15 +35,15 @@ export class DreamsService {
   /**
    * Create new dream entry.
    */
-  create(request: CreateDreamRequest): Observable<Dream> {
-    return this.api.post<Dream>(this.baseUrl, request);
+  create(request: CreateDreamRequest): Observable<CreatedResponse> {
+    return this.api.post<CreatedResponse>(this.baseUrl, request);
   }
 
   /**
    * Update existing dream entry (PUT - full replacement).
    */
-  update(id: string, request: UpdateDreamRequest): Observable<Dream> {
-    return this.api.put<Dream>(`${this.baseUrl}/${id}`, request);
+  update(id: string, request: UpdateDreamRequest): Observable<void> {
+    return this.api.put<void>(`${this.baseUrl}/${id}`, request);
   }
 
   /**

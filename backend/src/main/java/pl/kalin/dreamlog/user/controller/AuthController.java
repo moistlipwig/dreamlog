@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import pl.kalin.dreamlog.common.dto.CreatedResponse;
 import pl.kalin.dreamlog.user.User;
 import pl.kalin.dreamlog.user.dto.RegisterRequest;
 import pl.kalin.dreamlog.user.dto.SetPasswordRequest;
-import pl.kalin.dreamlog.user.dto.UserResponse;
 import pl.kalin.dreamlog.user.service.UserService;
 
 @RestController
@@ -39,7 +39,7 @@ public class AuthController {
      * GlobalExceptionHandler handles UserAlreadyExistsException.
      */
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(
+    public ResponseEntity<CreatedResponse> register(
         @Valid @RequestBody RegisterRequest request,
         HttpServletRequest httpRequest,
         HttpServletResponse httpResponse
@@ -58,7 +58,7 @@ public class AuthController {
         SecurityContextHolder.setContext(context);
         new HttpSessionSecurityContextRepository().saveContext(context, httpRequest, httpResponse);
 
-        return ResponseEntity.ok(UserResponse.from(user));
+        return ResponseEntity.ok(new CreatedResponse(user.getId()));
     }
 
     /**

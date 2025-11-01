@@ -11,6 +11,15 @@ export enum Mood {
 }
 
 /**
+ * Standard response for create commands (CQRS pattern).
+ * Commands return only the ID, not the full entity.
+ * Backend: pl.kalin.dreamlog.common.dto.CreatedResponse
+ */
+export interface CreatedResponse {
+  id: string; // UUID
+}
+
+/**
  * Dream entry model matching backend DreamResponse.
  * Backend: pl.kalin.dreamlog.dream.dto.DreamResponse
  */
