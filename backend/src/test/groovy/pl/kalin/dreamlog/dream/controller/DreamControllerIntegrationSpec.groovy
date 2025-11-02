@@ -66,7 +66,7 @@ class DreamControllerIntegrationSpec extends IntegrationSpec {
 
         then: "dream is created successfully"
         response.statusCode == HttpStatus.CREATED
-        response.body.id != null // CQRS: Only ID returned
+        response.body.id != null
         response.headers.getLocation() != null // Location header present
 
         and: "fetch created dream to verify data"

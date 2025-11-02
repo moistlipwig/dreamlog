@@ -18,7 +18,6 @@ import pl.kalin.dreamlog.user.dto.SetPasswordRequest
 
 /**
  * Integration tests for authentication flows (register, login, session, CSRF).
- * Uses AuthClient helper to manage cookies and CSRF automatically (KISS principle).
  */
 class AuthenticationIntegrationSpec extends IntegrationSpec {
 
@@ -52,7 +51,7 @@ class AuthenticationIntegrationSpec extends IntegrationSpec {
 
         then: "user is created successfully"
         response.statusCode == HttpStatus.OK
-        response.body.id != null // CQRS: Only ID returned
+        response.body.id != null
 
         and: "user is auto-logged in, fetch user data via /api/me"
         def me = auth.me()
@@ -197,7 +196,6 @@ class AuthenticationIntegrationSpec extends IntegrationSpec {
 
     /**
      * Mini-SDK for authentication operations.
-     * Automatically manages cookies and CSRF tokens (KISS principle).
      */
     static class AuthClient extends SessionRestClient {
 

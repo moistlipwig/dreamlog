@@ -38,7 +38,10 @@
       "mcp__jetbrains__get_repositories",
       "mcp__ide__getDiagnostics",
       "Bash(findstr:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(../gradlew.bat test:*)",
+      "Bash(gradlew.bat :backend:test:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []

@@ -73,4 +73,63 @@ public class DreamEntry {
      */
     @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVector;
+
+
+    public static String generateTitleFromContent(String content) {
+        if (content == null || content.isBlank()) {
+            return "Untitled Dream";
+        }
+
+        // Try to extract first sentence (up to first period, exclamation, or question mark)
+        int firstSentenceEnd = content.length();
+        int periodIdx = content.indexOf('.');
+        int exclamIdx = content.indexOf('!');
+        int questionIdx = content.indexOf('?');
+
+        if (periodIdx > 0) {
+            firstSentenceEnd = periodIdx;
+        }
+        if (exclamIdx > 0) {
+            firstSentenceEnd = Math.min(firstSentenceEnd, exclamIdx);
+        }
+        if (questionIdx > 0) {
+            firstSentenceEnd = Math.min(firstSentenceEnd, questionIdx);
+        }
+
+        String title = content.substring(0, firstSentenceEnd).trim();
+
+        // If first sentence is too long, truncate to 50 chars
+        if (title.length() > 50) {
+            title = title.substring(0, 47).trim() + "...";
+        }
+
+        return title.isEmpty() ? "Untitled Dream" : title;
+    }
+
+    /**
+     * Update all fields from request (PUT semantics - full replacement).
+     * Domain logic: encapsulates update rules and defaults.
+     *
+     * @param date           dream date
+     * @param title          dream title (can be null)
+     * @param content        dream content
+     * @param moodInDream    mood in dream
+     * @param moodAfterDream mood after waking
+     * @param vividness      vividness level (0-10)
+     * @param lucid          whether dream was lucid
+     * @param tags           list of tags
+     */
+    public void updateFrom(LocalDate date, String title, String content,
+                           Mood moodInDream, Mood moodAfterDream,
+                           Integer vividness, Boolean lucid, List<String> tags) {
+        this.date = date;
+        this.title = title;
+        this.content = content;
+        this.moodInDream = moodInDream;
+        this.moodAfterDream = moodAfterDream;
+        this.vividness = vividness != null ? vividness : 0;
+        this.lucid = lucid != null ? lucid : false;
+        // Wrap in ArrayList to ensure mutability for Hibernate
+        this.tags = tags != null ? new ArrayList<>(tags) : new ArrayList<>();
+    }
 }

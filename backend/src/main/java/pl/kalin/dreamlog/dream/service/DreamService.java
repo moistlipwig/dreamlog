@@ -78,18 +78,13 @@ public class DreamService {
 
     /**
      * Create a new dream entry for the authenticated user.
-     * Following CQRS: Commands return only the ID, not the full entity.
-     *
-     * @param user    the authenticated user (becomes owner of the dream)
-     * @param request the dream data
-     * @return UUID of the created dream
      */
     public UUID createDream(User user, DreamCreateRequest request) {
         log.debug("Creating dream for user: {}", user.getEmail());
 
-        // Auto-generate title from content if not provided
+        // Auto-generate title from content if not provided (domain logic)
         String title = (request.title() == null || request.title().isBlank())
-            ? generateTitleFromContent(request.content())
+            ? DreamEntry.generateTitleFromContent(request.content())
             : request.title();
 
         DreamEntry dream = DreamEntry.builder()
@@ -111,51 +106,8 @@ public class DreamService {
     }
 
     /**
-     * Generate a title from the first sentence or first 50 characters of content.
-     *
-     * @param content the dream content
-     * @return generated title
-     */
-    private String generateTitleFromContent(String content) {
-        if (content == null || content.isBlank()) {
-            return "Untitled Dream";
-        }
-
-        // Try to extract first sentence (up to first period, exclamation, or question mark)
-        int firstSentenceEnd = content.length();
-        int periodIdx = content.indexOf('.');
-        int exclamIdx = content.indexOf('!');
-        int questionIdx = content.indexOf('?');
-
-        if (periodIdx > 0) {
-            firstSentenceEnd = periodIdx;
-        }
-        if (exclamIdx > 0) {
-            firstSentenceEnd = Math.min(firstSentenceEnd, exclamIdx);
-        }
-        if (questionIdx > 0) {
-            firstSentenceEnd = Math.min(firstSentenceEnd, questionIdx);
-        }
-
-        String title = content.substring(0, firstSentenceEnd).trim();
-
-        // If first sentence is too long, truncate to 50 chars
-        if (title.length() > 50) {
-            title = title.substring(0, 47).trim() + "...";
-        }
-
-        return title.isEmpty() ? "Untitled Dream" : title;
-    }
-
-    /**
      * Update an existing dream (PUT - full replacement).
      * Only the owner can update their dream.
-     * Following CQRS: Commands return void (client should refetch if needed).
-     *
-     * @param user    the authenticated user
-     * @param dreamId the dream ID
-     * @param request the updated dream data
-     * @throws AccessDeniedException if dream not found or doesn't belong to user
      */
     public void updateDream(User user, UUID dreamId, DreamUpdateRequest request) {
         log.debug("Updating dream {} for user: {}", dreamId, user.getEmail());
@@ -163,16 +115,17 @@ public class DreamService {
         DreamEntry dream = dreamRepository.findByIdAndUserId(dreamId, user.getId())
             .orElseThrow(() -> new AccessDeniedException("Dream not found or access denied"));
 
-        // Update all fields (PUT semantics)
-        dream.setDate(request.date());
-        dream.setTitle(request.title());
-        dream.setContent(request.content());
-        dream.setMoodInDream(request.moodInDream());
-        dream.setMoodAfterDream(request.moodAfterDream());
-        dream.setVividness(request.vividness() != null ? request.vividness() : 0);
-        dream.setLucid(request.lucid() != null ? request.lucid() : false);
-        // Wrap in ArrayList to ensure mutability for Hibernate
-        dream.setTags(request.tags() != null ? new ArrayList<>(request.tags()) : new ArrayList<>());
+        // Delegate to domain model (encapsulates update logic and defaults)
+        dream.updateFrom(
+            request.date(),
+            request.title(),
+            request.content(),
+            request.moodInDream(),
+            request.moodAfterDream(),
+            request.vividness(),
+            request.lucid(),
+            request.tags()
+        );
 
         dreamRepository.save(dream);
         log.info("Updated dream {} for user {}", dreamId, user.getEmail());
