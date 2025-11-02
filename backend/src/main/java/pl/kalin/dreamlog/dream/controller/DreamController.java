@@ -24,13 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import pl.kalin.dreamlog.common.dto.CreatedResponse;
+import pl.kalin.dreamlog.common.security.AuthenticationHelper;
 import pl.kalin.dreamlog.dream.dto.DreamCreateRequest;
 import pl.kalin.dreamlog.dream.dto.DreamResponse;
 import pl.kalin.dreamlog.dream.dto.DreamUpdateRequest;
 import pl.kalin.dreamlog.dream.service.DreamService;
 import pl.kalin.dreamlog.user.User;
-import pl.kalin.dreamlog.user.exception.UserNotFoundException;
-import pl.kalin.dreamlog.user.service.UserService;
 
 /**
  * REST controller for dream entry operations.
@@ -42,18 +41,11 @@ import pl.kalin.dreamlog.user.service.UserService;
 public class DreamController {
 
     private final DreamService dreamService;
-    private final UserService userService;
+    private final AuthenticationHelper authHelper;
 
     /**
      * Get paginated dreams for the authenticated user.
      * Supports pagination and sorting via query parameters.
-     *
-     * @param page           zero-based page number (default: 0)
-     * @param size           number of items per page (default: 20)
-     * @param sort           sorting criteria in format "property,direction" (default: "date,desc")
-     * @param authentication Spring Security authentication object
-     * @return page of dreams with metadata (totalElements, totalPages, etc.)
-     * @example GET /api/dreams?page=0&size=5&sort=date,desc
      */
     @GetMapping
     public ResponseEntity<Page<DreamResponse>> getUserDreams(
@@ -89,8 +81,6 @@ public class DreamController {
 
     /**
      * Create a new dream entry for the authenticated user.
-     * Following CQRS: Returns only the ID with 201 Created and Location header.
-     * Client should use the Location header or ID to fetch the full dream if needed.
      */
     @PostMapping
     public ResponseEntity<CreatedResponse> createDream(
@@ -106,8 +96,6 @@ public class DreamController {
     /**
      * Update an existing dream (PUT - full replacement).
      * Only the owner can update their dream.
-     * Following CQRS: Returns 204 No Content.
-     * Client should refetch the dream if they need the updated data.
      */
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateDream(
@@ -135,11 +123,6 @@ public class DreamController {
     /**
      * Search dreams by query string (full-text search).
      * Minimum 3 characters required in query.
-     *
-     * @param query          search query string
-     * @param authentication Spring Security authentication object
-     * @return list of matching dreams for the authenticated user
-     * @example GET /api/dreams/search?query=lucid
      */
     @GetMapping("/search")
     public ResponseEntity<List<DreamResponse>> searchDreams(
@@ -158,29 +141,8 @@ public class DreamController {
 
     /**
      * Helper method to get current authenticated user from database.
-     * Supports both form login (UserDetails) and OAuth2 login (OAuth2User).
      */
     private User getCurrentUser(Authentication authentication) {
-        String email = extractEmail(authentication);
-        return userService.findByEmailWithCredentials(email)
-            .orElseThrow(() -> new UserNotFoundException(email));
-    }
-
-    /**
-     * Extract email from Authentication principal.
-     * Supports both UserDetails (form login) and OAuth2User (OAuth login).
-     */
-    private String extractEmail(Authentication authentication) {
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
-            return userDetails.getUsername();
-        }
-
-        if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User oAuth2User) {
-            return oAuth2User.getAttribute("email");
-        }
-
-        throw new IllegalStateException("Unknown authentication principal type");
+        return authHelper.getCurrentUser(authentication);
     }
 }

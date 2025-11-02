@@ -10,11 +10,6 @@ export enum Mood {
   MIXED = 'MIXED',
 }
 
-/**
- * Standard response for create commands (CQRS pattern).
- * Commands return only the ID, not the full entity.
- * Backend: pl.kalin.dreamlog.common.dto.CreatedResponse
- */
 export interface CreatedResponse {
   id: string; // UUID
 }
