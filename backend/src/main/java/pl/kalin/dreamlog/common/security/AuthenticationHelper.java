@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import pl.kalin.dreamlog.user.User;
+import pl.kalin.dreamlog.user.exception.AuthenticationRequiredException;
+import pl.kalin.dreamlog.user.exception.UserNotFoundException;
 import pl.kalin.dreamlog.user.service.UserService;
 
 @Component
@@ -19,12 +21,13 @@ public class AuthenticationHelper {
      *
      * @param authentication Spring Security authentication object
      * @return User entity from database
-     * @throws IllegalArgumentException if user not found or authentication invalid
+     * @throws AuthenticationRequiredException if authentication is null or invalid (401)
+     * @throws UserNotFoundException           if authenticated user doesn't exist in database (404)
      */
     public User getCurrentUser(Authentication authentication) {
         String email = extractEmail(authentication);
         return userService.findByEmailWithCredentials(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
+            .orElseThrow(() -> new UserNotFoundException(email));
     }
 
     /**
@@ -33,11 +36,11 @@ public class AuthenticationHelper {
      *
      * @param authentication Spring Security authentication object
      * @return email address
-     * @throws IllegalArgumentException if principal type is unknown
+     * @throws AuthenticationRequiredException if authentication is null, not authenticated, or principal is invalid
      */
     public String extractEmail(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalArgumentException("User not authenticated");
+            throw new AuthenticationRequiredException("User not authenticated");
         }
 
         Object principal = authentication.getPrincipal();
@@ -51,11 +54,11 @@ public class AuthenticationHelper {
             // OAuth2 login - email in attributes
             String email = oAuth2User.getAttribute("email");
             if (email == null) {
-                throw new IllegalArgumentException("OAuth2 user has no email attribute");
+                throw new AuthenticationRequiredException("OAuth2 user has no email attribute");
             }
             return email;
         }
 
-        throw new IllegalArgumentException("Unknown principal type: " + principal.getClass().getName());
+        throw new AuthenticationRequiredException("Unknown principal type: " + principal.getClass().getName());
     }
 }

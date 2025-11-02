@@ -1,5 +1,8 @@
 package pl.kalin.dreamlog.config;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -7,12 +10,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import pl.kalin.dreamlog.user.exception.AuthenticationRequiredException;
 import pl.kalin.dreamlog.user.exception.FederatedIdentityAlreadyLinkedException;
 import pl.kalin.dreamlog.user.exception.UserAlreadyExistsException;
 import pl.kalin.dreamlog.user.exception.UserNotFoundException;
-
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Global exception handler for REST API endpoints.
@@ -48,7 +49,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handle user not found.
+     * Handle authentication required (401).
+     * Triggered when user is not authenticated or authentication is invalid.
+     */
+    @ExceptionHandler(AuthenticationRequiredException.class)
+    public ResponseEntity<Map<String, String>> handleAuthenticationRequired(AuthenticationRequiredException ex) {
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(Map.of("error", ex.getMessage()));
+    }
+
+    /**
+     * Handle user not found (404).
+     * Triggered when authenticated session points to deleted user.
      */
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleUserNotFound(UserNotFoundException ex) {
@@ -69,13 +82,4 @@ public class GlobalExceptionHandler {
             .body(Map.of("error", ex.getMessage()));
     }
 
-    /**
-     * Catch-all for unexpected errors.
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
-        return ResponseEntity
-            .badRequest()
-            .body(Map.of("error", ex.getMessage()));
-    }
 }
