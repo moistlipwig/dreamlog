@@ -1,12 +1,27 @@
-import { provideHttpClient } from '@angular/common/http';
-import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import {provideHttpClient} from '@angular/common/http';
+import {TestBed} from '@angular/core/testing';
+import {provideRouter} from '@angular/router';
+import {BehaviorSubject, of} from 'rxjs';
 
-import { DreamList } from './dream-list';
-import { DreamsService } from '../../core/services/dreams.service';
+import {DreamList} from './dream-list';
+import {DreamsService} from '../../core/services/dreams.service';
+import {SearchService} from '../../core/services/search.service';
 
 describe('DreamList', () => {
+  const mockDreams = [
+    {
+      id: '1',
+      title: 'A',
+      content: 'c',
+      date: '2020-01-01',
+      tags: [],
+      moodInDream: null,
+      moodAfterDream: null,
+      vividness: 5,
+      lucid: false,
+    },
+  ];
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DreamList],
@@ -18,19 +33,7 @@ describe('DreamList', () => {
           useValue: {
             list: () =>
               of({
-                content: [
-                  {
-                    id: '1',
-                    title: 'A',
-                    content: 'c',
-                    date: '2020-01-01',
-                    tags: [],
-                    moodInDream: null,
-                    moodAfterDream: null,
-                    vividness: 5,
-                    lucid: false,
-                  },
-                ],
+                content: mockDreams,
                 totalElements: 1,
                 totalPages: 1,
                 size: 10,
@@ -39,6 +42,17 @@ describe('DreamList', () => {
                 last: true,
                 empty: false,
               }),
+          },
+        },
+        {
+          provide: SearchService,
+          useValue: {
+            query$: new BehaviorSubject(''),
+            results$: new BehaviorSubject(mockDreams),
+            loading$: new BehaviorSubject(false),
+            setResults: jest.fn(),
+            setQuery: jest.fn(),
+            clearSearch: jest.fn(),
           },
         },
       ],

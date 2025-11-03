@@ -1,10 +1,10 @@
 import {AsyncPipe, DatePipe} from '@angular/common';
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {RouterLink} from '@angular/router';
-import {map, switchMap} from 'rxjs';
+import {combineLatest, map} from 'rxjs';
 
 import {Mood} from '../../core/models/dream';
 import {SearchBar} from '../../core/search-bar';
@@ -30,23 +30,37 @@ import {TagChips} from '../../shared/tag-chips';
   styleUrls: ['./dream-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DreamList {
+export class DreamList implements OnInit {
   private dreamsService = inject(DreamsService);
   private searchService = inject(SearchService);
 
-  // Switch between search results and full list based on query
-  dreams$ = this.searchService.query$.pipe(
-    switchMap((query) => {
-      if (query && query.length >= 3) {
-        // Show search results
-        return this.dreamsService.search(query);
-      }
-      // Show all dreams
-      return this.dreamsService.list().pipe(map((page) => page.content));
+  // Use centralized search results from SearchService
+  dreams$ = combineLatest([this.searchService.results$, this.searchService.query$]).pipe(
+    map(([results]) => {
+      // If there's an active search query (3+ chars), show search results
+      // Otherwise show results that were manually set (all dreams)
+      return results;
     }),
   );
 
+  loading$ = this.searchService.loading$;
   skeletons = Array.from({length: 4});
+
+  ngOnInit(): void {
+    // Load all dreams on init if no active search
+    combineLatest([this.searchService.query$, this.searchService.results$])
+      .pipe(
+        map(([query, results]) => ({query, results, isEmpty: results.length === 0})),
+      )
+      .subscribe(({query, isEmpty}) => {
+        // Only fetch all dreams if there's no query and no results yet
+        if (!query && isEmpty) {
+          this.dreamsService.list().subscribe((page) => {
+            this.searchService.setResults(page.content);
+          });
+        }
+      });
+  }
 
   getMoodClass(mood: Mood | null | undefined): string {
     if (!mood) return 'mood-neutral';

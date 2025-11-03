@@ -17,7 +17,6 @@ import {
 } from '@angular/router';
 import {filter, map} from 'rxjs';
 
-// import { SearchBar } from './search-bar';
 import {AuthService} from './services/auth.service';
 
 @Component({
