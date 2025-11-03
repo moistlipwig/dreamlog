@@ -5,7 +5,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {RouterLink} from '@angular/router';
-import {catchError, forkJoin, of, switchMap} from 'rxjs';
+import {catchError, forkJoin, of} from 'rxjs';
 
 import {Dream} from '../../core/models/dream';
 import {UserStats} from '../../core/models/user-stats';
@@ -35,16 +35,18 @@ export class DashboardPage {
   isLoading = signal(true);
   error = signal<string | null>(null);
 
-  // Search query as signal
+  // Use centralized search results and query
   private searchQuery = toSignal(this.searchService.query$, {initialValue: ''});
+  private searchResults = toSignal(this.searchService.results$, {initialValue: []});
 
   // Display dreams - switches between search results and recent dreams
   displayDreams = computed(() => {
     const query = this.searchQuery();
     if (query && query.length >= 3) {
-      // Return empty for now, will be updated by search subscription
-      return [];
+      // Show search results from SearchService
+      return this.searchResults();
     }
+    // Show recent dreams
     return this.recentDreamsFromApi();
   });
 
@@ -56,28 +58,6 @@ export class DashboardPage {
 
   constructor() {
     this.loadDashboardData();
-    this.setupSearch();
-  }
-
-  /**
-   * Setup search subscription to update dreams when query changes
-   */
-  private setupSearch(): void {
-    this.searchService.query$
-      .pipe(
-        switchMap((query) => {
-          if (query && query.length >= 3) {
-            return this.dreamsService.search(query);
-          }
-          return of([]);
-        }),
-      )
-      .subscribe((searchResults) => {
-        if (this.searchQuery() && this.searchQuery().length >= 3) {
-          // Update recent dreams with search results
-          this.recentDreamsFromApi.set(searchResults);
-        }
-      });
   }
 
   loadDashboardData(): void {
@@ -91,14 +71,14 @@ export class DashboardPage {
 
     // Fetch recent dreams (3 most recent) and stats in parallel
     forkJoin({
-      dreams: this.dreamsService.list(0, 3, 'date,desc').pipe(
+      dreams: this.dreamsService.list(0, 5, 'date,desc').pipe(
         catchError((err) => {
           console.error('Failed to load recent dreams:', err);
           return of({
             content: [],
             totalElements: 0,
             totalPages: 0,
-            size: 3,
+            size: 5,
             number: 0,
             first: true,
             last: true,

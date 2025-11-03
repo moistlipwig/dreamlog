@@ -13,7 +13,6 @@ import {DreamList} from './features/dreams/dream-list';
 import {LandingPageComponent} from './features/landing/landing-page.component';
 import {LoginPageComponent} from './features/login/login-page.component';
 import {NotFoundPage} from './features/not-found/not-found-page';
-import {SearchPage} from './features/search/search-page';
 
 export const routes: Routes = [
   {path: '', component: LandingPageComponent, canActivate: [loggedInGuard]},
@@ -39,7 +38,6 @@ export const routes: Routes = [
         resolve: {dream: dreamResolver},
         canDeactivate: [pendingChangesGuard],
       },
-      {path: 'search', component: SearchPage},
       {path: '**', component: NotFoundPage},
     ],
   },
