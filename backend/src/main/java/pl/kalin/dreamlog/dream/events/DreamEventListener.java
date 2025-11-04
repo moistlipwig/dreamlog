@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import pl.kalin.dreamlog.dream.model.DreamProcessingState;
+import pl.kalin.dreamlog.dream.service.DreamProgressSseService;
 import pl.kalin.dreamlog.dream.tasks.AnalyzeTextTask;
 import pl.kalin.dreamlog.dream.tasks.DreamTaskData;
 import pl.kalin.dreamlog.dream.tasks.GenerateImageTask;
@@ -27,6 +29,7 @@ public class DreamEventListener {
     private final Scheduler scheduler;
     private final AnalyzeTextTask analyzeTextTask;
     private final GenerateImageTask generateImageTask;
+    private final DreamProgressSseService sseService;
 
     /**
      * Handles DreamCreatedEvent by scheduling text analysis task.
@@ -77,10 +80,14 @@ public class DreamEventListener {
         log.info("Image generation completed for dreamId={}, userId={}, imageUri={}",
             event.dreamId(), event.userId(), event.imageUri());
 
-        // TODO Stage 8: Send SSE notification to frontend
-        // sseService.sendDreamCompletedNotification(event.userId(), event.dreamId());
+        // Send SSE notification to frontend
+        sseService.sendProgress(
+            event.dreamId(),
+            DreamProcessingState.COMPLETED,
+            "Dream analysis and image generation completed!"
+        );
 
-        log.debug("SSE notification will be sent for dreamId={}", event.dreamId());
+        log.debug("SSE notification sent for dreamId={}", event.dreamId());
     }
 
     /**
