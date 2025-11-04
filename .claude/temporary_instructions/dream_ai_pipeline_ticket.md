@@ -1,26 +1,45 @@
 # Dream Analysis & Image Generation Pipeline - Implementation Ticket
 
+## ✅ User Decisions (Approved 2025-11-04)
+
+1. **AI Provider:** Google AI Studio (Free tier)
+   - Text analysis: **Gemini Flash** (latest version)
+   - Image generation: **Imagen 3** (latest version) - "nano bana"
+2. **Dependencies:** Use latest versions (db-scheduler 16.0.0, MinIO 8.6.0, Resilience4j 2.3.0)
+3. **Database Cleanup:** ✅ Remove unused columns (`risk_score`, `recurring`, `language`, `style`)
+4. **Rate Limiting:** **20 dreams/hour** per user (not 10)
+5. **SSE Implementation:** ✅ Implement basic SSE on both backend + frontend
+6. **Image Settings:**
+   - Format: **JPEG** (not PNG)
+   - Resolution: **Original from Imagen** (do not resize)
+   - Pre-signed URL validity: **2 hours** (not 7 days)
+
+**Status:** ✅ APPROVED - Proceeding to implementation
+
+---
+
 ## 🎯 Progress Tracker
 
-**Status:** 🔵 PLANNING (Stage 0)
+**Status:** 🟢 IMPLEMENTATION (Stage 1)
 
 | Stage | Task | Status | Est. Time | Notes |
 |-------|------|--------|-----------|-------|
-| 0 | Pre-implementation Analysis | 🔵 In Progress | - | Architecture design phase |
-| 1 | Infrastructure Setup | ⚪ Pending | 2h | MinIO, db-scheduler, dependencies |
+| 0 | Pre-implementation Analysis | ✅ Complete | - | Architecture approved by user |
+| 1 | Infrastructure Setup | 🔵 In Progress | 2h | MinIO, db-scheduler, dependencies |
 | 2 | Database Schema & Migrations | ⚪ Pending | 1.5h | State tracking, image metadata, scheduler tables |
 | 3 | Domain Events & Event Bus | ⚪ Pending | 1h | @TransactionalEventListener pattern |
 | 4 | Ports & Adapters (Interfaces) | ⚪ Pending | 1.5h | AI service port, Storage port, abstractions |
 | 5 | External Service Adapters | ⚪ Pending | 3h | Google AI Studio client, MinIO client, Resilience4j |
 | 6 | Async Task Handlers (db-scheduler) | ⚪ Pending | 3h | AnalyzeTextTask, GenerateImageTask, retry logic |
 | 7 | Domain Service Updates | ⚪ Pending | 2h | DreamService orchestration, state management |
-| 8 | API Enhancements | ⚪ Pending | 1.5h | GET /dreams/{id} with analysis & image, SSE endpoint |
-| 9 | Rate Limiting & Security | ⚪ Pending | 1.5h | User rate limiter, content validation |
+| 8 | API Enhancements + SSE | ⚪ Pending | 2h | GET /dreams/{id} with analysis & image, SSE endpoint |
+| 9 | Rate Limiting & Security | ⚪ Pending | 1.5h | User rate limiter (20/hour), content validation |
 | 10 | Unit Tests | ⚪ Pending | 3h | Domain logic, task handlers, port mocks |
 | 11 | Integration Tests | ⚪ Pending | 3h | Full flow test with mocked external services |
-| 12 | Cleanup & Refactoring | ⚪ Pending | 1h | Code review, dead code removal |
+| 12 | Frontend SSE Integration | ⚪ Pending | 2h | Basic SSE client in Angular |
+| 13 | Cleanup & Verification | ⚪ Pending | 1h | Code review, dead code removal |
 
-**Total Estimated Time:** ~24 hours
+**Total Estimated Time:** ~26 hours
 
 ---
 

@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -73,6 +74,66 @@ public class DreamEntry {
      */
     @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVector;
+
+    // ========== AI Processing Fields ==========
+
+    /**
+     * Current state of async AI processing pipeline.
+     * Tracks progress: text analysis → image generation → completion.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "processing_state", nullable = false)
+    @Builder.Default
+    private DreamProcessingState processingState = DreamProcessingState.CREATED;
+
+    /**
+     * Full URI to generated dream image (presigned URL or public endpoint).
+     * Valid for 2 hours (configured via minio.url-expiry-seconds).
+     */
+    @Column(name = "image_uri", columnDefinition = "text")
+    private String imageUri;
+
+    /**
+     * Internal MinIO object key (e.g., "dreams/abc-123-def.jpg").
+     * Used for operations like delete, regenerate presigned URL.
+     */
+    @Column(name = "image_storage_key")
+    private String imageStorageKey;
+
+    /**
+     * Timestamp when image was successfully generated and uploaded.
+     */
+    @Column(name = "image_generated_at")
+    private LocalDateTime imageGeneratedAt;
+
+    /**
+     * Error message if processing state = FAILED.
+     * Contains details from last failed retry attempt.
+     */
+    @Column(name = "failure_reason", columnDefinition = "text")
+    private String failureReason;
+
+    /**
+     * Number of task retry attempts (incremented on each failure).
+     * Max retries: 8 (configured in db-scheduler task handlers).
+     */
+    @Column(name = "retry_count", nullable = false)
+    @Builder.Default
+    private int retryCount = 0;
+
+    /**
+     * Timestamp when dream was created.
+     * Automatically set by database trigger on INSERT.
+     */
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    /**
+     * Timestamp when dream was last updated.
+     * Automatically updated by database trigger on UPDATE.
+     */
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
 
     public static String generateTitleFromContent(String content) {

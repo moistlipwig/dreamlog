@@ -51,13 +51,5 @@ public class DreamAnalysis {
     @Column(columnDefinition = "text")
     private String interpretation;
 
-    private Double riskScore;
-
-    private Boolean recurring;
-
-    private String language;
-
-    private String style;
-
     private String modelVersion;
 }
