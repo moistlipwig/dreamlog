@@ -1,11 +1,11 @@
 import {provideHttpClient} from '@angular/common/http';
 import {TestBed} from '@angular/core/testing';
 import {provideRouter} from '@angular/router';
-import {BehaviorSubject, of} from 'rxjs';
+import {of} from 'rxjs';
 
 import {DreamList} from './dream-list';
 import {DreamsService} from '../../core/services/dreams.service';
-import {SearchService} from '../../core/services/search.service';
+import {SearchService, SearchViewModel} from '../../core/services/search.service';
 
 describe('DreamList', () => {
   const mockDreams = [
@@ -21,6 +21,13 @@ describe('DreamList', () => {
       lucid: false,
     },
   ];
+
+  const mockVm: SearchViewModel = {
+    query: '',
+    results: mockDreams,
+    loading: false,
+    isSearching: false,
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -47,10 +54,9 @@ describe('DreamList', () => {
         {
           provide: SearchService,
           useValue: {
-            query$: new BehaviorSubject(''),
-            results$: new BehaviorSubject(mockDreams),
-            loading$: new BehaviorSubject(false),
-            setResults: jest.fn(),
+            vm$: of(mockVm),
+            query$: of(''),
+            setBaseResults: jest.fn(),
             setQuery: jest.fn(),
             clearSearch: jest.fn(),
           },
