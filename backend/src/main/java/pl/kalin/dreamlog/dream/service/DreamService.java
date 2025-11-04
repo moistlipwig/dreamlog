@@ -17,7 +17,9 @@ import pl.kalin.dreamlog.dream.dto.DreamCreateRequest;
 import pl.kalin.dreamlog.dream.dto.DreamResponse;
 import pl.kalin.dreamlog.dream.dto.DreamUpdateRequest;
 import pl.kalin.dreamlog.dream.events.DreamCreatedEvent;
+import pl.kalin.dreamlog.dream.model.DreamAnalysis;
 import pl.kalin.dreamlog.dream.model.DreamEntry;
+import pl.kalin.dreamlog.dream.repository.DreamAnalysisRepository;
 import pl.kalin.dreamlog.dream.repository.DreamEntryRepository;
 import pl.kalin.dreamlog.user.User;
 
@@ -33,6 +35,7 @@ import pl.kalin.dreamlog.user.User;
 public class DreamService {
 
     private final DreamEntryRepository dreamRepository;
+    private final DreamAnalysisRepository analysisRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
@@ -66,10 +69,11 @@ public class DreamService {
 
     /**
      * Get a single dream by ID, only if it belongs to the authenticated user.
+     * Includes analysis and image data when available.
      *
      * @param user    the authenticated user
      * @param dreamId the dream ID
-     * @return dream response
+     * @return dream response with analysis and image
      * @throws AccessDeniedException if dream not found or doesn't belong to user
      */
     @Transactional(readOnly = true)
@@ -77,7 +81,11 @@ public class DreamService {
         log.debug("Fetching dream {} for user: {}", dreamId, user.getEmail());
         DreamEntry dream = dreamRepository.findByIdAndUserId(dreamId, user.getId())
             .orElseThrow(() -> new AccessDeniedException("Dream not found or access denied"));
-        return DreamResponse.from(dream);
+
+        // Load analysis if available
+        DreamAnalysis analysis = analysisRepository.findByDreamId(dreamId).orElse(null);
+
+        return DreamResponse.from(dream, analysis);
     }
 
     /**

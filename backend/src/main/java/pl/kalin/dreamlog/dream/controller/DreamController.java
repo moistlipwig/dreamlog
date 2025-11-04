@@ -23,11 +23,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import pl.kalin.dreamlog.common.dto.CreatedResponse;
 import pl.kalin.dreamlog.common.security.AuthenticationHelper;
 import pl.kalin.dreamlog.dream.dto.DreamCreateRequest;
 import pl.kalin.dreamlog.dream.dto.DreamResponse;
 import pl.kalin.dreamlog.dream.dto.DreamUpdateRequest;
+import pl.kalin.dreamlog.dream.service.DreamCreationRateLimiter;
 import pl.kalin.dreamlog.dream.service.DreamService;
 import pl.kalin.dreamlog.user.User;
 
@@ -41,6 +43,7 @@ import pl.kalin.dreamlog.user.User;
 public class DreamController {
 
     private final DreamService dreamService;
+    private final DreamCreationRateLimiter rateLimiter;
     private final AuthenticationHelper authHelper;
 
     /**
@@ -81,12 +84,19 @@ public class DreamController {
 
     /**
      * Create a new dream entry for the authenticated user.
+     * Rate limited to 20 dreams per hour per user.
      */
     @PostMapping
     public ResponseEntity<CreatedResponse> createDream(
         @Valid @RequestBody DreamCreateRequest request,
         Authentication authentication) {
         User user = getCurrentUser(authentication);
+
+        // Rate limiting check
+        if (!rateLimiter.allowCreate(user)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+        }
+
         UUID dreamId = dreamService.createDream(user, request);
         return ResponseEntity
             .created(URI.create("/api/dreams/" + dreamId))
