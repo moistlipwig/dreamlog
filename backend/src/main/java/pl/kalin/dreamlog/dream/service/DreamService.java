@@ -12,9 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import pl.kalin.dreamlog.dream.dto.DreamCreateRequest;
 import pl.kalin.dreamlog.dream.dto.DreamResponse;
 import pl.kalin.dreamlog.dream.dto.DreamUpdateRequest;
+import pl.kalin.dreamlog.dream.events.DreamCreatedEvent;
 import pl.kalin.dreamlog.dream.model.DreamEntry;
 import pl.kalin.dreamlog.dream.repository.DreamEntryRepository;
 import pl.kalin.dreamlog.user.User;
@@ -22,6 +24,7 @@ import pl.kalin.dreamlog.user.User;
 /**
  * Service for managing dream entries with user-based authorization.
  * Ensures that users can only access and modify their own dreams.
+ * Publishes domain events for async AI processing pipeline.
  */
 @Service
 @RequiredArgsConstructor
@@ -30,6 +33,7 @@ import pl.kalin.dreamlog.user.User;
 public class DreamService {
 
     private final DreamEntryRepository dreamRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Get paginated dreams for the authenticated user.
@@ -102,6 +106,16 @@ public class DreamService {
 
         DreamEntry saved = dreamRepository.save(dream);
         log.info("Created dream {} for user {}", saved.getId(), user.getEmail());
+
+        // Publish event to trigger async AI analysis pipeline (AFTER_COMMIT)
+        eventPublisher.publishEvent(DreamCreatedEvent.of(
+            saved.getId(),
+            user.getId(),
+            saved.getContent()
+        ));
+
+        log.debug("DreamCreatedEvent published for dreamId={}", saved.getId());
+
         return saved.getId();
     }
 
