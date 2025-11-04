@@ -1,10 +1,16 @@
 package pl.kalin.dreamlog.dream.events;
 
+import com.github.kagkarlsson.scheduler.Scheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import pl.kalin.dreamlog.dream.tasks.AnalyzeTextTask;
+import pl.kalin.dreamlog.dream.tasks.DreamTaskData;
+import pl.kalin.dreamlog.dream.tasks.GenerateImageTask;
+
+import java.time.Instant;
 
 /**
  * Event listener for dream-related domain events.
@@ -18,8 +24,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 public class DreamEventListener {
 
-    // TODO: Inject Scheduler when implementing Stage 6 (db-scheduler tasks)
-    // private final Scheduler scheduler;
+    private final Scheduler scheduler;
+    private final AnalyzeTextTask analyzeTextTask;
+    private final GenerateImageTask generateImageTask;
 
     /**
      * Handles DreamCreatedEvent by scheduling text analysis task.
@@ -30,15 +37,16 @@ public class DreamEventListener {
         log.info("Dream created event received for dreamId={}, userId={}",
             event.dreamId(), event.userId());
 
-        // TODO Stage 6: Schedule AnalyzeTextTask via db-scheduler
-        // scheduler.schedule(
-        //     taskInstance("analyze-text", event.dreamId().toString())
-        //         .data(new DreamTaskData(event.dreamId()))
-        //         .executionTime(Instant.now()),
-        //     AnalyzeTextTask.class
-        // );
+        // Schedule text analysis task immediately
+        scheduler.schedule(
+            analyzeTextTask.instance(
+                event.dreamId().toString(),
+                new DreamTaskData(event.dreamId())
+            ),
+            Instant.now()
+        );
 
-        log.debug("Text analysis task will be scheduled for dreamId={}", event.dreamId());
+        log.info("Text analysis task scheduled for dreamId={}", event.dreamId());
     }
 
     /**
@@ -49,15 +57,16 @@ public class DreamEventListener {
         log.info("Text analysis completed for dreamId={}, analysisId={}",
             event.dreamId(), event.analysisId());
 
-        // TODO Stage 6: Schedule GenerateImageTask via db-scheduler
-        // scheduler.schedule(
-        //     taskInstance("generate-image", event.dreamId().toString())
-        //         .data(new DreamTaskData(event.dreamId()))
-        //         .executionTime(Instant.now()),
-        //     GenerateImageTask.class
-        // );
+        // Schedule image generation task immediately
+        scheduler.schedule(
+            generateImageTask.instance(
+                event.dreamId().toString(),
+                new DreamTaskData(event.dreamId())
+            ),
+            Instant.now()
+        );
 
-        log.debug("Image generation task will be scheduled for dreamId={}", event.dreamId());
+        log.info("Image generation task scheduled for dreamId={}", event.dreamId());
     }
 
     /**
