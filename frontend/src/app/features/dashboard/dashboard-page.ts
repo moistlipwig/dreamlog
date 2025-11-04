@@ -10,10 +10,11 @@ import {catchError, forkJoin, of} from 'rxjs';
 import {Dream} from '../../core/models/dream';
 import {UserStats} from '../../core/models/user-stats';
 import {SearchBar} from '../../core/search-bar';
-import {AuthService, User} from '../../core/services/auth.service';
+import {AuthService} from '../../core/services/auth.service';
 import {DreamsService} from '../../core/services/dreams.service';
 import {SearchService} from '../../core/services/search.service';
 import {UserStatsService} from '../../core/services/user-stats.service';
+import {getMoodEmoji, getMoodLabel} from '../../shared/utils/mood.utils';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -28,33 +29,25 @@ export class DashboardPage {
   private readonly authService = inject(AuthService);
   private readonly searchService = inject(SearchService);
 
-  // State signals
-  user = signal<User | null>(null);
-  private recentDreamsFromApi = signal<Dream[]>([]);
-  stats = signal<UserStats | null>(null);
-  isLoading = signal(true);
-  error = signal<string | null>(null);
+  // Consume unified search view model from facade
+  readonly searchVm = toSignal(this.searchService.vm$, {requireSync: true});
 
-  // Use centralized search results and query
-  private searchQuery = toSignal(this.searchService.query$, {initialValue: ''});
-  private searchResults = toSignal(this.searchService.results$, {initialValue: []});
+  // Local dashboard state
+  readonly user = toSignal(this.authService.user$);
+  private readonly recentDreamsFromApi = signal<Dream[]>([]);
+  readonly stats = signal<UserStats | null>(null);
+  readonly isLoading = signal(true);
+  readonly error = signal<string | null>(null);
 
-  // Display dreams - switches between search results and recent dreams
-  displayDreams = computed(() => {
-    const query = this.searchQuery();
-    if (query && query.length >= 3) {
-      // Show search results from SearchService
-      return this.searchResults();
-    }
-    // Show recent dreams
-    return this.recentDreamsFromApi();
+  // Display logic: switch between search results and recent dreams
+  readonly displayDreams = computed(() => {
+    const vm = this.searchVm();
+    return vm.isSearching ? vm.results : this.recentDreamsFromApi();
   });
 
-  // Computed property to check if we're in search mode
-  isSearching = computed(() => {
-    const query = this.searchQuery();
-    return query && query.length >= 3;
-  });
+  // Pure functions from utils (DRY principle)
+  readonly getMoodLabel = getMoodLabel;
+  readonly getMoodEmoji = getMoodEmoji;
 
   constructor() {
     this.loadDashboardData();
@@ -64,12 +57,7 @@ export class DashboardPage {
     this.isLoading.set(true);
     this.error.set(null);
 
-    // Subscribe to user observable
-    this.authService.user$.subscribe((user) => {
-      this.user.set(user);
-    });
-
-    // Fetch recent dreams (3 most recent) and stats in parallel
+    // Fetch recent dreams and stats in parallel
     forkJoin({
       dreams: this.dreamsService.list(0, 5, 'date,desc').pipe(
         catchError((err) => {
@@ -95,6 +83,8 @@ export class DashboardPage {
     }).subscribe({
       next: ({dreams, stats}) => {
         this.recentDreamsFromApi.set(dreams.content);
+        // Sync with search facade for consistent base results
+        this.searchService.setBaseResults(dreams.content);
         this.stats.set(stats);
         this.isLoading.set(false);
       },
@@ -104,27 +94,5 @@ export class DashboardPage {
         this.isLoading.set(false);
       },
     });
-  }
-
-  getMoodLabel(mood: string | null): string {
-    if (!mood) return 'No data';
-    return mood.charAt(0) + mood.slice(1).toLowerCase();
-  }
-
-  getMoodEmoji(mood: string | null | undefined): string {
-    if (!mood) return '😐';
-
-    const moodMap: Record<string, string> = {
-      HAPPY: '😊',
-      SAD: '😢',
-      NEUTRAL: '😐',
-      EXCITED: '🤩',
-      ANXIOUS: '😰',
-      PEACEFUL: '😌',
-      CONFUSED: '🤔',
-      SCARED: '😨',
-    };
-
-    return moodMap[mood.toUpperCase()] || '😐';
   }
 }

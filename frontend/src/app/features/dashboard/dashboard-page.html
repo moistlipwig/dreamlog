@@ -41,7 +41,7 @@
       <div class="recent-dreams-section">
         <!-- Header Toolbar: Title | Search | View All in one line -->
         <div class="section-header-toolbar">
-          <h2>{{ isSearching() ? 'Search Results' : 'Recent Dreams' }}</h2>
+          <h2>{{ searchVm().isSearching ? 'Search Results' : 'Recent Dreams' }}</h2>
           <div class="header-search">
             <app-search-bar></app-search-bar>
           </div>
@@ -51,7 +51,7 @@
           </a>
         </div>
 
-        @if (displayDreams().length === 0 && !isSearching()) {
+        @if (displayDreams().length === 0 && !searchVm().isSearching) {
           <!-- Empty state -->
           <mat-card class="p-8 text-center">
             <mat-icon class="text-gray-400 text-6xl mb-4">psychology_alt</mat-icon>
@@ -62,7 +62,7 @@
               Add Your First Dream
             </a>
           </mat-card>
-        } @else if (displayDreams().length === 0 && isSearching()) {
+        } @else if (displayDreams().length === 0 && searchVm().isSearching) {
           <!-- No search results -->
           <mat-card class="p-8 text-center">
             <mat-icon class="text-gray-400 text-6xl mb-4">search_off</mat-icon>

@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {Observable, of} from 'rxjs';
+import {Observable} from 'rxjs';
 
 import {ApiHttp} from '../http/api-http';
 import {CreateDreamRequest, CreatedResponse, Dream, PagedResponse, UpdateDreamRequest,} from '../models/dream';
@@ -55,14 +55,11 @@ export class DreamsService {
 
   /**
    * Search dreams by query string.
-   * Minimum 3 characters required.
+   * Minimum query length defined in search constants.
    * @param query search query
    * @returns array of matching dreams
    */
   search(query: string): Observable<Dream[]> {
-    if (!query || query.trim().length < 3) {
-      return of([]);
-    }
     return this.api.get<Dream[]>(
       `${this.baseUrl}/search?query=${encodeURIComponent(query.trim())}`,
     );
