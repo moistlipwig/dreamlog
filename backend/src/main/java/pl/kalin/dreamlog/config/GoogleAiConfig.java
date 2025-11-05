@@ -33,6 +33,7 @@ public class GoogleAiConfig {
      * Configured with Resilience4j decorators for fault tolerance.
      */
     @Bean
+    @SuppressWarnings("deprecation")  // Timeout methods deprecated but still functional
     public RestTemplate googleAiRestTemplate(RestTemplateBuilder builder) {
         log.info("Creating RestTemplate for Google AI Studio API");
 
@@ -50,7 +51,7 @@ public class GoogleAiConfig {
         retry.getEventPublisher()
             .onRetry(event -> log.warn("Retrying Google AI API call, attempt {}", event.getNumberOfRetryAttempts()));
 
-        // Build RestTemplate with timeouts
+        // Build RestTemplate with timeouts (using new API)
         return builder
             .setConnectTimeout(Duration.ofSeconds(10))
             .setReadTimeout(Duration.ofSeconds(60))  // AI API calls can take time

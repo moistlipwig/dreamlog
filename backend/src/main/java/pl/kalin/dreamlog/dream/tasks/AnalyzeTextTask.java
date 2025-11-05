@@ -2,9 +2,8 @@ package pl.kalin.dreamlog.dream.tasks;
 
 import com.github.kagkarlsson.scheduler.task.ExecutionContext;
 import com.github.kagkarlsson.scheduler.task.TaskInstance;
-import com.github.kagkarlsson.scheduler.task.helper.RecurringTask;
+import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask;
 import com.github.kagkarlsson.scheduler.task.schedule.FixedDelay;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,6 @@ import pl.kalin.dreamlog.dream.model.DreamProcessingState;
 import pl.kalin.dreamlog.dream.repository.DreamAnalysisRepository;
 import pl.kalin.dreamlog.dream.repository.DreamEntryRepository;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -36,13 +34,12 @@ import java.util.ArrayList;
  * 6. Update state to TEXT_ANALYZED
  * 7. Publish TextAnalysisCompletedEvent (triggers image generation)
  *
- * Retry: 15min intervals, max 8 attempts
+ * Retry: Handled by db-scheduler with exponential backoff
  * After 8 failures: Set state to FAILED, publish AnalysisFailedEvent
  */
 @Component
-@RequiredArgsConstructor
 @Slf4j
-public class AnalyzeTextTask extends RecurringTask<DreamTaskData> {
+public class AnalyzeTextTask extends OneTimeTask<DreamTaskData> {
 
     private static final String TASK_NAME = "analyze-text";
     private static final int MAX_RETRIES = 8;
@@ -52,20 +49,23 @@ public class AnalyzeTextTask extends RecurringTask<DreamTaskData> {
     private final DreamAnalysisAiService aiService;
     private final ApplicationEventPublisher eventPublisher;
 
-    public AnalyzeTextTask() {
-        super(
-            TASK_NAME,
-            FixedDelay.of(Duration.ofMinutes(15)),  // Retry every 15 minutes on failure
-            DreamTaskData.class
-        );
+    public AnalyzeTextTask(
+            DreamEntryRepository dreamRepository,
+            DreamAnalysisRepository analysisRepository,
+            DreamAnalysisAiService aiService,
+            ApplicationEventPublisher eventPublisher) {
+        super(TASK_NAME, DreamTaskData.class);
+        this.dreamRepository = dreamRepository;
+        this.analysisRepository = analysisRepository;
+        this.aiService = aiService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
     @Transactional
-    public void executeRecurringly(TaskInstance<DreamTaskData> taskInstance, ExecutionContext executionContext) {
+    public void executeOnce(TaskInstance<DreamTaskData> taskInstance, ExecutionContext executionContext) {
         DreamTaskData data = taskInstance.getData();
-        log.info("Executing text analysis task for dreamId={}, execution={}",
-            data.dreamId(), executionContext.getExecutionAttempts());
+        log.info("Executing text analysis task for dreamId={}", data.dreamId());
 
         try {
             // Load dream entry
@@ -76,6 +76,16 @@ public class AnalyzeTextTask extends RecurringTask<DreamTaskData> {
             if (analysisRepository.findByDreamId(data.dreamId()).isPresent()) {
                 log.info("Analysis already exists for dreamId={}, skipping", data.dreamId());
                 return;  // Mark as complete, don't retry
+            }
+
+            // Increment retry count
+            int currentRetry = dream.getRetryCount() + 1;
+            dream.setRetryCount(currentRetry);
+
+            // Check if max retries exceeded
+            if (currentRetry > MAX_RETRIES) {
+                handleMaxRetriesExceeded(dream, "Text analysis failed after " + MAX_RETRIES + " attempts");
+                return;
             }
 
             // Update state to ANALYZING_TEXT
@@ -116,48 +126,52 @@ public class AnalyzeTextTask extends RecurringTask<DreamTaskData> {
             log.info("Text analysis completed successfully for dreamId={}", data.dreamId());
 
         } catch (AiServiceException e) {
-            handleFailure(data.dreamId(), executionContext.getExecutionAttempts(), e);
+            log.error("AI service error during text analysis for dreamId={}: {}", data.dreamId(), e.getMessage());
+            handleFailure(data.dreamId(), e);
             throw e;  // Re-throw to trigger db-scheduler retry
         } catch (Exception e) {
             log.error("Unexpected error during text analysis for dreamId={}", data.dreamId(), e);
-            handleFailure(data.dreamId(), executionContext.getExecutionAttempts(), e);
+            handleFailure(data.dreamId(), e);
             throw new RuntimeException("Text analysis failed", e);
         }
     }
 
     /**
-     * Handles task failure. After MAX_RETRIES, marks dream as FAILED.
+     * Handles task failure. Logs the error and updates retry count.
      */
     @Transactional
-    private void handleFailure(java.util.UUID dreamId, int attemptNumber, Exception error) {
-        log.warn("Text analysis attempt {} failed for dreamId={}: {}",
-            attemptNumber, dreamId, error.getMessage());
-
+    private void handleFailure(java.util.UUID dreamId, Exception error) {
         DreamEntry dream = dreamRepository.findById(dreamId).orElse(null);
         if (dream == null) {
             log.error("Dream not found during failure handling: {}", dreamId);
             return;
         }
 
-        dream.setRetryCount(attemptNumber);
+        int currentRetry = dream.getRetryCount();
+        log.warn("Text analysis attempt {} failed for dreamId={}: {}",
+            currentRetry, dreamId, error.getMessage());
 
-        if (attemptNumber >= MAX_RETRIES) {
-            log.error("Max retries ({}) exceeded for dreamId={}, marking as FAILED", MAX_RETRIES, dreamId);
-            dream.setProcessingState(DreamProcessingState.FAILED);
-            dream.setFailureReason("Text analysis failed after " + MAX_RETRIES + " attempts: " + error.getMessage());
-            dreamRepository.save(dream);
+        dreamRepository.save(dream);
+    }
 
-            // Publish failure event
-            eventPublisher.publishEvent(AnalysisFailedEvent.of(
-                dreamId,
-                dream.getUser().getId(),
-                error.getMessage(),
-                attemptNumber
-            ));
-        } else {
-            log.info("Will retry text analysis for dreamId={}, attempt {}/{}",
-                dreamId, attemptNumber + 1, MAX_RETRIES);
-            dreamRepository.save(dream);
-        }
+    /**
+     * Handles max retries exceeded. Marks dream as FAILED.
+     */
+    @Transactional
+    private void handleMaxRetriesExceeded(DreamEntry dream, String reason) {
+        log.error("Max retries ({}) exceeded for dreamId={}, marking as FAILED",
+            MAX_RETRIES, dream.getId());
+
+        dream.setProcessingState(DreamProcessingState.FAILED);
+        dream.setFailureReason(reason);
+        dreamRepository.save(dream);
+
+        // Publish failure event
+        eventPublisher.publishEvent(AnalysisFailedEvent.of(
+            dream.getId(),
+            dream.getUser().getId(),
+            reason,
+            MAX_RETRIES
+        ));
     }
 }
