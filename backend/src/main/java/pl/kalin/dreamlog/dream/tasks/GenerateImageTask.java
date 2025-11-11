@@ -1,12 +1,15 @@
 package pl.kalin.dreamlog.dream.tasks;
 
-import com.github.kagkarlsson.scheduler.task.ExecutionContext;
-import com.github.kagkarlsson.scheduler.task.TaskInstance;
-import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import com.github.kagkarlsson.scheduler.task.ExecutionContext;
+import com.github.kagkarlsson.scheduler.task.TaskInstance;
+import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask;
+
+import lombok.extern.slf4j.Slf4j;
 import pl.kalin.dreamlog.dream.ai.port.AiServiceException;
 import pl.kalin.dreamlog.dream.ai.port.DreamAnalysisAiService;
 import pl.kalin.dreamlog.dream.ai.port.dto.ImageGenerationResult;
@@ -21,11 +24,9 @@ import pl.kalin.dreamlog.dream.storage.port.ImageStorageService;
 import pl.kalin.dreamlog.dream.storage.port.StorageException;
 import pl.kalin.dreamlog.dream.storage.port.dto.StoredImageInfo;
 
-import java.time.LocalDateTime;
-
 /**
  * db-scheduler task for generating dream images with AI.
- *
+ * <p>
  * Flow:
  * 1. Load dream entry + analysis
  * 2. Check if image already exists (idempotency)
@@ -35,7 +36,7 @@ import java.time.LocalDateTime;
  * 6. Save image URI to dream_entry
  * 7. Update state to COMPLETED
  * 8. Publish ImageGenerationCompletedEvent (triggers SSE notification)
- *
+ * <p>
  * Retry: Handled by db-scheduler with exponential backoff
  * After 8 failures: Set state to FAILED, publish AnalysisFailedEvent
  */
@@ -53,11 +54,11 @@ public class GenerateImageTask extends OneTimeTask<DreamTaskData> {
     private final ApplicationEventPublisher eventPublisher;
 
     public GenerateImageTask(
-            DreamEntryRepository dreamRepository,
-            DreamAnalysisRepository analysisRepository,
-            DreamAnalysisAiService aiService,
-            ImageStorageService storageService,
-            ApplicationEventPublisher eventPublisher) {
+        DreamEntryRepository dreamRepository,
+        DreamAnalysisRepository analysisRepository,
+        DreamAnalysisAiService aiService,
+        ImageStorageService storageService,
+        ApplicationEventPublisher eventPublisher) {
         super(TASK_NAME, DreamTaskData.class);
         this.dreamRepository = dreamRepository;
         this.analysisRepository = analysisRepository;
@@ -151,7 +152,7 @@ public class GenerateImageTask extends OneTimeTask<DreamTaskData> {
      * Handles task failure. Logs the error and updates retry count.
      */
     @Transactional
-    private void handleFailure(java.util.UUID dreamId, Exception error) {
+    void handleFailure(java.util.UUID dreamId, Exception error) {
         DreamEntry dream = dreamRepository.findById(dreamId).orElse(null);
         if (dream == null) {
             log.error("Dream not found during failure handling: {}", dreamId);
@@ -169,7 +170,7 @@ public class GenerateImageTask extends OneTimeTask<DreamTaskData> {
      * Handles max retries exceeded. Marks dream as FAILED.
      */
     @Transactional
-    private void handleMaxRetriesExceeded(DreamEntry dream, String reason) {
+    void handleMaxRetriesExceeded(DreamEntry dream, String reason) {
         log.error("Max retries ({}) exceeded for dreamId={}, marking as FAILED",
             MAX_RETRIES, dream.getId());
 

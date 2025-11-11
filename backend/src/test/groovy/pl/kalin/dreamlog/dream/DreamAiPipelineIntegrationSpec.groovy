@@ -1,15 +1,14 @@
 package pl.kalin.dreamlog.dream
 
 import com.github.kagkarlsson.scheduler.Scheduler
+import org.mockito.Mock
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.transaction.annotation.Transactional
 import pl.kalin.dreamlog.IntegrationSpec
 import pl.kalin.dreamlog.dream.ai.port.DreamAnalysisAiService
 import pl.kalin.dreamlog.dream.ai.port.dto.AnalysisResult
 import pl.kalin.dreamlog.dream.ai.port.dto.ImageGenerationResult
 import pl.kalin.dreamlog.dream.dto.DreamCreateRequest
-import pl.kalin.dreamlog.dream.model.DreamEntry
 import pl.kalin.dreamlog.dream.model.DreamProcessingState
 import pl.kalin.dreamlog.dream.repository.DreamAnalysisRepository
 import pl.kalin.dreamlog.dream.repository.DreamEntryRepository
@@ -22,7 +21,6 @@ import pl.kalin.dreamlog.dream.tasks.GenerateImageTask
 import pl.kalin.dreamlog.user.User
 import pl.kalin.dreamlog.user.UserRepository
 
-import java.time.Instant
 import java.time.LocalDate
 
 import static org.mockito.ArgumentMatchers.any
@@ -59,10 +57,10 @@ class DreamAiPipelineIntegrationSpec extends IntegrationSpec {
     @Autowired
     GenerateImageTask generateImageTask
 
-    @MockBean
+    @Mock
     DreamAnalysisAiService aiService
 
-    @MockBean
+    @Mock
     ImageStorageService storageService
 
     User testUser
@@ -83,7 +81,7 @@ class DreamAiPipelineIntegrationSpec extends IntegrationSpec {
             "Dream about freedom and exploration with flying",
             ["flying", "mountains", "freedom"],
             ["mountains", "wings", "sky"],
-            ["joy": 0.8, "fear": 0.2],
+            ["joy": 0.8d, "fear": 0.2d],
             "This dream suggests a desire for freedom and overcoming limitations. Flying represents liberation.",
             "gemini-1.5-flash-latest"
         )
@@ -133,9 +131,9 @@ class DreamAiPipelineIntegrationSpec extends IntegrationSpec {
         // Manually execute task for deterministic testing
         def taskInstance = analyzeTextTask.instance(dreamId.toString(), new DreamTaskData(dreamId))
         analyzeTextTask.execute(taskInstance, null)
+        dream = dreamRepository.findById(dreamId).get()
 
         then: "dream state transitions to TEXT_ANALYZED"
-        dream = dreamRepository.findById(dreamId).get()
         dream.processingState == DreamProcessingState.TEXT_ANALYZED
 
         and: "analysis is saved"
@@ -151,9 +149,9 @@ class DreamAiPipelineIntegrationSpec extends IntegrationSpec {
         when: "generate image task executes"
         def imageTaskInstance = generateImageTask.instance(dreamId.toString(), new DreamTaskData(dreamId))
         generateImageTask.execute(imageTaskInstance, null)
+        dream = dreamRepository.findById(dreamId).get()
 
         then: "dream state transitions to COMPLETED"
-        dream = dreamRepository.findById(dreamId).get()
         dream.processingState == DreamProcessingState.COMPLETED
         dream.imageUri != null
         dream.imageUri.contains("presigned")
@@ -169,7 +167,7 @@ class DreamAiPipelineIntegrationSpec extends IntegrationSpec {
             "Test summary",
             ["tag1"],
             ["entity1"],
-            ["joy": 1.0],
+            ["joy": 1.0d],
             "Test interpretation",
             "gemini-1.5-flash-latest"
         )
@@ -270,6 +268,7 @@ class DreamAiPipelineIntegrationSpec extends IntegrationSpec {
             exception = e
         }
         exception != null
-        exception.message.contains("Analysis not found")
+        exception.message.contains("Image generation failed")
+        exception.cause?.message?.contains("Analysis not found")
     }
 }

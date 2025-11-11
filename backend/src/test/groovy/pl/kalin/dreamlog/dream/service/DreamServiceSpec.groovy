@@ -1,10 +1,12 @@
 package pl.kalin.dreamlog.dream.service
 
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.access.AccessDeniedException
 import pl.kalin.dreamlog.dream.dto.DreamCreateRequest
 import pl.kalin.dreamlog.dream.dto.DreamUpdateRequest
 import pl.kalin.dreamlog.dream.model.DreamEntry
 import pl.kalin.dreamlog.dream.model.Mood
+import pl.kalin.dreamlog.dream.repository.DreamAnalysisRepository
 import pl.kalin.dreamlog.dream.repository.DreamEntryRepository
 import pl.kalin.dreamlog.user.User
 import spock.lang.Specification
@@ -18,7 +20,9 @@ import java.time.LocalDate
 class DreamServiceSpec extends Specification {
 
     DreamEntryRepository dreamRepository = Mock()
-    DreamService dreamService = new DreamService(dreamRepository)
+    DreamAnalysisRepository analysisRepository = Mock()
+    ApplicationEventPublisher eventPublisher = Mock()
+    DreamService dreamService = new DreamService(dreamRepository, analysisRepository, eventPublisher)
 
     User testUser = User.builder()
         .id(UUID.randomUUID())
@@ -59,6 +63,9 @@ class DreamServiceSpec extends Specification {
 
         then: "Repository is called with dream ID and user ID"
         1 * dreamRepository.findByIdAndUserId(dreamId, testUser.id) >> Optional.of(dream)
+
+        and: "Analysis repository is called (returns empty if no analysis)"
+        1 * analysisRepository.findByDreamId(dreamId) >> Optional.empty()
 
         and: "Returns DreamResponse"
         result.id() == dreamId

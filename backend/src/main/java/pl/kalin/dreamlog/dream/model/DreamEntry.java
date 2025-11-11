@@ -123,16 +123,16 @@ public class DreamEntry {
 
     /**
      * Timestamp when dream was created.
-     * Automatically set by database trigger on INSERT.
+     * Automatically set by database DEFAULT NOW() on INSERT.
      */
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private LocalDateTime createdAt;
 
     /**
      * Timestamp when dream was last updated.
      * Automatically updated by database trigger on UPDATE.
      */
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = false, insertable = false)
     private LocalDateTime updatedAt;
 
 
