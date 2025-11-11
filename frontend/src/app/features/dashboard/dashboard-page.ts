@@ -29,8 +29,15 @@ export class DashboardPage {
   private readonly authService = inject(AuthService);
   private readonly searchService = inject(SearchService);
 
-  // Consume unified search view model from facade
-  readonly searchVm = toSignal(this.searchService.vm$, {requireSync: true});
+  // Search state with safe initial value
+  readonly searchVm = toSignal(this.searchService.vm$, {
+    initialValue: {
+      query: '',
+      results: [],
+      loading: false,
+      isSearching: false,
+    },
+  });
 
   // Local dashboard state
   readonly user = toSignal(this.authService.user$);
@@ -39,7 +46,7 @@ export class DashboardPage {
   readonly isLoading = signal(true);
   readonly error = signal<string | null>(null);
 
-  // Display logic: switch between search results and recent dreams
+  // Display logic: show search results when searching, otherwise show recent dreams
   readonly displayDreams = computed(() => {
     const vm = this.searchVm();
     return vm.isSearching ? vm.results : this.recentDreamsFromApi();
@@ -83,8 +90,6 @@ export class DashboardPage {
     }).subscribe({
       next: ({dreams, stats}) => {
         this.recentDreamsFromApi.set(dreams.content);
-        // Sync with search facade for consistent base results
-        this.searchService.setBaseResults(dreams.content);
         this.stats.set(stats);
         this.isLoading.set(false);
       },

@@ -2,7 +2,6 @@ package pl.kalin.dreamlog.user.service;
 
 import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -135,7 +134,6 @@ public class UserService {
 
         federatedIdentityRepository.save(identity);
         user.getFederatedIdentities().add(identity);
-        log.info("Linked {} provider to user: {}", provider, user.getEmail());
     }
 
     /**
@@ -169,21 +167,5 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<User> findByEmailWithCredentials(String email) {
         return userRepository.findByEmailWithCredentials(email);
-    }
-
-    /**
-     * Find user by ID
-     */
-    @Transactional(readOnly = true)
-    public Optional<User> findById(UUID id) {
-        return userRepository.findById(id);
-    }
-
-    /**
-     * Update last login timestamp
-     */
-    public void updateLastLogin(User user) {
-        user.setLastLoginAt(Instant.now());
-        userRepository.save(user);
     }
 }

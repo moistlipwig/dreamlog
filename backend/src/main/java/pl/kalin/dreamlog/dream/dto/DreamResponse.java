@@ -1,6 +1,8 @@
 package pl.kalin.dreamlog.dream.dto;
 
+import pl.kalin.dreamlog.dream.model.DreamAnalysis;
 import pl.kalin.dreamlog.dream.model.DreamEntry;
+import pl.kalin.dreamlog.dream.model.DreamProcessingState;
 import pl.kalin.dreamlog.dream.model.Mood;
 
 import java.time.LocalDate;
@@ -9,6 +11,7 @@ import java.util.UUID;
 
 /**
  * Response DTO for dream entry.
+ * Includes analysis and image data when available.
  * Does not include user information to avoid circular references and data leakage.
  */
 public record DreamResponse(
@@ -20,7 +23,10 @@ public record DreamResponse(
     Mood moodAfterDream,
     Integer vividness,
     Boolean lucid,
-    List<String> tags
+    List<String> tags,
+    DreamProcessingState processingState,
+    AnalysisResponse analysis,
+    ImageResponse image
 ) {
     /**
      * Factory method to create DreamResponse from DreamEntry entity.
@@ -37,7 +43,33 @@ public record DreamResponse(
             entity.getMoodAfterDream(),
             entity.getVividness(),
             entity.isLucid(),
-            entity.getTags()
+            entity.getTags(),
+            entity.getProcessingState(),
+            null,  // Analysis loaded separately
+            ImageResponse.from(entity.getImageUri(), entity.getImageGeneratedAt())
+        );
+    }
+
+    /**
+     * Factory method with analysis included.
+     * @param entity the DreamEntry entity
+     * @param analysis the DreamAnalysis entity (can be null)
+     * @return DreamResponse DTO with analysis
+     */
+    public static DreamResponse from(DreamEntry entity, DreamAnalysis analysis) {
+        return new DreamResponse(
+            entity.getId(),
+            entity.getDate(),
+            entity.getTitle(),
+            entity.getContent(),
+            entity.getMoodInDream(),
+            entity.getMoodAfterDream(),
+            entity.getVividness(),
+            entity.isLucid(),
+            entity.getTags(),
+            entity.getProcessingState(),
+            AnalysisResponse.from(analysis),
+            ImageResponse.from(entity.getImageUri(), entity.getImageGeneratedAt())
         );
     }
 }

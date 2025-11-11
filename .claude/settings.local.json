@@ -41,7 +41,7 @@
       "Bash(find:*)",
       "Bash(../gradlew.bat test:*)",
       "Bash(gradlew.bat :backend:test:*)",
-      "Bash(rm:*)"
+      "Bash(python -m json.tool:*)"
     ],
     "deny": [],
     "ask": []

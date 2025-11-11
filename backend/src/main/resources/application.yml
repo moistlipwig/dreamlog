@@ -64,3 +64,67 @@ management:
   endpoint:
     health:
       show-details: always
+
+# MinIO Configuration (S3-compatible object storage)
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket-name: dreamlog-images
+  # Pre-signed URL validity (2 hours)
+  url-expiry-seconds: 7200
+
+# Google AI Studio API Configuration
+google:
+  ai:
+    api-key: ${GOOGLE_AI_API_KEY}
+    # Gemini Flash for text analysis
+    text-model: gemini-1.5-flash-latest
+    # Imagen 3 for image generation
+    image-model: imagen-3.0-generate-001
+    base-url: https://generativelanguage.googleapis.com/v1beta
+
+# db-scheduler Configuration
+db-scheduler:
+  enabled: true
+  table-name: scheduled_tasks
+  immediate-execution-enabled: true
+  # Polling interval for checking scheduled tasks
+  polling-interval: 30s
+  # Thread pool size for task execution
+  threads: 5
+  # Heartbeat interval for detecting dead executors
+  heartbeat-interval: 5m
+
+# Resilience4j Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      googleAi:
+        # Open circuit after 5 consecutive failures
+        failure-rate-threshold: 50
+        # Wait 1 minute before transitioning to half-open
+        wait-duration-in-open-state: 60s
+        # Allow 3 test calls in half-open state
+        permitted-number-of-calls-in-half-open-state: 3
+        # Track last 10 calls for failure rate calculation
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+  retry:
+    instances:
+      googleAi:
+        # Retry 3 times with exponential backoff
+        max-attempts: 3
+        wait-duration: 2s
+        exponential-backoff-multiplier: 2
+        # Retry on specific exceptions
+        retry-exceptions:
+          - java.io.IOException
+          - java.net.SocketTimeoutException
+  ratelimiter:
+    instances:
+      googleAi:
+        # Limit to 10 requests per second
+        limit-for-period: 10
+        limit-refresh-period: 1s
+        timeout-duration: 0s
