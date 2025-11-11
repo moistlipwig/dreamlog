@@ -8,8 +8,8 @@
   </div>
 
   <!-- Dreams Grid -->
-  @if (vm$ | async; as vm) {
-    @if (vm.loading) {
+  @if (vm(); as vmData) {
+    @if (vmData.loading) {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         @for (_ of skeletons; track $index) {
           <mat-card class="dream-card p-6 animate-pulse space-y-3">
@@ -20,9 +20,9 @@
           </mat-card>
         }
       </div>
-    } @else if (vm.results.length) {
+    } @else if (vmData.results.length) {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        @for (dream of vm.results; track dream.id) {
+        @for (dream of vmData.results; track dream.id) {
           <mat-card
             class="dream-card cursor-pointer"
             [class]="getMoodClass(dream.moodInDream)"

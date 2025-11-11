@@ -56,7 +56,6 @@ describe('DreamList', () => {
           useValue: {
             vm$: of(mockVm),
             query$: of(''),
-            setBaseResults: jest.fn(),
             setQuery: jest.fn(),
             clearSearch: jest.fn(),
           },
