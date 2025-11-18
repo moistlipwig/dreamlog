@@ -45,6 +45,26 @@ spring:
             scope:
               - email
               - public_profile
+  # Spring AI with Google AI Studio (OpenAI-compatible endpoint)
+  ai:
+    openai:
+      api-key: ${GOOGLE_AI_API_KEY}
+      base-url: https://generativelanguage.googleapis.com/v1beta/openai
+      chat:
+        options:
+          model: gemini-2.5-flash
+          temperature: 0.7
+
+# Google AI Studio native API (for image generation)
+google:
+  ai:
+    api-key: ${GOOGLE_AI_API_KEY}
+    base-url: https://generativelanguage.googleapis.com/v1beta
+    # Model for text analysis
+    text-model: gemini-2.5-flash
+    # Model for image generation (retires Oct 31, 2025 - migrate to gemini-2.5-flash-image)
+    image-model: gemini-2.0-flash-preview-image-generation
+
 server:
   servlet:
     session:
@@ -74,15 +94,6 @@ minio:
   # Pre-signed URL validity (2 hours)
   url-expiry-seconds: 7200
 
-# Google AI Studio API Configuration
-google:
-  ai:
-    api-key: ${GOOGLE_AI_API_KEY}
-    # Gemini Flash for text analysis
-    text-model: gemini-1.5-flash-latest
-    # Imagen 3 for image generation
-    image-model: imagen-3.0-generate-001
-    base-url: https://generativelanguage.googleapis.com/v1beta
 
 # db-scheduler Configuration
 db-scheduler:

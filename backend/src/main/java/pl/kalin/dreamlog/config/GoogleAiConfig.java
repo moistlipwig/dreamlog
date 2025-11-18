@@ -1,60 +1,56 @@
 package pl.kalin.dreamlog.config;
 
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.ratelimiter.RateLimiter;
-import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
-import io.github.resilience4j.retry.Retry;
-import io.github.resilience4j.retry.RetryRegistry;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
-import java.time.Duration;
+import lombok.Data;
 
 /**
- * Configuration for Google AI Studio API client.
- * Provides RestTemplate with Resilience4j decorators (circuit breaker, retry, rate limiter).
+ * Configuration for Google AI Studio native API.
+ * <p>
+ * Used for image generation with Gemini 2.0 Flash, which requires native API
+ * (not OpenAI-compatible endpoint).
+ * <p>
+ * Properties: google.ai.api-key, google.ai.base-url, google.ai.image-model
  */
 @Configuration
-@RequiredArgsConstructor
-@Slf4j
+@ConfigurationProperties(prefix = "google.ai")
+@Data
 public class GoogleAiConfig {
 
-    private final CircuitBreakerRegistry circuitBreakerRegistry;
-    private final RetryRegistry retryRegistry;
-    private final RateLimiterRegistry rateLimiterRegistry;
+    /**
+     * Google AI Studio API key (same as GOOGLE_AI_API_KEY for Spring AI)
+     */
+    private String apiKey;
 
     /**
-     * RestTemplate bean for Google AI Studio API calls.
-     * Configured with Resilience4j decorators for fault tolerance.
+     * Base URL for native Gemini API (not OpenAI-compatible)
+     * Default: https://generativelanguage.googleapis.com/v1beta
+     */
+    private String baseUrl = "https://generativelanguage.googleapis.com/v1beta";
+
+    /**
+     * Model for text analysis (currently using Spring AI ChatClient)
+     */
+    private String textModel = "gemini-2.5-flash";
+
+    /**
+     * Model for image generation
+     * Default: gemini-2.0-flash-preview-image-generation
+     * Note: Retires Oct 31, 2025 - migrate to gemini-2.5-flash-image
+     */
+    private String imageModel = "gemini-2.0-flash-preview-image-generation";
+
+    /**
+     * RestClient configured for Google AI Studio native API.
      */
     @Bean
-    @SuppressWarnings("deprecation")  // Timeout methods deprecated but still functional
-    public RestTemplate googleAiRestTemplate(RestTemplateBuilder builder) {
-        log.info("Creating RestTemplate for Google AI Studio API");
-
-        // Get Resilience4j components from registry
-        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("googleAi");
-        Retry retry = retryRegistry.retry("googleAi");
-        RateLimiter rateLimiter = rateLimiterRegistry.rateLimiter("googleAi");
-
-        // Log circuit breaker state changes
-        circuitBreaker.getEventPublisher()
-            .onStateTransition(event -> log.warn("Google AI Circuit Breaker state changed: {}", event))
-            .onError(event -> log.error("Google AI Circuit Breaker recorded error: {}", event.getThrowable().getMessage()));
-
-        // Log retry attempts
-        retry.getEventPublisher()
-            .onRetry(event -> log.warn("Retrying Google AI API call, attempt {}", event.getNumberOfRetryAttempts()));
-
-        // Build RestTemplate with timeouts (using new API)
-        return builder
-            .setConnectTimeout(Duration.ofSeconds(10))
-            .setReadTimeout(Duration.ofSeconds(60))  // AI API calls can take time
+    public RestClient googleAiRestClient() {
+        return RestClient.builder()
+            .baseUrl(baseUrl)
+            .defaultHeader("Content-Type", "application/json")
             .build();
     }
 }

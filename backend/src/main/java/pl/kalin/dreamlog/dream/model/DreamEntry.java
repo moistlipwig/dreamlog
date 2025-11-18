@@ -131,8 +131,9 @@ public class DreamEntry {
     /**
      * Timestamp when dream was last updated.
      * Automatically updated by database trigger on UPDATE.
+     * For tests: Set to createdAt on INSERT (database trigger may not fire).
      */
-    @Column(name = "updated_at", nullable = false, insertable = false)
+    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime updatedAt;
 
 

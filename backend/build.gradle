@@ -54,6 +54,9 @@ dependencies {
   implementation 'io.github.resilience4j:resilience4j-ratelimiter:2.3.0'
   implementation 'io.github.resilience4j:resilience4j-retry:2.3.0'
 
+  // Spring AI with OpenAI-compatible Gemini API (using new naming convention)
+  implementation 'org.springframework.ai:spring-ai-starter-model-openai:1.0.3'
+
   compileOnly 'org.projectlombok:lombok'
   annotationProcessor 'org.projectlombok:lombok'
   runtimeOnly 'org.postgresql:postgresql'
