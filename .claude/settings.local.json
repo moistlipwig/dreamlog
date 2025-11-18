@@ -41,7 +41,14 @@
       "Bash(find:*)",
       "Bash(../gradlew.bat test:*)",
       "Bash(gradlew.bat :backend:test:*)",
-      "Bash(rm:*)"
+      "Bash(python -m json.tool:*)",
+      "WebSearch",
+      "WebFetch(domain:loiane.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:ai.google.dev)",
+      "WebFetch(domain:central.sonatype.com)",
+      "Bash(../gradlew.bat:*)",
+      "Bash(gradlew.bat :backend:compileJava:*)"
     ],
     "deny": [],
     "ask": []

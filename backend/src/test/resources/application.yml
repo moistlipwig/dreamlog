@@ -1,0 +1,44 @@
+# Test configuration
+# Override production values with test-safe defaults
+
+app:
+  frontend:
+    url: http://localhost:4200  # Test frontend URL
+    oauth-success-path: /app
+
+# Legacy config (removed after Spring AI migration)
+# google:
+#   ai:
+#     api-key: test-dummy-key-for-tests
+#     base-url: https://generativelanguage.googleapis.com/v1beta
+
+minio:
+  endpoint: http://localhost:9000  # Will be overridden by Testcontainers if used
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: test-dreamlog-images
+  url-expiry-seconds: 7200
+  init-bucket: false  # Disable bucket initialization in tests (MinIO is mocked)
+
+spring:
+  flyway:
+    enabled: true  # Ensure Flyway runs in tests
+  ai:
+    openai:
+      api-key: test-dummy-key-for-spring-ai  # Dummy key for tests (ChatModel will be mocked)
+      base-url: https://generativelanguage.googleapis.com/v1beta/openai
+      chat:
+        options:
+          model: gemini-2.0-flash-exp
+          temperature: 0.7
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-client-id
+            client-secret: test-client-secret
+            scope:
+              - openid
+              - email
+              - profile

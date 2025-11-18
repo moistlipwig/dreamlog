@@ -23,11 +23,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import pl.kalin.dreamlog.common.dto.CreatedResponse;
 import pl.kalin.dreamlog.common.security.AuthenticationHelper;
 import pl.kalin.dreamlog.dream.dto.DreamCreateRequest;
 import pl.kalin.dreamlog.dream.dto.DreamResponse;
 import pl.kalin.dreamlog.dream.dto.DreamUpdateRequest;
+import pl.kalin.dreamlog.dream.service.DreamCreationRateLimiter;
+import pl.kalin.dreamlog.dream.service.DreamProgressSseService;
 import pl.kalin.dreamlog.dream.service.DreamService;
 import pl.kalin.dreamlog.user.User;
 
@@ -41,6 +46,8 @@ import pl.kalin.dreamlog.user.User;
 public class DreamController {
 
     private final DreamService dreamService;
+    private final DreamCreationRateLimiter rateLimiter;
+    private final DreamProgressSseService sseService;
     private final AuthenticationHelper authHelper;
 
     /**
@@ -81,12 +88,19 @@ public class DreamController {
 
     /**
      * Create a new dream entry for the authenticated user.
+     * Rate limited to 20 dreams per hour per user.
      */
     @PostMapping
     public ResponseEntity<CreatedResponse> createDream(
         @Valid @RequestBody DreamCreateRequest request,
         Authentication authentication) {
         User user = getCurrentUser(authentication);
+
+        // Rate limiting check
+        if (!rateLimiter.allowCreate(user)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+        }
+
         UUID dreamId = dreamService.createDream(user, request);
         return ResponseEntity
             .created(URI.create("/api/dreams/" + dreamId))
@@ -137,6 +151,24 @@ public class DreamController {
 
         List<DreamResponse> results = dreamService.searchDreams(user, query.trim());
         return ResponseEntity.ok(results);
+    }
+
+    /**
+     * Server-Sent Events endpoint for real-time dream processing progress.
+     * Frontend can connect to this to receive updates when analysis completes.
+     *
+     * Usage: EventSource(`/api/dreams/${dreamId}/progress`)
+     */
+    @GetMapping(value = "/{id}/progress", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamProgress(
+        @PathVariable UUID id,
+        Authentication authentication) {
+        User user = getCurrentUser(authentication);
+
+        // Verify user owns this dream
+        dreamService.getDreamById(user, id);  // Throws if not authorized
+
+        return sseService.createEmitter(id);
     }
 
     /**
